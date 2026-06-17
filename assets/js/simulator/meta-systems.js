@@ -1,4 +1,4 @@
-﻿// ==========================================================================
+// ==========================================================================
 // 2. 发行商选择控制与交互 (Publisher Management)
 // ==========================================================================
 let tempPublisherType = "self";
@@ -309,77 +309,241 @@ function toggleWeeklyBill() {
 }
 
 // ==========================================================================
-// 互动式 Debug 灭虫小游戏逻辑
+// 互动式 Debug 灭虫小游戏逻辑 (30秒限时Combo挑战)
 // ==========================================================================
 let bugSpawnInterval = null;
+let bugGameTimer = null;
+let bugGameTimeLeft = 30;
+let bugCombo = 0;
+let bugComboTimer = null;
+let bugTotalKills = 0;
 
 function startBugSpawning() {
-    if (bugSpawnInterval) return;
+    if (bugSpawnInterval || bugGameTimer) return;
     const zone = document.getElementById("bug-spawn-zone");
     if (!zone) return;
     zone.innerHTML = "";
-    
+
+    // Reset state
+    bugGameTimeLeft = 30;
+    bugCombo = 0;
+    bugTotalKills = 0;
+
+    // Show HUD
+    const hud = document.getElementById("bug-game-hud");
+    if (hud) hud.style.display = "block";
+    const timerEl = document.getElementById("bug-timer");
+    const timerBar = document.getElementById("bug-timer-bar");
+    const comboEl = document.getElementById("bug-combo");
+    if (timerEl) timerEl.innerText = "30";
+    if (timerBar) timerBar.style.width = "100%";
+    if (comboEl) comboEl.innerText = "0";
+
+    // Hide action button
+    const btn = document.getElementById("dev-action-btn");
+    if (btn) btn.style.display = "none";
+
+    // Start countdown timer (1s interval)
+    bugGameTimer = setInterval(() => {
+        bugGameTimeLeft--;
+        if (timerEl) timerEl.innerText = String(bugGameTimeLeft);
+        if (timerBar) timerBar.style.width = `${(bugGameTimeLeft / 30) * 100}%`;
+
+        if (bugGameTimeLeft <= 0) {
+            endBugGame();
+        }
+    }, 1000);
+
+    // Start bug spawn interval (800ms, max 8 on screen)
     bugSpawnInterval = setInterval(() => {
         const proj = gameState.currentProject;
         if (!proj || proj.state !== "debugging" || proj.bugs <= 0) {
-            stopBugSpawning();
+            endBugGame();
             return;
         }
-        
-        if (zone.children.length >= 6) return; // 限制同屏上限
-        
-        const bug = document.createElement("div");
-        bug.className = "spawned-bug";
-        bug.innerHTML = `<i class="fa-solid fa-bug"></i>`;
-        bug.style.position = "absolute";
-        
-        const x = Math.random() * 80 + 10;
-        const y = Math.random() * 50 + 25;
-        bug.style.left = `${x}%`;
-        bug.style.top = `${y}%`;
-        bug.style.pointerEvents = "auto";
-        bug.style.cursor = "pointer";
-        bug.style.fontSize = `${1.2 + Math.random() * 0.5}rem`;
-        bug.style.color = "var(--accent-pink)";
+
+        if (zone.children.length >= 8) return;
+
+        spawnBugEntity(zone, proj);
+    }, 800);
+
+    // Spawn a few initial bugs
+    const proj = gameState.currentProject;
+    if (proj) {
+        for (let i = 0; i < 3; i++) {
+            spawnBugEntity(zone, proj);
+        }
+    }
+}
+
+function spawnBugEntity(zone, proj) {
+    const roll = Math.random();
+    let bugType = "normal"; // 70%
+    let icon = "fa-bug";
+    let color = "var(--accent-pink)";
+    let extraClass = "";
+    let bugValue = 1;
+    let fontSize = `${1.2 + Math.random() * 0.5}rem`;
+
+    if (roll > 0.85) {
+        // Ghost bug (15%)
+        bugType = "ghost";
+        icon = "fa-ghost";
+        color = "rgba(124, 58, 237, 0.6)";
+        extraClass = "ghost";
+        bugValue = 2;
+    } else if (roll > 0.70) {
+        // Fatal bug (15%)
+        bugType = "fatal";
+        icon = "fa-skull-crossbones";
+        color = "#ef4444";
+        extraClass = "fatal";
+        bugValue = 3;
+        fontSize = `${1.8 + Math.random() * 0.4}rem`;
+    }
+
+    const bug = document.createElement("div");
+    bug.className = `spawned-bug ${extraClass}`;
+    bug.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+    bug.style.position = "absolute";
+    bug.dataset.bugType = bugType;
+    bug.dataset.bugValue = bugValue;
+
+    const x = Math.random() * 80 + 10;
+    const y = Math.random() * 50 + 25;
+    bug.style.left = `${x}%`;
+    bug.style.top = `${y}%`;
+    bug.style.pointerEvents = "auto";
+    bug.style.cursor = "pointer";
+    bug.style.fontSize = fontSize;
+    bug.style.color = color;
+    if (!extraClass) {
         bug.style.filter = "drop-shadow(0 0 5px var(--accent-pink))";
-        bug.style.transition = "transform 0.18s ease, opacity 0.18s";
         bug.style.animation = `bug-wiggle ${0.4 + Math.random() * 0.4}s infinite alternate ease-in-out`;
-        
-        bug.onclick = (e) => {
-            e.stopPropagation();
-            proj.bugs = Math.max(0, proj.bugs - 1);
-            playSFX("zap");
-            
-            const rect = zone.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const clickY = e.clientY - rect.top;
-            
-            const fl = document.createElement("div");
-            fl.className = "floating-point down";
-            fl.innerText = "-1 BUG";
-            fl.style.position = "absolute";
-            fl.style.left = `${clickX}px`;
-            fl.style.top = `${clickY}px`;
-            fl.style.transform = "translate(-50%, -50%)";
-            fl.style.pointerEvents = "none";
-            fl.style.zIndex = "100";
-            zone.appendChild(fl);
-            setTimeout(() => fl.remove(), 1200);
-            
-            bug.style.transform = "scale(0) rotate(180deg)";
-            bug.style.opacity = "0";
-            setTimeout(() => bug.remove(), 200);
-            
-            if (proj.bugs <= 0) {
-                proj.bugs = 0;
-                proj.state = "finished";
-                playSFX("success");
-                stopBugSpawning();
+    }
+    bug.style.transition = "transform 0.18s ease, opacity 0.18s";
+
+    bug.onclick = (e) => {
+        e.stopPropagation();
+        const val = parseInt(bug.dataset.bugValue) || 1;
+
+        // Combo logic
+        bugCombo++;
+        bugTotalKills++;
+        if (bugComboTimer) clearTimeout(bugComboTimer);
+        bugComboTimer = setTimeout(() => {
+            bugCombo = 0;
+            const comboEl = document.getElementById("bug-combo");
+            if (comboEl) comboEl.innerText = "0";
+        }, 1500);
+
+        // Combo multiplier bonus
+        let totalReduce = val;
+        if (bugCombo >= 20) totalReduce += 2;
+        else if (bugCombo >= 10) totalReduce += 1;
+
+        proj.bugs = Math.max(0, proj.bugs - totalReduce);
+        playSFX("zap");
+
+        // Update combo display
+        const comboEl = document.getElementById("bug-combo");
+        if (comboEl) comboEl.innerText = String(bugCombo);
+
+        // Show combo flash at milestones
+        if (bugCombo > 0 && bugCombo % 5 === 0) {
+            showComboFlash(bugCombo);
+        }
+
+        // Floating text at click position
+        const rect = zone.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+
+        const fl = document.createElement("div");
+        fl.className = "floating-point down";
+        fl.innerText = `-${totalReduce} BUG`;
+        fl.style.position = "absolute";
+        fl.style.left = `${clickX}px`;
+        fl.style.top = `${clickY}px`;
+        fl.style.transform = "translate(-50%, -50%)";
+        fl.style.pointerEvents = "none";
+        fl.style.zIndex = "100";
+        zone.appendChild(fl);
+        setTimeout(() => fl.remove(), 1200);
+
+        // Remove bug element
+        bug.style.transform = "scale(0) rotate(180deg)";
+        bug.style.opacity = "0";
+        setTimeout(() => bug.remove(), 200);
+
+        if (proj.bugs <= 0) {
+            proj.bugs = 0;
+            endBugGame();
+        }
+        updateDevStatsUI();
+    };
+
+    zone.appendChild(bug);
+
+    // Ghost bugs auto-disappear after 2 seconds
+    if (bugType === "ghost") {
+        setTimeout(() => {
+            if (bug.parentNode) {
+                bug.style.opacity = "0";
+                bug.style.transform = "scale(0)";
+                setTimeout(() => bug.remove(), 200);
             }
-            updateDevStatsUI();
-        };
-        zone.appendChild(bug);
-    }, 1200);
+        }, 2000);
+    }
+}
+
+function showComboFlash(combo) {
+    const flash = document.createElement("div");
+    flash.className = "combo-flash";
+    flash.innerText = `Combo x${combo}!`;
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 800);
+}
+
+function endBugGame() {
+    // Stop all timers
+    if (bugSpawnInterval) {
+        clearInterval(bugSpawnInterval);
+        bugSpawnInterval = null;
+    }
+    if (bugGameTimer) {
+        clearInterval(bugGameTimer);
+        bugGameTimer = null;
+    }
+    if (bugComboTimer) {
+        clearTimeout(bugComboTimer);
+        bugComboTimer = null;
+    }
+
+    const zone = document.getElementById("bug-spawn-zone");
+    if (zone) zone.innerHTML = "";
+
+    // Hide HUD, show action button
+    const hud = document.getElementById("bug-game-hud");
+    if (hud) hud.style.display = "none";
+    const btn = document.getElementById("dev-action-btn");
+    if (btn) btn.style.display = "";
+
+    const proj = gameState.currentProject;
+    if (proj) {
+        if (proj.bugs <= 0) {
+            proj.bugs = 0;
+            proj.state = "finished";
+            playSFX("success");
+        }
+        updateDevStatsUI();
+        saveGame();
+        const bugsLeft = proj.bugs || 0;
+        alert(`除虫挑战结束！消灭了 ${bugTotalKills} 个 Bug，剩余 ${bugsLeft} 个`);
+    }
+
+    bugCombo = 0;
+    bugTotalKills = 0;
 }
 
 function stopBugSpawning() {
@@ -387,8 +551,18 @@ function stopBugSpawning() {
         clearInterval(bugSpawnInterval);
         bugSpawnInterval = null;
     }
+    if (bugGameTimer) {
+        clearInterval(bugGameTimer);
+        bugGameTimer = null;
+    }
+    if (bugComboTimer) {
+        clearTimeout(bugComboTimer);
+        bugComboTimer = null;
+    }
     const zone = document.getElementById("bug-spawn-zone");
     if (zone) zone.innerHTML = "";
+    const hud = document.getElementById("bug-game-hud");
+    if (hud) hud.style.display = "none";
 }
 
 // ==========================================================================

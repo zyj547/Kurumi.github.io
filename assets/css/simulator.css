@@ -148,6 +148,39 @@
             font-size: 1.1rem;
             font-weight: 700;
         }
+        .speed-control {
+            display: flex;
+            gap: 0.35rem;
+            margin-left: 0.5rem;
+            padding-left: 1rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .speed-btn {
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-secondary);
+            font-family: var(--font-title);
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+        }
+        .speed-btn:hover {
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .speed-btn.active {
+            color: var(--accent-neon);
+            border-color: var(--accent-neon);
+            background: rgba(0, 240, 255, 0.08);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
 
         /* 核心内容区 */
         .workspace {
@@ -1270,12 +1303,13 @@
 
         /* 进度条 */
         .progress-container {
+            position: relative;
             width: 100%;
             max-width: 600px;
             height: 10px;
             background: rgba(255,255,255,0.05);
             border-radius: 10px;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 2rem;
             border: 1px solid rgba(255,255,255,0.03);
         }
@@ -1285,6 +1319,7 @@
             background: linear-gradient(90deg, var(--accent-neon) 0%, var(--accent-pink) 100%);
             border-radius: 10px;
             transition: width 0.1s linear;
+            overflow: hidden;
         }
 
         .btn-dev-action {
@@ -1641,6 +1676,12 @@
                 justify-content: space-around;
                 gap: 1rem;
                 flex-wrap: wrap;
+            }
+            .speed-control {
+                border-left: none;
+                padding-left: 0;
+                margin-left: 0;
+                justify-content: center;
             }
             .stat-item {
                 flex: 1 1 40%;
@@ -2100,4 +2141,109 @@
             display: inline-block;
             transform-origin: center;
         }
-    
+
+        /* 鈹€鈹€ Phase Label 鈹€鈹€ */
+        .dev-phase-label {
+            position: absolute;
+            right: 0;
+            top: -1.4rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* 鈹€鈹€ Bug Game HUD 鈹€鈹€ */
+        .bug-game-hud {
+            width: 100%;
+            max-width: 600px;
+            margin: 0.75rem auto;
+        }
+        .bug-hud-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+        .bug-timer-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-pink);
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+        .bug-timer-track {
+            width: 120px;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .bug-timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-neon));
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+        .bug-combo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+        }
+        .combo-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .combo-value {
+            font-family: var(--font-title);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+        }
+        .spawned-bug.fatal {
+            color: #ef4444 !important;
+            filter: drop-shadow(0 0 8px #ef4444) !important;
+            animation: bug-fatal-pulse 0.6s infinite alternate ease-in-out !important;
+        }
+        .spawned-bug.ghost {
+            color: rgba(124, 58, 237, 0.6) !important;
+            filter: drop-shadow(0 0 5px rgba(124, 58, 237, 0.5)) !important;
+            animation: bug-ghost-flicker 0.3s infinite alternate ease-in-out !important;
+        }
+        @keyframes bug-fatal-pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px #ef4444); }
+            100% { transform: scale(1.15); filter: drop-shadow(0 0 12px #ef4444); }
+        }
+        @keyframes bug-ghost-flicker {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+        @keyframes bug-wiggle {
+            0% { transform: translateX(-3px) rotate(-5deg); }
+            100% { transform: translateX(3px) rotate(5deg); }
+        }
+        .combo-flash {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: var(--font-title);
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-yellow);
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+            pointer-events: none;
+            z-index: 200;
+            animation: combo-pop 0.8s ease-out forwards;
+        }
+        @keyframes combo-pop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }

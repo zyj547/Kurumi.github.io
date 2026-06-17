@@ -72,6 +72,12 @@
                         <span class="stat-val" id="stat-date">第 1 年 1 月 1 周</span>
                     </div>
                 </div>
+                <!-- 倍速控制 -->
+                <div class="speed-control">
+                    <button class="speed-btn active" data-speed="1" onclick="setGameSpeed(1)"><i class="fa-solid fa-play"></i> 1x</button>
+                    <button class="speed-btn" data-speed="2" onclick="setGameSpeed(2)"><i class="fa-solid fa-forward"></i> 2x</button>
+                    <button class="speed-btn" data-speed="3" onclick="setGameSpeed(3)"><i class="fa-solid fa-forward-fast"></i> 3x</button>
+                </div>
             </div>
         </div>
 
@@ -374,6 +380,22 @@
                     <!-- 进度条 -->
                     <div class="progress-container">
                         <div class="progress-bar" id="overlay-progress-bar"></div>
+                        <span class="dev-phase-label" id="dev-phase-label">📐 概念设计阶段</span>
+                    </div>
+
+                                        <!-- Bug小游戏UI -->
+                    <div class="bug-game-hud" id="bug-game-hud" style="display:none;">
+                        <div class="bug-hud-row">
+                            <div class="bug-timer-box">
+                                <i class="fa-solid fa-clock"></i>
+                                <span id="bug-timer">30</span>s
+                                <div class="bug-timer-track"><div class="bug-timer-bar" id="bug-timer-bar"></div></div>
+                            </div>
+                            <div class="bug-combo-box">
+                                <span class="combo-label">COMBO</span>
+                                <span class="combo-value" id="bug-combo">0</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 开发者实时操作交互按钮 -->

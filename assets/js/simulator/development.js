@@ -211,6 +211,20 @@ function updateDevStatsUI() {
 
     document.getElementById("overlay-progress").innerText = `${Math.floor(proj.progress)}%`;
     document.getElementById("overlay-progress-bar").style.width = `${proj.progress}%`;
+
+    const phaseEl = document.getElementById('dev-phase-label');
+    if (phaseEl) {
+        if (proj.progress < 33) {
+            phaseEl.innerText = '📐 概念设计阶段';
+            phaseEl.style.color = 'var(--accent-purple)';
+        } else if (proj.progress < 66) {
+            phaseEl.innerText = '⚙️ 核心开发阶段';
+            phaseEl.style.color = 'var(--accent-neon)';
+        } else {
+            phaseEl.innerText = '✨ 品质打磨阶段';
+            phaseEl.style.color = 'var(--accent-yellow)';
+        }
+    }
     
     document.getElementById("overlay-code").innerText = Math.floor(proj.code);
     document.getElementById("overlay-art").innerText = Math.floor(proj.art);
@@ -228,19 +242,55 @@ function updateDevStatsUI() {
             btn.innerText = `研发推进中，灵感冷却 ${proj.miniCooldown || 0} 周`;
             btn.disabled = true;
         }
+        btn.style.display = "";
     } else if (proj.state === "debugging") {
         btn.className = "btn-dev-action bug-fixing";
-        btn.innerText = "开发完成！点击开始测试修复Bug";
-        btn.disabled = false;
+        btn.innerText = "除虫挑战进行中...";
+        btn.disabled = true;
+        btn.style.display = "none";
+        const hud = document.getElementById("bug-game-hud");
+        if (hud) hud.style.display = "block";
+        if (!bugSpawnInterval && !bugGameTimer) startBugSpawning();
+    } else if (proj.state === "polishing") {
+        btn.style.display = "";
+        btn.className = "btn-dev-action disabled";
+        btn.innerText = `延期打磨中... 剩余 ${proj.polishWeeksLeft || 0} 周`;
+        btn.disabled = true;
+        const hud2 = document.getElementById("bug-game-hud");
+        if (hud2) hud2.style.display = "none";
     } else if (proj.state === "finished") {
+        btn.style.display = "";
         btn.className = "btn-dev-action release";
         btn.innerText = "测试完成！宣布正式发布上线";
         btn.disabled = false;
+        const hud3 = document.getElementById("bug-game-hud");
+        if (hud3) hud3.style.display = "none";
     }
 }
 
+
 function developProgressTick() {
     const proj = gameState.currentProject;
+
+    // 延期打磨阶段处理
+    if (proj && proj.state === "polishing") {
+        proj.polishWeeksLeft = (proj.polishWeeksLeft || 0) - 1;
+        proj.code *= 1.075;
+        proj.art *= 1.075;
+        proj.design *= 1.075;
+        if (Math.random() < 0.15) {
+            proj.bugs += 1;
+            spawnFloatingText("打磨副作用 BUG+1", "overlay-bugs", "bug");
+        }
+        if (proj.polishWeeksLeft <= 0) {
+            proj.state = "finished";
+            playSFX("success");
+            alert('打磨完成！品质已提升，准备上线吧！');
+        }
+        updateDevStatsUI();
+        return;
+    }
+
     if (!proj || proj.state !== "coding") return;
 
     let anyPointGenerated = false;
@@ -389,8 +439,186 @@ function triggerCodingMiniAction(proj) {
 }
 
 const DEVELOPMENT_EVENTS = [
+    // ── Phase: early (灵感节点 - progress < 40) ──
+    {
+        title: "程序员凌晨灵感爆发",
+        phase: "early",
+        desc: "主程在凌晨三点突然灵感大爆发，发了一条消息说他想到了一个绝妙的架构方案。要不要让团队加班趁热打铁？",
+        choices: [
+            {
+                text: "加班冲刺，趁灵感还在",
+                action: (proj) => {
+                    proj.code += 30;
+                    gameState.employees.forEach(emp => {
+                        emp.fatigue = Math.min(100, (emp.fatigue || 0) + 12);
+                    });
+                    addChronicleEntry(`⚡ 《${proj.name}》团队深夜加班冲刺，代码实力大幅提升！`);
+                    alert("代码实力 +30，全员疲劳 +12");
+                }
+            },
+            {
+                text: "记录下来，明天再说",
+                action: (proj) => {
+                    proj.code += 12;
+                    alert("代码实力 +12");
+                }
+            }
+        ]
+    },
+    {
+        title: "美术找到神级参考",
+        phase: "early",
+        desc: "主美在浏览 ArtStation 时发现了一组极其惊艳的视觉参考，但要临摹升级的话需要暂停当前的美术排期。",
+        choices: [
+            {
+                text: "全力临摹升级，视觉拉满",
+                action: (proj) => {
+                    proj.art += 28;
+                    proj.progress = Math.max(0, proj.progress * 0.96);
+                    addChronicleEntry(`🎨 《${proj.name}》美术团队发现神级参考，全力临摹升级视觉品质！`);
+                    alert("美术表现 +28，进度 -4%");
+                }
+            },
+            {
+                text: "保持风格统一，稳步推进",
+                action: (proj) => {
+                    proj.art += 10;
+                    proj.design += 8;
+                    alert("美术表现 +10，核心设计 +8");
+                }
+            }
+        ]
+    },
+    {
+        title: "策划梦见了核心玩法",
+        phase: "early",
+        desc: "首席策划声称昨晚做了一个梦，梦见了全新的核心玩法循环。听起来很疯狂，但确实有创意。要大胆重构吗？",
+        choices: [
+            {
+                text: "大胆重构框架，搏一把",
+                action: (proj) => {
+                    proj.design += 35;
+                    proj.progress = Math.max(0, proj.progress * 0.90);
+                    proj.bugs += 2;
+                    addChronicleEntry(`💡 《${proj.name}》策划大胆重构核心玩法框架，创意飞跃但风险并存！`);
+                    alert("核心设计 +35，进度 -10%，Bug +2");
+                }
+            },
+            {
+                text: "小幅微调，不要冒险",
+                action: (proj) => {
+                    proj.design += 15;
+                    alert("核心设计 +15");
+                }
+            }
+        ]
+    },
+    {
+        title: "团队士气高涨",
+        phase: "early",
+        desc: "团队最近状态非常好，大家充满干劲！是趁热打铁全力冲刺，还是借机放个假团建一下？",
+        choices: [
+            {
+                text: "趁热打铁，全力冲刺",
+                action: (proj) => {
+                    proj.code += 12;
+                    proj.art += 12;
+                    proj.design += 12;
+                    gameState.employees.forEach(emp => {
+                        emp.fatigue = Math.min(100, (emp.fatigue || 0) + 10);
+                    });
+                    addChronicleEntry(`🔥 《${proj.name}》团队士气高涨，全力冲刺研发！`);
+                    alert("代码/美术/设计各 +12，全员疲劳 +10");
+                }
+            },
+            {
+                text: "放假团建，恢复精力",
+                action: (proj) => {
+                    gameState.employees.forEach(emp => {
+                        emp.fatigue = Math.max(0, (emp.fatigue || 0) - 20);
+                        emp.morale = Math.min(100, (emp.morale == null ? 75 : emp.morale) + 15);
+                    });
+                    addChronicleEntry(`🎉 《${proj.name}》团队团建放松，士气大幅回升！`);
+                    alert("全员疲劳 -20，士气 +15");
+                }
+            }
+        ]
+    },
+    // ── Phase: mid (技术债 - progress 30-80) ──
+    {
+        title: "代码耦合度告急",
+        phase: "mid",
+        desc: "代码审查发现模块耦合度已经到了危险的程度，再不处理后期维护将是噩梦。是现在重构还是先写个 TODO？",
+        choices: [
+            {
+                text: "立即重构，长痛不如短痛",
+                action: (proj) => {
+                    proj.code += 22;
+                    proj.progress = Math.max(0, proj.progress * 0.88);
+                    addChronicleEntry(`🔧 《${proj.name}》紧急重构解耦代码，技术底座更加稳固。`);
+                    alert("代码实力 +22，进度 -12%");
+                }
+            },
+            {
+                text: "写个 TODO 先跑起来",
+                action: (proj) => {
+                    proj.bugs += 5;
+                    addChronicleEntry(`⚠️ 《${proj.name}》选择暂时搁置代码耦合问题，技术债持续累积。`);
+                    alert("Bug +5（技术债累积）");
+                }
+            }
+        ]
+    },
+    {
+        title: "第三方SDK突然停服",
+        phase: "mid",
+        desc: "项目依赖的一个第三方 SDK 突然宣布停止维护！是花时间自研替代方案，还是赶紧找个替代品应急？",
+        choices: [
+            {
+                text: "自研替代方案，彻底解决",
+                action: (proj) => {
+                    proj.code += 25;
+                    proj.progress = Math.max(0, proj.progress * 0.85);
+                    addChronicleEntry(`🛠️ 《${proj.name}》自研替代停服SDK，技术自主可控！`);
+                    alert("代码实力 +25，进度 -15%");
+                }
+            },
+            {
+                text: "找替代品应急，先顶上",
+                action: (proj) => {
+                    proj.progress = Math.max(0, proj.progress * 0.95);
+                    proj.bugs += 3;
+                    alert("进度 -5%，Bug +3");
+                }
+            }
+        ]
+    },
+    {
+        title: "内存泄漏频发",
+        phase: "mid",
+        desc: "QA 报告游戏运行一段时间后内存占用飙升，疑似存在严重的内存泄漏。是全面排查还是加个 GC 凑合？",
+        choices: [
+            {
+                text: "全面排查，根除隐患",
+                action: (proj) => {
+                    proj.bugs = Math.max(0, Math.floor(proj.bugs / 2));
+                    proj.progress = Math.max(0, proj.progress * 0.92);
+                    addChronicleEntry(`🔍 《${proj.name}》全面排查内存泄漏，Bug 数量减半！`);
+                    alert("Bug 减半，进度 -8%");
+                }
+            },
+            {
+                text: "加个 GC 凑合用",
+                action: (proj) => {
+                    proj.bugs += 2;
+                    alert("Bug +2（治标不治本）");
+                }
+            }
+        ]
+    },
     {
         title: "核心玩法出现分歧",
+        phase: "mid",
         desc: "团队在本周评审中发现主循环有点松散。是立刻砍掉一部分边缘功能，还是继续硬撑完整设计？",
         choices: [
             {
@@ -415,6 +643,7 @@ const DEVELOPMENT_EVENTS = [
     },
     {
         title: "美术风格临时升级",
+        phase: "mid",
         desc: "主美提出可以把界面和特效整体升级一档，但会占用一周测试时间。要不要批准？",
         choices: [
             {
@@ -436,8 +665,10 @@ const DEVELOPMENT_EVENTS = [
             }
         ]
     },
+    // ── Phase: late (突发Bug - progress 60-100) ──
     {
         title: "底层性能瓶颈暴露",
+        phase: "late",
         desc: "程序员发现当前实现可能在低端机上卡顿。现在重构会变慢，但发布后的技术评价更稳。",
         choices: [
             {
@@ -459,15 +690,103 @@ const DEVELOPMENT_EVENTS = [
                 }
             }
         ]
+    },
+    {
+        title: "存档系统突然崩溃",
+        phase: "late",
+        desc: "测试中发现存档系统在特定情况下会导致数据丢失！是紧急修复还是直接砍掉云存档功能？",
+        choices: [
+            {
+                text: "紧急修复，保留完整功能",
+                action: (proj) => {
+                    proj.bugs = Math.max(0, proj.bugs - 3);
+                    proj.progress = Math.max(0, proj.progress - 6);
+                    addChronicleEntry(`🔧 《${proj.name}》紧急修复存档系统崩溃问题。`);
+                    alert("Bug -3，进度 -6%");
+                }
+            },
+            {
+                text: "砍掉云存档，简化方案",
+                action: (proj) => {
+                    proj.design -= 15;
+                    proj.bugs = Math.max(0, proj.bugs - 5);
+                    addChronicleEntry(`✂️ 《${proj.name}》砍掉云存档功能，牺牲设计换取稳定。`);
+                    alert("核心设计 -15，Bug -5");
+                }
+            }
+        ]
+    },
+    {
+        title: "发现致命闪退Bug",
+        phase: "late",
+        desc: "QA 在最终测试中发现了一个会导致游戏闪退的致命 Bug！是全员加班紧急修复，还是先标记留到上线后热修？",
+        choices: [
+            {
+                text: "全员加班修复，绝不带病上线",
+                action: (proj) => {
+                    proj.bugs = Math.max(0, proj.bugs - 8);
+                    gameState.employees.forEach(emp => {
+                        emp.fatigue = Math.min(100, (emp.fatigue || 0) + 20);
+                    });
+                    addChronicleEntry(`🚨 《${proj.name}》全员加班紧急修复致命闪退Bug！`);
+                    alert("Bug -8，全员疲劳 +20");
+                }
+            },
+            {
+                text: "先标记，上线后热修",
+                action: (proj) => {
+                    proj.rushPenalty = true;
+                    addChronicleEntry(`⚠️ 《${proj.name}》选择带着致命Bug上线，评分将受到惩罚。`);
+                    alert("Bug 未修复，上线评分将 -8%（rushPenalty）");
+                }
+            }
+        ]
+    },
+    {
+        title: "多人联机代码冲突",
+        phase: "late",
+        desc: "多个程序员同时提交的代码产生了严重冲突，编译都过不了！是回滚重写还是强行合并？",
+        choices: [
+            {
+                text: "回滚重写，确保质量",
+                action: (proj) => {
+                    proj.code += 15;
+                    proj.progress = Math.max(0, proj.progress * 0.90);
+                    addChronicleEntry(`🔄 《${proj.name}》回滚代码冲突并重写，代码质量提升。`);
+                    alert("代码实力 +15，进度 -10%");
+                }
+            },
+            {
+                text: "强行合并，赶进度",
+                action: (proj) => {
+                    proj.bugs += 6;
+                    addChronicleEntry(`💥 《${proj.name}》强行合并冲突代码，大量Bug涌现！`);
+                    alert("Bug +6");
+                }
+            }
+        ]
     }
 ];
 
 function maybeTriggerDevelopmentEvent(proj) {
-    if (proj.progress < 18 || proj.progress > 88) return;
+    if (proj.progress < 10 || proj.progress > 95) return;
     proj.devEventCooldown = Math.max(0, (proj.devEventCooldown || 0) - 1);
-    if (proj.devEventCooldown > 0 || Math.random() > 0.16) return;
-    proj.devEventCooldown = 4;
-    const ev = DEVELOPMENT_EVENTS[Math.floor(Math.random() * DEVELOPMENT_EVENTS.length)];
+    if (proj.devEventCooldown > 0 || Math.random() > 0.22) return;
+    proj.devEventCooldown = 3;
+
+    // Phase-weighted event selection
+    let preferredPhase = "mid";
+    if (proj.progress < 40) preferredPhase = "early";
+    else if (proj.progress > 75) preferredPhase = "late";
+
+    let ev;
+    const phaseEvents = DEVELOPMENT_EVENTS.filter(e => e.phase === preferredPhase);
+    const usePreferred = Math.random() < 0.70 && phaseEvents.length > 0;
+    if (usePreferred) {
+        ev = phaseEvents[Math.floor(Math.random() * phaseEvents.length)];
+    } else {
+        ev = DEVELOPMENT_EVENTS[Math.floor(Math.random() * DEVELOPMENT_EVENTS.length)];
+    }
 
     document.getElementById("event-modal").classList.add("active");
     document.getElementById("event-modal-title").innerHTML = `<i class="fa-solid fa-screwdriver-wrench"></i> ${ev.title}`;
@@ -519,9 +838,39 @@ function triggerDevAction() {
         }
         updateDevStatsUI();
     } else if (proj.state === "finished") {
-        // 点击发布游戏，改为先弹出发行商选择对话框，而不再直接 releaseGame
         playSFX("click");
-        showPublisherModal();
+        // 上线决策
+        document.getElementById("event-modal").classList.add("active");
+        document.getElementById("event-modal-title").innerHTML = '<i class="fa-solid fa-rocket"></i> 上线决策';
+        const bugsLeft = proj.bugs || 0;
+        const rushWarning = bugsLeft > 0 ? `<br><span style="color:var(--accent-pink);">⚠️ 残留 ${bugsLeft} 个 Bug，强行上线将扣减评分！</span>` : '';
+        document.getElementById("event-modal-desc").innerHTML = `项目《${proj.name}》开发完成！选择您的上线策略。${rushWarning}`;
+        const btnContainer = document.getElementById("event-modal-choices");
+        btnContainer.innerHTML = '';
+
+        // Option A: 延期打磨
+        const btnDelay = document.createElement("button");
+        btnDelay.className = "choice-btn";
+        btnDelay.innerHTML = '🔧 延期打磨（+2周，全属性+15%）';
+        btnDelay.onclick = () => {
+            proj.state = "polishing";
+            proj.polishWeeksLeft = 2;
+            document.getElementById("event-modal").classList.remove("active");
+            alert('进入延期打磨阶段！将花费 2 周时间提升品质，全属性 +15%。');
+            updateDevStatsUI();
+            saveGame();
+        };
+        btnContainer.appendChild(btnDelay);
+
+        // Option B: 强行上线
+        const btnRush = document.createElement("button");
+        btnRush.className = "choice-btn";
+        btnRush.innerHTML = '🚀 立即上线' + (bugsLeft > 0 ? '（有Bug惩罚）' : '');
+        btnRush.onclick = () => {
+            document.getElementById("event-modal").classList.remove("active");
+            showPublisherModal();
+        };
+        btnContainer.appendChild(btnRush);
     }
 }
 
@@ -601,6 +950,13 @@ function buildReleaseEvaluation(proj) {
     if (hasAnimator && (proj.genre === "Casual" || proj.genre === "Roguelike")) {
         animatorMultiplier = 1.05;
         baseScore *= animatorMultiplier;
+    }
+
+    if (proj.rushPenalty) {
+        baseScore *= 0.92;
+    }
+    if (proj.bugs > 0) {
+        baseScore *= Math.max(0.7, 1 - proj.bugs * 0.03);
     }
 
     const unclampedScore = baseScore;

@@ -1,7 +1,16 @@
-﻿// 启动/重启游戏主时钟：先清除旧 interval，避免重复 setInterval 导致双倍速、双倍扣款
+// 启动/重启游戏主时钟：先清除旧 interval，避免重复 setInterval 导致双倍速、双倍扣款
 function startGameClock() {
     clearInterval(loopInterval);
-    loopInterval = setInterval(gameTick, BALANCE.tickMs);
+    loopInterval = setInterval(gameTick, BALANCE.tickMs / gameSpeed);
+}
+
+function setGameSpeed(speed) {
+    gameSpeed = speed;
+    startGameClock();
+    // Update speed button UI
+    document.querySelectorAll('.speed-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.speed) === speed);
+    });
 }
 
 // 初始化游戏页面

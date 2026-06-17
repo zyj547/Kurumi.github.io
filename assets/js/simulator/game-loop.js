@@ -1,4 +1,4 @@
-﻿// ==========================================================================
+// ==========================================================================
 // 核心时钟 (Game Tick Loop)
 // ==========================================================================
 function gameTick() {
@@ -81,8 +81,8 @@ function gameTick() {
         updateTrends();
     }
 
-    // 偶尔触发随机事件
-    if (Math.random() < BALANCE.randomEventChance) {
+    // 偶尔触发随机事件（研发期间不触发，避免打断操作）
+    if (!gameState.currentProject && Math.random() < BALANCE.randomEventChance) {
         triggerRandomEvent();
     }
 
