@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重庆星屑游戏官网 | StarDust Games - 《热血打工魂》即将首发</title>
+    <!-- Meta SEO -->
+    <meta name="description" content="重庆星屑网络游戏科技官网。核心团队深耕10年游戏研运，打造抖音小游戏工业化生产流水线。首款力作《热血打工魂》即将登陆抖音，魔性堆叠消除，引爆社畜逆袭狂潮。">
+    <meta name="keywords" content="重庆星屑, 星屑游戏, 热血打工魂, 抖音小游戏, 羊了个羊, 工业化流水线, IAA变现, 消除小游戏">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ==========================================================================
+           1. 全局设计变量与基础重置 (CSS Reset & Variables)
+           ========================================================================== */
+        :root {
+            --bg-color: #05080f;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --stardust-gradient: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
+            --labor-orange: #fb923c;
+            --labor-yellow: #eab308;
+            --orange-gradient: linear-gradient(135deg, #fb923c 0%, #eab308 100%);
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.015);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --font-title: 'Orbitron', 'Inter', -apple-system, sans-serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --container-width: 1200px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            background: linear-gradient(180deg, #05080f 0%, #111827 40%, #1e1b4b 70%, #0f172a 100%) fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* 桌面端开启 Fullpage 滚动捕捉 */
+        @media (min-width: 769px) {
+            html {
+                scroll-snap-type: y mandatory;
+            }
+        }
+
+        /* 氛围光晕层 */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -3;
+            filter: blur(80px);
+        }
+
+        .bg-orb-tl {
+            width: 700px;
+            height: 700px;
+            top: -200px;
+            left: -200px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+
+        .bg-orb-br {
+            width: 600px;
+            height: 600px;
+            bottom: -150px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(251, 146, 60, 0.08) 0%, transparent 70%);
+        }
+
+        /* 极光光带 */
+        .aurora-band {
+            position: fixed;
+            left: -100%;
+            width: 300%;
+            pointer-events: none;
+            z-index: -2;
+            opacity: 0.05;
+            filter: blur(40px);
+        }
+
+        .aurora-band-1 {
+            top: 28%;
+            height: 120px;
+            background: linear-gradient(90deg, transparent 0%, #6366f1 30%, #a855f7 55%, #fb923c 75%, transparent 100%);
+            animation: aurora-drift 90s linear infinite;
+        }
+
+        .aurora-band-2 {
+            top: 62%;
+            height: 80px;
+            background: linear-gradient(90deg, transparent 0%, #fb923c 25%, #6366f1 60%, transparent 100%);
+            animation: aurora-drift 90s linear infinite reverse;
+            animation-delay: -45s;
+        }
+
+        @keyframes aurora-drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(33.33%); }
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: transparent;
+            min-height: 100vh;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #4f46e5, #fb923c);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--labor-yellow);
+        }
+
+        /* 导航栏 */
+        .nav-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(11, 13, 16, 0.92) 0%, transparent 100%);
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+        }
+
+        .nav-logo {
+            font-family: var(--font-title);
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .nav-logo-diamond {
+            width: 14px;
+            height: 14px;
+            background: var(--orange-gradient);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: var(--font-title);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 1px;
+            background: var(--labor-orange);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover { color: var(--labor-orange); }
+        .nav-links a:hover::after { width: 100%; }
+
+        /* 汉堡按钮 */
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            background: none;
+            border: none;
+        }
+
+        .nav-hamburger span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* 移动端抽屉菜单 */
+        .nav-drawer {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 13, 16, 0.97);
+            backdrop-filter: blur(20px);
+            z-index: 99;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2.5rem;
+        }
+
+        .nav-drawer.open { display: flex; }
+
+        .nav-drawer a {
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .nav-drawer a:hover { color: var(--labor-orange); }
+
+        .nav-drawer-close {
+            position: absolute;
+            top: 1.5rem; right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .nav-hamburger { display: flex; }
+        }
+
+        /* ==========================================================================
+           2. 核心交互组件 (Canvas Particles & Mouse Glow)
+           ========================================================================== */
+        /* Canvas 粒子背景 */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+            opacity: 0.5;
+            will-change: transform;
+        }
+
+        /* 鼠标跟随暖橘色光晕 */
+        .mouse-halo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 600px;
+            height: 600px;
+            margin-left: -300px;
+            margin-top: -300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(251, 146, 60, 0.05) 0%, rgba(79, 70, 229, 0.02) 55%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            z-index: -1;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        /* ==========================================================================
+           3. 通用组件与玻璃态卡片
+           ========================================================================== */
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 2rem;
+            width: 100%;
+            z-index: 5;
+        }
+
+        section {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        @media (min-width: 769px) {
+            section {
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+                height: 100vh;
+            }
+        }
+        @media (max-width: 768px) {
+            section {
+                min-height: 100vh;
+                height: auto;
+                padding: 100px 0;
+            }
+        }
+
+        .gradient-text-purple {
+            background: var(--stardust-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .gradient-text-orange {
+            background: var(--orange-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        /* 卡片 — 实色背景，不依赖 backdrop-filter（预览/部分 WebView 会渲染异常） */
+        .glass-card {
+            position: relative;
+            border-radius: 20px;
+            background: linear-gradient(160deg, #1c2034, #0f1222);
+            border: 1px solid rgba(124, 110, 237, 0.4);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+            overflow: hidden;
+        }
+
+        /* 横向扫光：transform 驱动，不触发 repaint；z-index 低于内容 */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+            transform: translateX(-100%);
+            animation: card-sweep 7s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+            will-change: transform;
+        }
+
+        /* 确保卡片所有直接子元素都在扫光层之上 */
+        .glass-card > * { position: relative; z-index: 1; }
+
+        @keyframes card-sweep {
+            0%   { transform: translateX(-100%); }
+            30%  { transform: translateX(280%); }
+            100% { transform: translateX(280%); }
+        }
+
+        /* 橙色打工人技术标签 */
+        .tech-tag {
+            font-family: var(--font-title);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--labor-orange);
+            border: 1px solid var(--labor-orange);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            width: fit-content;
+            letter-spacing: 1px;
+            background: rgba(251, 146, 60, 0.05);
+            text-shadow: 0 0 5px rgba(251, 146, 60, 0.2);
+        }
+
+        /* 滚动进场动画 (Stagger) */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform, opacity;
+        }
+
+        .animate-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================================================
+           4. 第一屏: Hero Section
+           ========================================================================== */
+        #hero {
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /* CSS 绘制星尘环绕手柄十字键Logo */
+        .logo-dpad-container {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* 旋转的星尘环 */
+        .logo-orbit-ring {
+            position: absolute;
+            width: 76px;
+            height: 76px;
+            border: 2px dashed rgba(124, 58, 237, 0.4);
+            border-radius: 50%;
+            animation: spin 15s linear infinite;
+        }
+
+        .logo-dpad {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            filter: drop-shadow(0 0 10px rgba(79, 70, 229, 0.5));
+        }
+
+        .logo-dpad-horiz {
+            position: absolute;
+            top: 17px;
+            left: 0;
+            width: 44px;
+            height: 10px;
+            background: linear-gradient(90deg, #4f46e5, #fb923c);
+            border-radius: 4px;
+        }
+
+        .logo-dpad-vert {
+            position: absolute;
+            top: 0;
+            left: 17px;
+            width: 10px;
+            height: 44px;
+            background: linear-gradient(180deg, #7c3aed, #fb923c);
+            border-radius: 4px;
+        }
+
+        .logo-dpad-center {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 14px;
+            height: 14px;
+            background: #ffffff;
+            border-radius: 3px;
+            box-shadow: 0 0 8px #ffffff;
+        }
+
+        .logo-sparkle {
+            position: absolute;
+            font-size: 0.75rem;
+            color: var(--labor-yellow);
+            text-shadow: 0 0 5px var(--labor-orange);
+            animation: sparkle-blink 2s infinite alternate;
+        }
+        .logo-sparkle-1 { top: -2px; left: -2px; animation-delay: 0s; }
+        .logo-sparkle-2 { top: -2px; right: -2px; animation-delay: 0.5s; }
+        .logo-sparkle-3 { bottom: -2px; left: -2px; animation-delay: 1s; }
+        .logo-sparkle-4 { bottom: -2px; right: -2px; animation-delay: 1.5s; }
+
+        @keyframes sparkle-blink {
+            0% { transform: scale(0.6); opacity: 0.3; }
+            100% { transform: scale(1.25); opacity: 1; }
+        }
+
+        .hero-title {
+            font-family: var(--font-title);
+            font-size: clamp(3.2rem, 7vw, 6rem);
+            font-weight: 900;
+            letter-spacing: 2px;
+            line-height: 1.1;
+            color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(79, 70, 229, 0.5), 0 0 40px rgba(251, 146, 60, 0.2);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.6rem);
+            font-weight: 300;
+            color: var(--text-secondary);
+            letter-spacing: 4px;
+        }
+
+        /* 《热血打工魂》即将登陆抖音大按钮 */
+        .btn-game-cta {
+            height: 52px;
+            padding: 0 2.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--orange-gradient);
+            color: #0b0d10;
+            text-decoration: none;
+            font-family: var(--font-title);
+            font-weight: 900;
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(251, 146, 60, 0.4);
+            animation: pulse-breathing 2s infinite ease-in-out;
+            transition: all 0.3s ease;
+            will-change: transform, box-shadow;
+        }
+
+        .btn-game-cta:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(251, 146, 60, 0.75), 0 0 15px rgba(234, 179, 8, 0.5);
+        }
+
+        @keyframes pulse-breathing {
+            0%, 100% {
+                box-shadow: 0 0 12px rgba(251, 146, 60, 0.35);
+            }
+            50% {
+                box-shadow: 0 0 25px rgba(251, 146, 60, 0.65), 0 0 10px rgba(234, 179, 8, 0.4);
+            }
+        }
+
+        .cta-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .cta-subtext {
+            font-size: 0.85rem;
+            color: var(--labor-orange);
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .btn-game-cta {
+                height: 48px; /* 移动端高度防误触 */
+                width: 100%;
+                max-width: 320px;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* ==========================================================================
+           5. 第二屏: About Section
+           ========================================================================== */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 5rem;
+            align-items: center;
+            width: 100%;
+        }
+
+        .about-text {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .about-h2 {
+            font-family: var(--font-title);
+            font-size: clamp(2rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            line-height: 1.25;
+        }
+
+        .about-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        /* 右侧动态数字看板 */
+        .about-counters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .counter-card {
+            padding: 2.2rem 1.2rem;
+            text-align: center;
+        }
+
+        .counter-number {
+            font-family: var(--font-title);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--labor-orange);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(251, 146, 60, 0.2);
+        }
+
+        .counter-lbl {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* 时间轴 */
+        .about-timeline {
+            grid-column: 1 / -1;
+            margin-top: 3.5rem;
+            width: 100%;
+        }
+
+        .timeline-scroll {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            padding: 1.5rem 0;
+            scroll-snap-type: x mandatory;
+        }
+
+        .timeline-item {
+            flex: 0 0 350px;
+            scroll-snap-align: start;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .timeline-date {
+            font-family: var(--font-title);
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--labor-orange);
+        }
+
+        .timeline-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .timeline-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about-counters {
+                grid-template-columns: 1fr;
+            }
+            .timeline-item {
+                flex: 0 0 280px;
+                padding: 1.5rem;
+            }
+        }
+
+        /* ==========================================================================
+           6. 第三屏: Solution Section（重设计版）
+           ========================================================================== */
+        #solution {
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .solution-header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            width: 100%;
+        }
+
+        .solution-title {
+            font-family: var(--font-title);
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 800;
+            margin-top: 0.6rem;
+        }
+
+        .solution-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 0.8rem;
+            max-width: 760px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        /* ── 水平流水线容器 ── */
+        .pipeline-container {
+            display: flex;
+            align-items: stretch;
+            width: 100%;
+            position: relative;
+        }
+
+        /* ── 步骤卡片 ── */
+        .pipeline-card {
+            flex: 1;
+            padding: 2.2rem 1.6rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-height: 300px;
+            transition: transform 0.35s cubic-bezier(0.25,1,0.5,1),
+                        box-shadow 0.35s ease;
+            will-change: transform;
+            cursor: default;
+        }
+
+        .pipeline-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.7), 0 0 20px rgba(251,146,60,0.1);
+        }
+
+        /* 大型步骤编号（装饰性） */
+        .pipeline-step-badge {
+            font-family: var(--font-title);
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, rgba(79,70,229,0.25), rgba(251,146,60,0.15));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            user-select: none;
+            transition: background 0.3s ease;
+        }
+
+        .pipeline-card:hover .pipeline-step-badge {
+            background: linear-gradient(135deg, #7c3aed, #fb923c);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .pipeline-step-num {
+            font-family: var(--font-title);
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--labor-orange);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .pipeline-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.9rem;
+        }
+
+        .pipeline-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            flex: 1;
+        }
+
+        /* 卡片底部橙色进度条（悬停时扩展） */
+        .pipeline-card-bar {
+            margin-top: 1.4rem;
+            height: 2px;
+            width: 28px;
+            background: var(--orange-gradient);
+            border-radius: 2px;
+            transition: width 0.4s cubic-bezier(0.25,1,0.5,1);
+            will-change: width;
+        }
+
+        .pipeline-card:hover .pipeline-card-bar { width: 100%; }
+
+        /* ── 电流虚线连接器 ── */
+        .pipeline-connector {
+            position: relative;
+            flex: 0 0 40px;
+            align-self: center;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 虚线轨道 */
+        .pipeline-connector::before {
+            content: '';
+            position: absolute;
+            left: 0; right: 0;
+            top: 50%; transform: translateY(-50%);
+            height: 2px;
+            /* repeating-linear-gradient 模拟虚线 */
+            background: repeating-linear-gradient(
+                90deg,
+                rgba(255,255,255,0.08) 0px,
+                rgba(255,255,255,0.08) 6px,
+                transparent 6px,
+                transparent 12px
+            );
+        }
+
+        /* 流光层：默认透明，hover / .flowing 时亮起 */
+        .pipeline-connector::after {
+            content: '';
+            position: absolute;
+            left: -100%; right: 0;
+            top: 50%; transform: translateY(-50%);
+            height: 2px;
+            width: 200%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 4px,
+                var(--labor-orange) 4px,
+                var(--labor-orange) 10px,
+                transparent 10px,
+                transparent 16px
+            );
+            opacity: 0;
+            filter: blur(0.5px);
+            box-shadow: 0 0 8px var(--labor-orange), 0 0 16px rgba(251,146,60,0.4);
+            transition: opacity 0.3s ease;
+            will-change: transform, opacity;
+        }
+
+        /* 相邻卡片悬停时亮线 */
+        .pipeline-card:hover + .pipeline-connector::after,
+        .pipeline-connector:hover::after {
+            opacity: 1;
+            animation: dash-flow 0.8s linear infinite;
+        }
+
+        /* 滚动触发流光（.flowing 类由 JS 加） */
+        .pipeline-connector.flowing::after {
+            opacity: 1;
+            animation: dash-flow 1.2s linear infinite;
+        }
+
+        @keyframes dash-flow {
+            from { transform: translateY(-50%) translateX(0); }
+            to   { transform: translateY(-50%) translateX(16px); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* 齿轮（保留但移到卡片底部装饰） */
+        .gear-container {
+            display: flex;
+            gap: 6px;
+            margin-top: 0.6rem;
+            align-items: center;
+        }
+
+        .gear {
+            font-size: 1.4rem;
+            color: rgba(251, 146, 60, 0.3);
+            transition: color 0.3s ease;
+        }
+
+        .gear-main { animation: spin 8s linear infinite; animation-play-state: paused; }
+        .gear-sub  { font-size: 1rem; color: rgba(79,70,229,0.3); animation: spin-reverse 5s linear infinite; animation-play-state: paused; }
+
+        .glass-card:hover .gear-main { animation-play-state: running; color: var(--labor-orange); }
+        .glass-card:hover .gear-sub  { animation-play-state: running; color: #7c3aed; }
+
+        /* ── 移动端：竖向堆叠 ── */
+        @media (max-width: 768px) {
+            .pipeline-container { flex-direction: column; gap: 0; }
+
+            .pipeline-card { min-height: auto; }
+
+            .pipeline-connector {
+                width: 60px; height: 40px;
+                flex: 0 0 40px;
+                align-self: flex-start;
+                margin-left: 2.2rem;
+            }
+
+            /* 竖向虚线 */
+            .pipeline-connector::before {
+                left: 50%; right: auto;
+                top: 0; bottom: 0;
+                transform: translateX(-50%);
+                width: 2px; height: 100%;
+                background: repeating-linear-gradient(
+                    180deg,
+                    rgba(255,255,255,0.08) 0px,
+                    rgba(255,255,255,0.08) 6px,
+                    transparent 6px,
+                    transparent 12px
+                );
+            }
+
+            .pipeline-connector::after {
+                left: 50%; top: -100%;
+                width: 2px; height: 200%;
+                transform: translateX(-50%);
+                background: repeating-linear-gradient(
+                    180deg,
+                    transparent 0px, transparent 4px,
+                    var(--labor-orange) 4px, var(--labor-orange) 10px,
+                    transparent 10px, transparent 16px
+                );
+                box-shadow: 0 0 8px var(--labor-orange);
+            }
+
+            .pipeline-connector.flowing::after {
+                animation: dash-flow-v 1.2s linear infinite;
+            }
+
+            .pipeline-card:hover + .pipeline-connector::after { animation: dash-flow-v 0.8s linear infinite; }
+        }
+
+        /* @keyframes 必须在 @media 之外定义，避免部分引擎解析中断 */
+        @keyframes dash-flow-v {
+            from { transform: translateX(-50%) translateY(0); }
+            to   { transform: translateX(-50%) translateY(16px); }
+        }
+
+        /* ==========================================================================
+           7. 第四屏: Product Section
+           ========================================================================== */
+        .product-wrapper {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 5rem;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 3D 旋转手机模型框 */
+        .phone-3d-container {
+            perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .phone-model {
+            width: 250px;
+            height: 500px;
+            background: #08090d;
+            border: 11px solid #1c1e25;
+            border-radius: 36px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(-15deg) rotateX(8deg);
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(251, 146, 60, 0.15);
+            overflow: hidden;
+        }
+
+        .phone-model:hover {
+            transform: rotateY(15deg) rotateX(8deg) translateZ(10px);
+        }
+
+        .coming-soon-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(251, 146, 60, 0.12) 0%, #0b0d10 90%);
+        }
+
+        .pixel-worker {
+            font-family: var(--font-title);
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--labor-yellow);
+            text-shadow: 0 0 10px var(--labor-orange);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+            z-index: 2;
+        }
+
+        .phone-coming-soon {
+            font-family: var(--font-title);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-shadow: 0 0 8px #ffffff;
+            z-index: 2;
+            animation: blink 1.5s infinite alternate;
+        }
+
+        @keyframes blink {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .neon-glow-blocks {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #7c3aed, #fb923c);
+            filter: blur(45px);
+            opacity: 0.25;
+            animation: pulse-block 4s infinite alternate;
+        }
+
+        @keyframes pulse-block {
+            0% { transform: scale(0.9); opacity: 0.2; }
+            100% { transform: scale(1.2); opacity: 0.35; }
+        }
+
+        /* 右侧产品介绍 */
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        .product-tagline {
+            font-family: var(--font-title);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--labor-orange);
+            letter-spacing: 2px;
+        }
+
+        .product-name {
+            font-family: var(--font-title);
+            font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.15;
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .product-description {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .btn-register-cta {
+            height: 48px; /* 移动端高度适配 */
+            padding: 0 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: var(--labor-orange);
+            border: 2px solid var(--labor-orange);
+            font-family: var(--font-title);
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            cursor: pointer;
+            width: fit-content;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(251, 146, 60, 0.1);
+        }
+
+        .btn-register-cta:hover {
+            background: var(--labor-orange);
+            color: #0b0d10;
+            box-shadow: 0 0 25px var(--labor-orange);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1024px) {
+            .product-wrapper {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+                text-align: center;
+            }
+            .product-info {
+                align-items: center;
+            }
+            .tag-row {
+                justify-content: center;
+            }
+        }
+
+        /* ==========================================================================
+           8. 第五屏: Footer Section
+           ========================================================================== */
+        #footer {
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 4rem 0 3rem 0;
+            background: rgba(5, 8, 15, 0.85);
+            border-top: 1px solid var(--glass-border);
+            min-height: auto;
+            height: auto;
+            scroll-snap-align: end;
+        }
+
+        .footer-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .footer-logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-company-name {
+            font-family: var(--font-title);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: var(--text-primary);
+        }
+
+        .footer-logo-icon {
+            font-size: 1.5rem;
+            color: var(--labor-orange);
+            text-shadow: 0 0 10px var(--labor-orange);
+        }
+
+        .footer-social-icons {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-social-btn:hover {
+            color: var(--labor-orange);
+            border-color: var(--labor-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 0 15px rgba(251, 146, 60, 0.25);
+        }
+
+        .footer-copyright {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.25);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* ==========================================================================
+           移动端综合适配
+           ========================================================================== */
+        @media (max-width: 768px) {
+            /* 容器边距收窄 */
+            .container { padding: 0 1.25rem; }
+
+            /* section 顶部留出导航高度 */
+            section { padding: 80px 0 60px; }
+            #footer { padding: 3rem 0 2rem; }
+
+            /* Hero */
+            .hero-wrapper { gap: 1.2rem; }
+            .hero-title { font-size: clamp(2.4rem, 10vw, 3.2rem); letter-spacing: 1px; }
+            .hero-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
+            .cta-container { margin-top: 0.8rem; }
+
+            /* About: 数字卡片横排三列 */
+            .about-counters {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.8rem;
+            }
+            .counter-card { padding: 1.4rem 0.6rem; }
+            .counter-number { font-size: 1.5rem; }
+            .counter-lbl { font-size: 0.7rem; }
+
+            /* About: 时间轴卡片宽度 */
+            .timeline-item { flex: 0 0 260px; padding: 1.2rem; }
+            .about-timeline { margin-top: 2rem; }
+
+            /* About: 文字标题 */
+            .about-h2 { font-size: 1.5rem; }
+            .about-desc { font-size: 0.9rem; }
+
+            /* Solution */
+            .solution-header { margin-bottom: 2rem; }
+            .solution-title { font-size: 1.5rem; }
+            .solution-subtitle { font-size: 0.85rem; }
+            .pipeline-card { padding: 1.5rem 1.2rem; gap: 1rem; }
+            .pipeline-card-title { font-size: 1.05rem; }
+            .pipeline-card-desc { font-size: 0.82rem; }
+
+            /* Product: 手机模型缩小 */
+            .phone-model { width: 180px; height: 360px; border-width: 8px; border-radius: 28px; }
+            .pixel-worker { font-size: 1.6rem; }
+            .phone-coming-soon { font-size: 0.85rem; }
+            .product-name { font-size: 2rem; }
+            .product-description { font-size: 0.9rem; }
+            .btn-register-cta { width: 100%; max-width: 280px; justify-content: center; }
+
+            /* Footer */
+            .footer-company-name { font-size: 0.85rem; letter-spacing: 2px; }
+        }
+
+        /* 超小屏 (≤ 375px) */
+        @media (max-width: 375px) {
+            .hero-title { font-size: 2.2rem; }
+            .about-counters { grid-template-columns: 1fr; }
+            .counter-card { padding: 1rem; }
+            .phone-model { width: 150px; height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航栏 -->
+    <nav class="nav-bar">
+        <a href="#hero" class="nav-logo">
+            <div class="nav-logo-diamond"></div>
+            星屑游戏
+        </a>
+        <ul class="nav-links">
+            <li><a href="#about">关于我们</a></li>
+            <li><a href="#solution">研发实力</a></li>
+            <li><a href="#products">旗舰产品</a></li>
+            <li><a href="#footer">联系我们</a></li>
+        </ul>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="打开菜单">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- 移动端抽屉菜单 -->
+    <div class="nav-drawer" id="nav-drawer">
+        <button class="nav-drawer-close" id="nav-drawer-close" aria-label="关闭菜单">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <a href="#about" class="drawer-link">关于我们</a>
+        <a href="#solution" class="drawer-link">研发实力</a>
+        <a href="#products" class="drawer-link">旗舰产品</a>
+        <a href="#footer" class="drawer-link">联系我们</a>
+    </div>
+
+    <!-- 氛围光晕层 -->
+    <div class="bg-orb bg-orb-tl"></div>
+    <div class="bg-orb bg-orb-br"></div>
+
+    <!-- 极光光带 -->
+    <div class="aurora-band aurora-band-1"></div>
+    <div class="aurora-band aurora-band-2"></div>
+
+    <!-- Canvas 粒子动态背景 -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- 鼠标跟随光晕 -->
+    <div class="mouse-halo" id="mouse-glow"></div>
+
+    <!-- 第一屏: Hero Section -->
+    <section id="hero">
+        <div class="container hero-wrapper">
+            <!-- CSS 抽象游戏十字键 Logo -->
+            <div class="logo-dpad-container">
+                <div class="logo-orbit-ring"></div>
+                <div class="logo-dpad">
+                    <div class="logo-dpad-horiz"></div>
+                    <div class="logo-dpad-vert"></div>
+                    <div class="logo-dpad-center"></div>
+                </div>
+                <i class="fa-solid fa-star logo-sparkle logo-sparkle-1"></i>
+                <i class="fa-solid fa-star logo-sparkle logo-sparkle-2"></i>
+                <i class="fa-solid fa-star logo-sparkle logo-sparkle-3"></i>
+                <i class="fa-solid fa-star logo-sparkle logo-sparkle-4"></i>
+            </div>
+            
+            <h1 class="hero-title parallax-hero">
+                星屑游戏
+            </h1>
+            <p class="hero-subtitle parallax-hero">
+                十年磨一剑 · 抖音小游戏工业化领跑者
+            </p>
+            
+            <div class="cta-container">
+                <button class="btn-game-cta" aria-label="《热血打工魂》即将登陆抖音">
+                    《热血打工魂》即将登陆抖音
+                </button>
+                <span class="cta-subtext">打工人，这次真的要逆袭了</span>
+            </div>
+        </div>
+        
+        <a href="#about" class="scroll-indicator" aria-label="Scroll to About">
+            <span>实力</span>
+            <i class="fa-solid fa-arrow-down"></i>
+        </a>
+    </section>
+
+    <!-- 第二屏: About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="about-grid">
+                <!-- 左文案 -->
+                <div class="about-text animate-on-scroll">
+                    <span class="tech-tag">ABOUT STARDUST</span>
+                    <h2 class="about-h2">
+                        大厂老兵 All-in 抖音小游戏，<br>
+                        <span class="gradient-text-orange">以纯粹的数据驱动流量</span>
+                    </h2>
+                    <p class="about-desc">
+                        重庆星屑网络游戏科技核心团队成员全部来自一线大厂，平均从业年限10年以上。亲历了端游开发、页游转手游以及手游内购的完整周期变革。如今，我们全力深耕抖音小游戏生态。
+                    </p>
+                    <p class="about-desc">
+                        我们不做纸上谈兵的“艺术品”，只通过成熟的工业化管线进行精密的玩法拼装与高保真 ROAS 盈亏预测，在极速研发的同时，完美保障产品的裂变增长力与变现回收效率。
+                    </p>
+                </div>
+
+                <!-- 右侧数据面板 -->
+                <div class="about-counters animate-on-scroll" style="transition-delay: 0.15s;">
+                    <div class="glass-card counter-card">
+                        <div class="counter-number"><span class="counter-val" data-target="10">0</span>年+</div>
+                        <span class="counter-lbl">大厂研运底蕴</span>
+                    </div>
+                    <div class="glass-card counter-card">
+                        <div class="counter-number"><span class="counter-val" data-target="500">0</span>+</div>
+                        <span class="counter-lbl">自研玩法组件库</span>
+                    </div>
+                    <div class="glass-card counter-card">
+                        <div class="counter-number"><span class="counter-val" data-target="72">0</span>h</div>
+                        <span class="counter-lbl">立项至首个Demo速度</span>
+                    </div>
+                </div>
+
+                <!-- 下方水平滑动时间轴 -->
+                <div class="about-timeline animate-on-scroll" style="transition-delay: 0.3s;">
+                    <span class="tech-tag">EVOLUTION PATH</span>
+                    <div class="timeline-scroll">
+                        <!-- 阶段 1 -->
+                        <div class="glass-card timeline-item animate-on-scroll" style="transition-delay: 0s;">
+                            <span class="timeline-date">2016 - 2018</span>
+                            <h3 class="timeline-title">端页游黄金时代</h3>
+                            <p class="timeline-desc">专注于大型多人角色扮演（MMORPG）及策略性核心底层引擎的架构与开发，积累坚实的代码底座。</p>
+                        </div>
+                        <!-- 阶段 2 -->
+                        <div class="glass-card timeline-item animate-on-scroll" style="transition-delay: 0.1s;">
+                            <span class="timeline-date">2019 - 2022</span>
+                            <h3 class="timeline-title">精品化手游内购</h3>
+                            <p class="timeline-desc">依托 Unity 等核心平台，研运 10+ 款大型混投内购游戏，打磨高效率的模块组装和协同开发逻辑。</p>
+                        </div>
+                        <!-- 阶段 3 -->
+                        <div class="glass-card timeline-item animate-on-scroll" style="transition-delay: 0.2s;">
+                            <span class="timeline-date">2023 - 至今</span>
+                            <h3 class="timeline-title">抖音小游戏工业化</h3>
+                            <p class="timeline-desc">全面拥抱抖音生态纯 IAA 变现红利，搭建广告埋点中台，打造周级高爆发、正向回本的数据流量产品。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第三屏: Solution Section (工业化流水线) -->
+    <section id="solution">
+        <div class="container">
+            <div class="solution-header animate-on-scroll">
+                <span class="tech-tag">INDUSTRIAL PIPELINE</span>
+                <h2 class="solution-title">我们的工业化游戏生产流水线</h2>
+                <p class="solution-subtitle">
+                    十年沉淀，将爆款“羊了个羊”式玩法拆解为标准化模块，实现抖音小游戏的“即产即爆”
+                </p>
+            </div>
+            
+            <div class="pipeline-container" id="pipeline-container">
+                <!-- 步骤 1 -->
+                <div class="glass-card pipeline-card animate-on-scroll" style="transition-delay: 0s;">
+                    <div class="pipeline-step-badge">01</div>
+                    <span class="pipeline-step-num">步骤① · 闪电立项</span>
+                    <h3 class="pipeline-card-title">闪电立项</h3>
+                    <p class="pipeline-card-desc">依托10年品类洞察，24小时内完成”类羊了个羊”社交裂变模型拆解。精准锁定”打工人逆袭”情绪痛点，快速立项，拒绝无效内卷。</p>
+                    <div class="gear-container">
+                        <div class="gear gear-main"><i class="fa-solid fa-cog"></i></div>
+                        <div class="gear gear-sub"><i class="fa-solid fa-cog"></i></div>
+                    </div>
+                    <div class="pipeline-card-bar"></div>
+                </div>
+
+                <div class="pipeline-connector"></div>
+
+                <!-- 步骤 2 -->
+                <div class="glass-card pipeline-card animate-on-scroll" style="transition-delay: 0.1s;">
+                    <div class="pipeline-step-badge">02</div>
+                    <span class="pipeline-step-num">步骤② · 模块化装配</span>
+                    <h3 class="pipeline-card-title">模块化装配</h3>
+                    <p class="pipeline-card-desc">调用自研”星尘组件库”，将消除逻辑、关卡难度曲线、分享助力机制进行工业化封装。美术与程序并行开发，生产周期较传统模式缩短70%。</p>
+                    <div class="gear-container">
+                        <div class="gear gear-main"><i class="fa-solid fa-cog"></i></div>
+                        <div class="gear gear-sub"><i class="fa-solid fa-cog"></i></div>
+                    </div>
+                    <div class="pipeline-card-bar"></div>
+                </div>
+
+                <div class="pipeline-connector"></div>
+
+                <!-- 步骤 3 -->
+                <div class="glass-card pipeline-card animate-on-scroll" style="transition-delay: 0.2s;">
+                    <div class="pipeline-step-badge">03</div>
+                    <span class="pipeline-step-num">步骤③ · 抖音原生注入</span>
+                    <h3 class="pipeline-card-title">抖音原生注入</h3>
+                    <p class="pipeline-card-desc">针对抖音小游戏包体与启动速度进行极致压缩。预置排行榜、地域斗法、复活分享等裂变钩子，确保游戏上线即适配抖音算法推荐流。</p>
+                    <div class="gear-container">
+                        <div class="gear gear-main"><i class="fa-solid fa-cog"></i></div>
+                        <div class="gear gear-sub"><i class="fa-solid fa-cog"></i></div>
+                    </div>
+                    <div class="pipeline-card-bar"></div>
+                </div>
+
+                <div class="pipeline-connector"></div>
+
+                <!-- 步骤 4 -->
+                <div class="glass-card pipeline-card animate-on-scroll" style="transition-delay: 0.3s;">
+                    <div class="pipeline-step-badge">04</div>
+                    <span class="pipeline-step-num">步骤④ · 数据化调优</span>
+                    <h3 class="pipeline-card-title">数据化调优</h3>
+                    <p class="pipeline-card-desc">上线即开启A/B测试看板，实时监控关卡通过率与广告埋点回报。像运营互联网产品一样迭代游戏数据，确保次留与ROI双双达标。</p>
+                    <div class="gear-container">
+                        <div class="gear gear-main"><i class="fa-solid fa-cog"></i></div>
+                        <div class="gear gear-sub"><i class="fa-solid fa-cog"></i></div>
+                    </div>
+                    <div class="pipeline-card-bar"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第四屏: Product Section -->
+    <section id="products">
+        <div class="container">
+            <div class="product-wrapper">
+                <!-- 左侧: 3D 手机模型 -->
+                <div class="phone-3d-container animate-on-scroll">
+                    <div class="phone-model">
+                        <div class="coming-soon-screen">
+                            <div class="neon-glow-blocks"></div>
+                            <span class="pixel-worker">打工人</span>
+                            <span class="phone-coming-soon">COMING SOON</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧: 产品详情 -->
+                <div class="product-info animate-on-scroll" style="transition-delay: 0.15s;">
+                    <span class="product-tagline">STARDUST FIRST DEBUT</span>
+                    <h2 class="product-name gradient-text-orange">《热血打工魂》</h2>
+                    
+                    <div class="tag-row">
+                        <span class="tech-tag">【堆叠消除】</span>
+                        <span class="tech-tag">【社畜逆袭】</span>
+                        <span class="tech-tag">【地域PK】</span>
+                    </div>
+
+                    <p class="product-description">
+                        专为抖音生态打造的魔性消除游戏。在工位上摸鱼时，用你的“打工魂”燃烧所有烦恼，挑战全网各省份的打工人排名！
+                    </p>
+
+                    <button class="btn-register-cta" aria-label="立即预约（开启爆肝提醒）">
+                        立即预约（开启爆肝提醒）
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 第五屏: Footer Section -->
+    <section id="footer">
+        <div class="container footer-wrapper">
+            <div class="footer-logo-box">
+                <i class="fa-solid fa-wand-magic-sparkles footer-logo-icon"></i>
+                <span class="footer-company-name">重庆星屑网络游戏科技</span>
+            </div>
+
+            <!-- 抖音入口等社交图标 -->
+            <div class="footer-social-icons">
+                <a href="#" class="footer-social-btn" aria-label="Douyin">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+                <a href="#" class="footer-social-btn" aria-label="WeChat">
+                    <i class="fa-brands fa-weixin"></i>
+                </a>
+                <a href="#" class="footer-social-btn" aria-label="GameController">
+                    <i class="fa-solid fa-gamepad"></i>
+                </a>
+            </div>
+
+            <div class="footer-copyright">
+                &copy; 2026 重庆星屑网络游戏科技有限公司. 保留所有权利。<br>
+                渝ICP备xxxxxxxx号-x | 数据驱动流量的工业化游戏工厂
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript 交互特效逻辑 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* ==========================================================================
+               1. Canvas 星尘粒子网络背景 (自旋转 + 闪烁 + 鼠标连线)
+               ========================================================================== */
+            class ParticleSystem {
+                constructor(canvas) {
+                    this.canvas = canvas;
+                    this.ctx = canvas.getContext('2d');
+                    this.particles = [];
+                    this.connectionDistance = 110;
+                    this.rotationAngle = 0;
+                    this.resize();
+                    this.init();
+                    window.addEventListener('resize', () => this.resize());
+                }
+
+                resize() {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                    // 自适应粒子数量
+                    this.particleCount = Math.min(100, Math.floor((this.canvas.width * this.canvas.height) / 16000));
+                    this.init();
+                }
+
+                init() {
+                    this.particles = [];
+                    for (let i = 0; i < this.particleCount; i++) {
+                        this.particles.push({
+                            x: Math.random() * this.canvas.width,
+                            y: Math.random() * this.canvas.height,
+                            vx: (Math.random() - 0.5) * 0.4,
+                            vy: (Math.random() - 0.5) * 0.4,
+                            r: Math.random() * 2 + 0.8,
+                            alpha: Math.random(),
+                            da: (Math.random() * 0.02) + 0.005
+                        });
+                    }
+                }
+
+                draw(mouseXPos, mouseYPos) {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    
+                    // 粒子自旋偏转效果 (模拟星尘微旋)
+                    this.ctx.save();
+                    this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+                    this.rotationAngle += 0.00015;
+                    this.ctx.rotate(this.rotationAngle);
+                    this.ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+
+                    for (let i = 0; i < this.particles.length; i++) {
+                        let p = this.particles[i];
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        // 触壁反弹
+                        if (p.x < 0 || p.x > this.canvas.width) p.vx *= -1;
+                        if (p.y < 0 || p.y > this.canvas.height) p.vy *= -1;
+
+                        // 闪烁
+                        p.alpha += p.da;
+                        if (p.alpha > 1 || p.alpha < 0.2) p.da *= -1;
+
+                        this.ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha * 0.75})`;
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                        this.ctx.fill();
+
+                        // 粒子间连线 (星空网络)
+                        for (let j = i + 1; j < this.particles.length; j++) {
+                            let p2 = this.particles[j];
+                            let dx = p.x - p2.x;
+                            let dy = p.y - p2.y;
+                            let dist = Math.sqrt(dx * dx + dy * dy);
+
+                            if (dist < this.connectionDistance) {
+                                let alpha = (1 - dist / this.connectionDistance) * 0.08;
+                                this.ctx.strokeStyle = `rgba(79, 70, 229, ${alpha})`;
+                                this.ctx.lineWidth = 0.5;
+                                this.ctx.beginPath();
+                                this.ctx.moveTo(p.x, p.y);
+                                this.ctx.lineTo(p2.x, p2.y);
+                                this.ctx.stroke();
+                            }
+                        }
+                    }
+                    this.ctx.restore();
+
+                    // 鼠标连线 (非旋转坐标系中连接)
+                    if (mouseXPos && mouseYPos) {
+                        for (let i = 0; i < this.particles.length; i++) {
+                            let p = this.particles[i];
+                            let dx = p.x - mouseXPos;
+                            let dy = p.y - mouseYPos;
+                            let dist = Math.sqrt(dx * dx + dy * dy);
+
+                            if (dist < 150) {
+                                let alpha = (1 - dist / 150) * 0.22;
+                                this.ctx.strokeStyle = `rgba(251, 146, 60, ${alpha})`;
+                                this.ctx.lineWidth = 0.8;
+                                this.ctx.beginPath();
+                                this.ctx.moveTo(p.x, p.y);
+                                this.ctx.lineTo(mouseXPos, mouseYPos);
+                                this.ctx.stroke();
+                            }
+                        }
+                    }
+                }
+            }
+
+            const canvas = document.getElementById('particle-canvas');
+            const system = new ParticleSystem(canvas);
+
+            /* ==========================================================================
+               2. 鼠标跟随暖橘色光晕与前景视差 (Lerp Follow & Parallax)
+               ========================================================================== */
+            const glow = document.getElementById('mouse-glow');
+            let mouseX = window.innerWidth / 2;
+            let mouseY = window.innerHeight / 2;
+            let glowX = mouseX;
+            let glowY = mouseY;
+
+            let parallaxX = 0;
+            let parallaxY = 0;
+            let targetParallaxX = 0;
+            let targetParallaxY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                // 转换坐标用于视差 (-0.5 到 0.5)
+                targetParallaxX = (e.clientX / window.innerWidth) - 0.5;
+                targetParallaxY = (e.clientY / window.innerHeight) - 0.5;
+            }, { passive: true });
+
+            function updateLoop() {
+                const lerpFactor = 0.08;
+                // 光晕跟随
+                glowX += (mouseX - glowX) * lerpFactor;
+                glowY += (mouseY - glowY) * lerpFactor;
+                glow.style.transform = `translate3d(${glowX}px, ${glowY}px, 0)`;
+
+                // 视差偏转
+                parallaxX += (targetParallaxX - parallaxX) * lerpFactor;
+                parallaxY += (targetParallaxY - parallaxY) * lerpFactor;
+                
+                canvas.style.transform = `translate3d(${parallaxX * 20}px, ${parallaxY * 20}px, 0)`;
+
+                const heroes = document.querySelectorAll('.parallax-hero');
+                heroes.forEach(el => {
+                    el.style.transform = `translate3d(${parallaxX * -15}px, ${parallaxY * -15}px, 0)`;
+                });
+
+                // Canvas 粒子渲染
+                system.draw(mouseX, mouseY);
+
+                requestAnimationFrame(updateLoop);
+            }
+            updateLoop();
+
+
+            /* ==========================================================================
+               3. 滚动触发进场动画与数字增长 (Stagger & Counters)
+               ========================================================================== */
+            
+            // 3.1 累加数字增长
+            const counters = document.querySelectorAll('.counter-val');
+            const counterObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target;
+                        const targetVal = parseInt(target.getAttribute('data-target'), 10);
+                        let currentVal = 0;
+                        const duration = 2000;
+                        const startTime = performance.now();
+
+                        function count(now) {
+                            const elapsed = now - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            const easeOutQuad = progress * (2 - progress);
+                            currentVal = Math.floor(easeOutQuad * targetVal);
+                            target.innerText = currentVal;
+
+                            if (progress < 1) {
+                                requestAnimationFrame(count);
+                            } else {
+                                target.innerText = targetVal;
+                            }
+                        }
+                        
+                        requestAnimationFrame(count);
+                        counterObserver.unobserve(target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            counters.forEach(c => counterObserver.observe(c));
+
+            // 3.2 滚动入场效果触发 (包含每个卡片 0.1s Stagger 错落延迟)
+            const scrollElements = document.querySelectorAll('.animate-on-scroll');
+            const elementObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        elementObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            scrollElements.forEach(el => elementObserver.observe(el));
+
+            /* 流水线连接线：进入视口时触发流光 */
+            const pipelineContainer = document.getElementById('pipeline-container');
+            if (pipelineContainer) {
+                const connectorObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        const connectors = pipelineContainer.querySelectorAll('.pipeline-connector');
+                        connectors.forEach((c, i) => {
+                            if (entry.isIntersecting) {
+                                setTimeout(() => c.classList.add('flowing'), i * 150);
+                            } else {
+                                c.classList.remove('flowing');
+                            }
+                        });
+                    });
+                }, { threshold: 0.3 });
+                connectorObserver.observe(pipelineContainer);
+            }
+
+            /* 汉堡菜单开关 */
+            const hamburger = document.getElementById('nav-hamburger');
+            const drawer = document.getElementById('nav-drawer');
+            const drawerClose = document.getElementById('nav-drawer-close');
+
+            hamburger.addEventListener('click', () => drawer.classList.add('open'));
+            drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
+            drawer.querySelectorAll('.drawer-link').forEach(link => {
+                link.addEventListener('click', () => drawer.classList.remove('open'));
+            });
+
+        });
+    </script>
+</body>
+</html>
