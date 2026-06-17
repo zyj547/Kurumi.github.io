@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>重庆星屑游戏官网 | StarDust Games - 《热血打工魂》即将首发</title>
     <!-- Meta SEO -->
     <meta name="description" content="重庆星屑网络游戏科技官网。核心团队深耕10年游戏研运，打造抖音小游戏工业化生产流水线。首款力作《热血打工魂》即将登陆抖音，魔性堆叠消除，引爆社畜逆袭狂潮。">
@@ -64,16 +64,20 @@
         }
 
         .bg-orb-tl {
-            width: 700px;
-            height: 700px;
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            aspect-ratio: 1;
             top: -200px;
             left: -200px;
             background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
         }
 
         .bg-orb-br {
-            width: 600px;
-            height: 600px;
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            aspect-ratio: 1;
             bottom: -150px;
             right: -150px;
             background: radial-gradient(circle, rgba(251, 146, 60, 0.08) 0%, transparent 70%);
@@ -230,7 +234,8 @@
 
         .nav-hamburger span {
             display: block;
-            width: 22px;
+            width: 100%;
+            max-width: 22px;
             height: 2px;
             background: var(--text-primary);
             border-radius: 2px;
@@ -289,8 +294,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             z-index: -2;
             pointer-events: none;
             opacity: 0.5;
@@ -302,10 +308,11 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 600px;
-            height: 600px;
-            margin-left: -300px;
-            margin-top: -300px;
+            --halo-size: min(600px, 100vw);
+            width: var(--halo-size);
+            height: var(--halo-size);
+            margin-left: calc(var(--halo-size) * -0.5);
+            margin-top: calc(var(--halo-size) * -0.5);
             border-radius: 50%;
             background: radial-gradient(circle, rgba(251, 146, 60, 0.05) 0%, rgba(79, 70, 229, 0.02) 55%, rgba(0,0,0,0) 70%);
             pointer-events: none;
@@ -443,8 +450,10 @@
         /* 游戏手柄与星尘环Logo区域 */
         .logo-dpad-container {
             position: relative;
-            width: 90px;
-            height: 90px;
+            width: 100%;
+            max-width: 90px;
+            height: auto;
+            aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -454,8 +463,10 @@
         /* 旋转的星尘环 */
         .logo-orbit-ring {
             position: absolute;
-            width: 76px;
-            height: 76px;
+            width: 100%;
+            max-width: 76px;
+            height: auto;
+            aspect-ratio: 1;
             border: 2px dashed rgba(124, 58, 237, 0.4);
             border-radius: 50%;
             animation: spin 15s linear infinite;
@@ -816,11 +827,11 @@
             flex: 1;
         }
 
-        /* 卡片底部橙色进度条（悬停时扩展） */
         .pipeline-card-bar {
             margin-top: 1.4rem;
             height: 2px;
-            width: 28px;
+            width: 100%;
+            max-width: 28px;
             background: var(--orange-gradient);
             border-radius: 2px;
             transition: width 0.4s cubic-bezier(0.25,1,0.5,1);
@@ -1003,8 +1014,10 @@
         }
 
         .phone-model {
-            width: 250px;
-            height: 500px;
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            aspect-ratio: 1 / 2;
             background: #08090d;
             border: 11px solid #1c1e25;
             border-radius: 36px;
@@ -1201,8 +1214,10 @@
         }
 
         .footer-social-btn {
-            width: 44px;
+            width: 100%;
+            max-width: 44px;
             height: 44px;
+            aspect-ratio: 1;
             border-radius: 50%;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -1240,44 +1255,82 @@
             section { padding: 80px 0 60px; }
             #footer { padding: 3rem 0 2rem; }
 
+            /* 首页首屏高度改用 min-height: 100dvh */
+            #hero {
+                min-height: 100dvh !important;
+                height: auto !important;
+            }
+
+            /* 所有标题字号缩减至桌面端的 40% */
+            .hero-title { font-size: calc(clamp(3.2rem, 7vw, 6rem) * 0.4) !important; }
+            .about-h2 { font-size: calc(clamp(2rem, 3.5vw, 2.8rem) * 0.4) !important; }
+            .timeline-title { font-size: calc(1.05rem * 0.4) !important; }
+            .solution-title { font-size: calc(clamp(1.8rem, 3.5vw, 2.8rem) * 0.4) !important; }
+            .pipeline-card-title { font-size: calc(1.15rem * 0.4) !important; }
+            .product-name { font-size: calc(clamp(2.2rem, 4.5vw, 3.2rem) * 0.4) !important; }
+
             /* Hero */
             .hero-wrapper { gap: 1.2rem; }
-            .hero-title { font-size: clamp(2.4rem, 10vw, 3.2rem); letter-spacing: 1px; }
             .hero-subtitle { font-size: 0.85rem; letter-spacing: 2px; }
             .cta-container { margin-top: 0.8rem; }
 
-            /* About: 数字卡片横排三列 */
+            /* 所有横向排列的卡片、步骤图强制改为纵向单列 */
             .about-counters {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 0.8rem;
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
             }
             .counter-card { padding: 1.4rem 0.6rem; }
             .counter-number { font-size: 1.5rem; }
             .counter-lbl { font-size: 0.7rem; }
 
-            /* About: 时间轴卡片宽度 */
-            .timeline-item { flex: 0 0 260px; padding: 1.2rem; }
+            /* 时间轴步骤图强制纵向单列 */
             .about-timeline { margin-top: 2rem; }
+            .timeline-scroll {
+                flex-direction: column !important;
+                overflow-x: visible !important;
+                scroll-snap-type: none !important;
+                gap: 1.5rem !important;
+            }
+            .timeline-item {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 1.5rem !important;
+            }
 
-            /* About: 文字标题 */
-            .about-h2 { font-size: 1.5rem; }
+            /* About: 文字标题描述 */
             .about-desc { font-size: 0.9rem; }
 
             /* Solution */
             .solution-header { margin-bottom: 2rem; }
-            .solution-title { font-size: 1.5rem; }
             .solution-subtitle { font-size: 0.85rem; }
             .pipeline-card { padding: 1.5rem 1.2rem; gap: 1rem; }
-            .pipeline-card-title { font-size: 1.05rem; }
             .pipeline-card-desc { font-size: 0.82rem; }
 
-            /* Product: 手机模型缩小 */
-            .phone-model { width: 180px; height: 360px; border-width: 8px; border-radius: 28px; }
+            /* Product: 手机模型宽度限制为屏幕宽度的 80% */
+            .phone-model {
+                width: 80vw !important;
+                max-width: 80vw !important;
+                height: auto !important;
+                aspect-ratio: 1 / 2 !important;
+                border-width: 8px !important;
+                border-radius: 28px !important;
+            }
             .pixel-worker { font-size: 1.6rem; }
             .phone-coming-soon { font-size: 0.85rem; }
-            .product-name { font-size: 2rem; }
             .product-description { font-size: 0.9rem; }
             .btn-register-cta { width: 100%; max-width: 280px; justify-content: center; }
+
+            /* 所有按钮触摸高度不小于 44px */
+            button,
+            .btn-game-cta,
+            .btn-register-cta,
+            .nav-hamburger,
+            .nav-drawer-close,
+            .footer-social-btn,
+            .drawer-link {
+                min-height: 44px !important;
+            }
 
             /* Footer */
             .footer-company-name { font-size: 0.85rem; letter-spacing: 2px; }
@@ -1285,10 +1338,9 @@
 
         /* 超小屏 (≤ 375px) */
         @media (max-width: 375px) {
-            .hero-title { font-size: 2.2rem; }
-            .about-counters { grid-template-columns: 1fr; }
-            .counter-card { padding: 1rem; }
-            .phone-model { width: 150px; height: 300px; }
+            .hero-title { font-size: calc(clamp(3.2rem, 7vw, 6rem) * 0.35) !important; }
+            .about-counters { grid-template-columns: 1fr !important; }
+            .counter-card { padding: 1rem !important; }
         }
     </style>
 </head>
@@ -1591,8 +1643,8 @@
                 }
 
                 resize() {
-                    this.canvas.width = window.innerWidth;
-                    this.canvas.height = window.innerHeight;
+                    this.canvas.width = this.canvas.clientWidth;
+                    this.canvas.height = this.canvas.clientHeight;
                     // 自适应粒子数量
                     this.particleCount = Math.min(100, Math.floor((this.canvas.width * this.canvas.height) / 16000));
                     this.init();
