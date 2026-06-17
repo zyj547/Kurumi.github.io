@@ -428,56 +428,64 @@ function drawTrendChart(containerId, rating) {
     }
 
     const width = container.clientWidth || 400;
-    const height = 120;
-    const paddingX = 35;
-    const paddingY = 18;
+    const height = 160;
+    const paddingX = 40;
+    const paddingTop = 24;
+    const paddingBottom = 22;
 
-    const maxVal = Math.max(...data) * 1.15 || 100;
-    const minVal = 0;
+    const maxVal = Math.max(...data) * 1.12 || 100;
 
     const getX = (idx) => paddingX + (idx * (width - paddingX * 2) / (data.length - 1));
-    const getY = (val) => height - paddingY - ((val - minVal) * (height - paddingY * 2) / (maxVal - minVal));
+    const getY = (val) => paddingTop + ((maxVal - val) * (height - paddingTop - paddingBottom) / maxVal);
 
-    let svgContent = `
+    // Smooth cubic bezier path
+    const points = data.map((val, idx) => ({ x: getX(idx), y: getY(val) }));
+    let pathD = `M ${points[0].x},${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const cpx = (prev.x + curr.x) / 2;
+        pathD += ` C ${cpx},${prev.y} ${cpx},${curr.y} ${curr.x},${curr.y}`;
+    }
+
+    const bottomY = height - paddingBottom;
+    let areaD = pathD + ` L ${points[points.length - 1].x},${bottomY} L ${points[0].x},${bottomY} Z`;
+
+    // Grid lines with Y-axis labels
+    let gridLines = "";
+    [0.25, 0.5, 0.75].forEach(pct => {
+        const gy = getY(maxVal * pct);
+        const gVal = Math.round(maxVal * pct);
+        gridLines += `<line x1="${paddingX}" y1="${gy}" x2="${width - paddingX}" y2="${gy}" class="chart-grid-line" />`;
+        gridLines += `<text x="${paddingX - 6}" y="${gy + 3}" class="chart-val-label" text-anchor="end">${gVal}</text>`;
+    });
+    gridLines += `<line x1="${paddingX}" y1="${bottomY}" x2="${width - paddingX}" y2="${bottomY}" stroke="rgba(255,255,255,0.1)" stroke-width="1" />`;
+
+    // Dots and labels
+    let dotsAndLabels = "";
+    const peakIdx = data.indexOf(Math.max(...data));
+    points.forEach((pt, idx) => {
+        dotsAndLabels += `<circle cx="${pt.x}" cy="${pt.y}" class="chart-dot"><title>第${idx + 1}周: ¥${data[idx].toLocaleString()}</title></circle>`;
+        dotsAndLabels += `<text x="${pt.x}" y="${bottomY + 14}" class="chart-label" text-anchor="middle">W${idx + 1}</text>`;
+        if (idx === peakIdx) {
+            dotsAndLabels += `<text x="${pt.x}" y="${pt.y - 10}" class="chart-val-label" text-anchor="middle">¥${data[idx].toLocaleString()}</text>`;
+        }
+    });
+
+    container.innerHTML = `
+        <span class="chart-title"><i class="fa-solid fa-chart-line"></i> 预估销量走势</span>
         <svg class="chart-svg" viewBox="0 0 ${width} ${height}">
             <defs>
                 <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--accent-neon)" stop-opacity="0.4"/>
-                    <stop offset="100%" stop-color="var(--accent-neon)" stop-opacity="0"/>
+                    <stop offset="0%" stop-color="var(--accent-neon)" stop-opacity="0.5"/>
+                    <stop offset="80%" stop-color="var(--accent-neon)" stop-opacity="0.02"/>
                 </linearGradient>
             </defs>
-            <line x1="${paddingX}" y1="${getY(maxVal*0.75)}" x2="${width - paddingX}" y2="${getY(maxVal*0.75)}" class="chart-grid-line" />
-            <line x1="${paddingX}" y1="${getY(maxVal*0.5)}" x2="${width - paddingX}" y2="${getY(maxVal*0.5)}" class="chart-grid-line" />
-            <line x1="${paddingX}" y1="${getY(maxVal*0.25)}" x2="${width - paddingX}" y2="${getY(maxVal*0.25)}" class="chart-grid-line" />
-            
-            <line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
-    `;
-
-    let polylinePoints = [];
-    let areaPoints = [`${getX(0)},${height - paddingY}`];
-
-    data.forEach((val, idx) => {
-        const px = getX(idx);
-        const py = getY(val);
-        polylinePoints.push(`${px},${py}`);
-        areaPoints.push(`${px},${py}`);
-        
-        svgContent += `<circle cx="${px}" cy="${py}" class="chart-dot"><title>第${idx+1}周销量: ${val}份</title></circle>`;
-        svgContent += `<text x="${px}" y="${height - 4}" class="chart-label" text-anchor="middle">W${idx+1}</text>`;
-    });
-    areaPoints.push(`${getX(data.length - 1)},${height - paddingY}`);
-
-    svgContent = `
-        <path d="M ${areaPoints.join(' L ')} Z" class="chart-area" />
-        <path d="M ${polylinePoints.join(' L ')}" class="chart-path" />
-    ` + svgContent;
-
-    svgContent += `
-        <text x="${paddingX - 5}" y="${getY(data[0]) + 4}" class="chart-label" text-anchor="end">${data[0]}</text>
-        <text x="${paddingX - 5}" y="${height - paddingY + 4}" class="chart-label" text-anchor="end">0</text>
+            ${gridLines}
+            <path d="${areaD}" class="chart-area" />
+            <path d="${pathD}" class="chart-path" />
+            ${dotsAndLabels}
         </svg>
     `;
-
-    container.innerHTML = svgContent;
 }
 
