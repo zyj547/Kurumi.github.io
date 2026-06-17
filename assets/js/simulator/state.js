@@ -60,7 +60,7 @@ function createDefaultGameState() {
         rp: 10,
         date: { year: 1, month: 1, week: 1 },
         employees: [
-            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi" }
+            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, fatigue: 0 }
         ],
         unlockedGenres: ["Casual"],
         unlockedTopics: ["Laborer"],
@@ -73,6 +73,7 @@ function createDefaultGameState() {
         // 多周目数据
         medalsGained: 0,
         activePerks: { fundsBoost: false, roguelikeUnlocked: false, fansGrowthBoost: false },
+        researchPerks: { workflow: false, community: false, analytics: false },
         chronology: [],
         saveVersion: SAVE_VERSION
     };
@@ -170,7 +171,9 @@ function sanitizeEmployee(emp, fallback) {
         salary: clampInteger(source.salary, 0, 9999999, fallback.salary || 0),
         level: clampInteger(source.level, 1, 99, fallback.level || 1),
         xp: clampInteger(source.xp, 0, 999999, fallback.xp || 0),
-        trait: enumValue(source.trait, Object.keys(EMPLOYEE_TRAITS), fallback.trait || "none")
+        trait: enumValue(source.trait, Object.keys(EMPLOYEE_TRAITS), fallback.trait || "none"),
+        morale: clampInteger(source.morale, 0, 100, fallback.morale == null ? 75 : fallback.morale),
+        fatigue: clampInteger(source.fatigue, 0, 100, fallback.fatigue || 0)
     };
     if (VALID_SPECIALTIES.includes(source.specialty)) {
         clean.specialty = source.specialty;
@@ -193,6 +196,7 @@ function sanitizeProject(project) {
         art: clampInteger(project.art, 0, 99999, 0),
         design: clampInteger(project.design, 0, 99999, 0),
         bugs: clampInteger(project.bugs, 0, 9999, 0),
+        devEventCooldown: clampInteger(project.devEventCooldown, 0, 12, 0),
         state: enumValue(project.state, VALID_PROJECT_STATES, "coding")
     };
 }
@@ -220,6 +224,14 @@ function sanitizePerks(perks) {
         fundsBoost: Boolean(perks && perks.fundsBoost),
         roguelikeUnlocked: Boolean(perks && perks.roguelikeUnlocked),
         fansGrowthBoost: Boolean(perks && perks.fansGrowthBoost)
+    };
+}
+
+function sanitizeResearchPerks(perks) {
+    return {
+        workflow: Boolean(perks && perks.workflow),
+        community: Boolean(perks && perks.community),
+        analytics: Boolean(perks && perks.analytics)
     };
 }
 
@@ -279,6 +291,7 @@ function sanitizeSave(rawSave) {
     };
     clean.medalsGained = sanitizeMedalCount(migrated.medalsGained);
     clean.activePerks = sanitizePerks(migrated.activePerks);
+    clean.researchPerks = sanitizeResearchPerks(migrated.researchPerks);
     clean.chronology = sanitizeChronology(migrated.chronology);
     clean.saveVersion = SAVE_VERSION;
 

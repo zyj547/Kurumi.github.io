@@ -532,6 +532,46 @@
             color: var(--accent-yellow);
         }
 
+        .project-preview {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.24);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 0.9rem;
+        }
+        .preview-metric {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .preview-label {
+            font-size: 0.68rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0;
+        }
+        .preview-value {
+            font-family: var(--font-title);
+            font-size: 1rem;
+            font-weight: 900;
+            color: #fff;
+            overflow-wrap: anywhere;
+        }
+        .preview-value.good { color: var(--accent-neon); }
+        .preview-value.warn { color: var(--accent-yellow); }
+        .preview-value.risk { color: var(--accent-pink); }
+        .preview-note {
+            grid-column: 1 / -1;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            line-height: 1.45;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 0.75rem;
+        }
+
         .btn-start-dev {
             background: linear-gradient(135deg, #00f0ff 0%, #d946ef 100%);
             border: none;
@@ -1036,6 +1076,36 @@
             flex-direction: column;
             gap: 1rem;
         }
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .score-factor {
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .score-factor-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #fff;
+        }
+        .score-factor-value.good { color: var(--accent-neon); }
+        .score-factor-value.warn { color: var(--accent-yellow); }
+        .score-factor-value.risk { color: var(--accent-pink); }
+        .score-factor-desc {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            line-height: 1.45;
+        }
         .review-item {
             display: flex;
             flex-direction: column;
@@ -1280,6 +1350,10 @@
             .btn-research {
                 white-space: nowrap;
             }
+            .project-preview,
+            .score-breakdown {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 576px) {
@@ -1303,6 +1377,10 @@
             }
             .dev-setup-panel {
                 padding: 1.2rem;
+            }
+            .project-preview,
+            .score-breakdown {
+                grid-template-columns: 1fr;
             }
         }
         /* ── SVG 销量趋势图表 ── */
