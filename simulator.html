@@ -24,10 +24,11 @@
             --accent-yellow: #fbbf24;    /* 策划黄/金 */
             --accent-purple: #7c3aed;    /* 科技/研发紫 */
             --accent-emerald: #10b981;   /* Bug测试绿 */
+            --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #d946ef 100%);
             
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
-            --font-title: 'Orbitron', 'Inter', -apple-system, sans-serif;
+            --font-title: 'Inter', -apple-system, sans-serif;
             --font-body: 'Inter', -apple-system, sans-serif;
         }
 
@@ -1167,6 +1168,8 @@
         .floating-point.art { color: var(--accent-pink); }
         .floating-point.design { color: var(--accent-yellow); }
         .floating-point.bug { color: var(--accent-emerald); }
+        .floating-point.up { color: var(--accent-emerald); text-shadow: 0 0 10px rgba(16,185,129,0.5); }
+        .floating-point.down { color: var(--accent-pink); text-shadow: 0 0 10px rgba(217,70,239,0.5); }
 
         @keyframes float-up-fade {
             0% { transform: translateY(0) scale(0.8); opacity: 1; }
@@ -1327,6 +1330,325 @@
                 padding: 1.2rem;
             }
         }
+        /* ── SVG 销量趋势图表 ── */
+        .chart-container {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem;
+            width: 100%;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0.25rem 0;
+        }
+        .chart-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        .chart-path {
+            fill: none;
+            stroke: var(--accent-neon);
+            stroke-width: 3;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5));
+        }
+        .chart-area {
+            fill: url(#chart-gradient);
+            opacity: 0.15;
+        }
+        .chart-grid-line {
+            stroke: rgba(255,255,255,0.05);
+            stroke-width: 1;
+            stroke-dasharray: 4 4;
+        }
+        .chart-dot {
+            fill: var(--accent-neon);
+            stroke: #0f1224;
+            stroke-width: 2;
+            r: 4.5;
+            transition: r 0.2s;
+            cursor: pointer;
+        }
+        .chart-dot:hover {
+            r: 6.5;
+            fill: var(--accent-pink);
+            stroke: #fff;
+        }
+        .chart-label {
+            font-size: 0.6rem;
+            fill: var(--text-secondary);
+            font-family: var(--font-title);
+        }
+
+        /* ── 发行商选项 ── */
+        .publisher-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .publisher-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        .publisher-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1.25rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .publisher-card:hover {
+            border-color: rgba(255,255,255,0.25);
+            background: rgba(255, 255, 255, 0.02);
+            transform: translateY(-2px);
+        }
+        .publisher-card.selected {
+            border-color: var(--accent-neon);
+            background: rgba(0, 240, 255, 0.04);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+        .pub-icon {
+            font-size: 1.8rem;
+            color: var(--accent-neon);
+            margin-bottom: 0.5rem;
+        }
+        .pub-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
+        .pub-meta {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 0.5rem 0;
+        }
+        .pub-meta div {
+            display: flex;
+            justify-content: space-between;
+        }
+        .pub-lbl {
+            color: var(--text-secondary);
+        }
+        .pub-val {
+            font-weight: 600;
+        }
+        .pub-val.accent {
+            font-family: var(--font-title);
+        }
+        .pub-val.accent-blue {
+            color: var(--accent-neon);
+        }
+        .pub-desc {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── 音频控制面板 ── */
+        .audio-control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            padding: 0 0.25rem;
+        }
+        @media (max-width: 992px) {
+            .audio-control-panel {
+                flex-direction: row;
+                margin: 0;
+                gap: 0.4rem;
+                flex-shrink: 0;
+            }
+        }
+        .audio-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .audio-btn:hover {
+            color: var(--text-primary);
+            border-color: rgba(255,255,255,0.15);
+        }
+        .audio-btn.active {
+            color: var(--accent-neon);
+            border-color: var(--accent-neon);
+            background: rgba(0, 240, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+
+        /* ── 员工特质徽章 ── */
+        .trait-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+            margin-left: 0.5rem;
+            display: inline-block;
+        }
+        .trait-badge.debug { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-emerald); }
+        .trait-badge.idea { background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); color: #c084fc; }
+        .trait-badge.multi { background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.3); color: var(--accent-neon); }
+        .trait-badge.salary { background: rgba(217, 70, 239, 0.15); border: 1px solid rgba(217, 70, 239, 0.3); color: var(--accent-pink); }
+        .trait-badge.lazy { background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.3); color: var(--accent-yellow); }
+
+        /* ── 勋章商店项高亮 ── */
+        .perk-selected {
+            border-color: var(--accent-yellow) !important;
+            background: rgba(251, 191, 36, 0.04) !important;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.15) !important;
+        }
+
+        /* ── 自定义高科技弹窗 ── */
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(5, 8, 15, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .custom-alert-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .custom-alert-card {
+            width: 90%;
+            max-width: 420px;
+            background: linear-gradient(160deg, #1c2034 0%, #0f1222 100%);
+            border: 1.5px solid rgba(0, 240, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.15);
+            padding: 2rem;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .custom-alert-overlay.active .custom-alert-card {
+            transform: scale(1);
+        }
+        .custom-alert-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, #00f0ff, #7c3aed, #d946ef);
+        }
+        .custom-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .custom-alert-icon {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 5px currentColor);
+        }
+        .custom-alert-icon.info { color: var(--accent-neon); }
+        .custom-alert-icon.success { color: var(--accent-emerald); }
+        .custom-alert-icon.warning { color: var(--accent-yellow); }
+        
+        #custom-alert-title {
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+        .custom-alert-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            word-break: break-all;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .custom-alert-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.25rem;
+        }
+        .custom-alert-btn {
+            background: var(--accent-gradient);
+            color: #0b0d10;
+            font-family: var(--font-title);
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            border: none;
+            padding: 0.6rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            outline: none;
+        }
+        .custom-alert-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6), 0 0 10px rgba(217, 70, 239, 0.3);
+        }
+        .custom-alert-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ── 数值变化高亮闪烁动效 ── */
+        @keyframes flash-value-up {
+            0% { color: var(--accent-emerald); text-shadow: 0 0 15px var(--accent-emerald); transform: scale(1.1); }
+            100% { color: inherit; text-shadow: none; transform: scale(1); }
+        }
+        @keyframes flash-value-down {
+            0% { color: var(--accent-pink); text-shadow: 0 0 15px var(--accent-pink); transform: scale(1.1); }
+            100% { color: inherit; text-shadow: none; transform: scale(1); }
+        }
+        .flash-up {
+            animation: flash-value-up 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            display: inline-block;
+            transform-origin: center;
+        }
+        .flash-down {
+            animation: flash-value-down 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            display: inline-block;
+            transform-origin: center;
+        }
     </style>
 </head>
 <body>
@@ -1403,6 +1725,26 @@
                         <button onclick="switchScreen('history')"><i class="fa-solid fa-clock-rotate-left"></i>历史作品</button>
                     </li>
                 </ul>
+
+                <!-- 音效与音乐控制 -->
+                <div class="audio-control-panel">
+                    <button class="audio-btn" id="btn-bgm" onclick="toggleBGM(event)">
+                        <i class="fa-solid fa-music"></i> 音乐: 关
+                    </button>
+                    <button class="audio-btn" id="btn-sfx" class="audio-btn active" onclick="toggleSFX(event)">
+                        <i class="fa-solid fa-volume-high"></i> 音效: 开
+                    </button>
+                </div>
+
+                <!-- 主动破产清盘 -->
+                <button class="nav-footer-btn" style="margin-bottom: 0.6rem; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); color: #f87171; width: 100%; outline: none;" onclick="confirmRestartGame()">
+                    <i class="fa-solid fa-skull"></i>申请破产重算
+                </button>
+
+                <!-- 重置游戏数据 -->
+                <button class="nav-footer-btn" style="margin-bottom: 0.6rem; background: rgba(239, 68, 68, 0.03); border: 1px dashed rgba(239, 68, 68, 0.2); color: rgba(248, 113, 113, 0.7); width: 100%; outline: none;" onclick="resetAllGameData()">
+                    <i class="fa-solid fa-trash-can"></i>清除存档重置
+                </button>
 
                 <!-- 返回主页按钮 -->
                 <a href="index.html" class="nav-footer-btn">
@@ -1618,6 +1960,9 @@
                 </div>
             </div>
 
+            <!-- 动态绘制 SVG 销量折线图 -->
+            <div class="chart-container" id="modal-chart-box"></div>
+
             <div class="review-list" id="modal-reviews">
                 <!-- 动态评论内容 -->
             </div>
@@ -1639,10 +1984,361 @@
         </div>
     </div>
 
+    <!-- 4.4 发行商决策模态框 -->
+    <div class="modal-overlay" id="publisher-modal">
+        <div class="review-card" style="max-width: 750px;">
+            <h3 class="review-title" style="color: var(--accent-neon);"><i class="fa-solid fa-paper-plane"></i> 选择游戏发行渠道</h3>
+            <p class="panel-desc" style="text-align: center; margin-bottom: 1rem;">选择适合您当前游戏规模和财务状况的发行方式，直接影响后续的爆款概率和分成！</p>
+            
+            <div class="publisher-options" id="pub-options-list">
+                <div class="publisher-card selected" id="pub-card-self" onclick="selectPublisherOption('self')">
+                    <div class="pub-icon"><i class="fa-solid fa-user-shield"></i></div>
+                    <div class="pub-name">自主独立发行</div>
+                    <div class="pub-meta">
+                        <div><span class="pub-lbl">预付款</span><span class="pub-val accent">¥0</span></div>
+                        <div><span class="pub-lbl">平台分成</span><span class="pub-val">0% (保留100%)</span></div>
+                        <div><span class="pub-lbl">粉丝曝光</span><span class="pub-val accent-blue">1.0x (无加成)</span></div>
+                    </div>
+                    <p class="pub-desc">独立在各大应用商城上架，无需任何额外费用，但缺乏流量扶持。</p>
+                </div>
+                
+                <div class="publisher-card" id="pub-card-tiktok" onclick="selectPublisherOption('tiktok')">
+                    <div class="pub-icon" style="color: var(--accent-pink);"><i class="fa-brands fa-tiktok"></i></div>
+                    <div class="pub-name">抖音精选独占</div>
+                    <div class="pub-meta">
+                        <div><span class="pub-lbl">预付款</span><span class="pub-val accent" style="color: var(--accent-emerald);">+¥5,000</span></div>
+                        <div><span class="pub-lbl">平台分成</span><span class="pub-val">50% (抽取一半)</span></div>
+                        <div><span class="pub-lbl">粉丝曝光</span><span class="pub-val accent-blue">1.5x 流量推荐</span></div>
+                    </div>
+                    <p class="pub-desc">与抖音精选深度联运，瞬间获取大量推荐并获得补贴金，但分成折半。</p>
+                </div>
+                
+                <div class="publisher-card" id="pub-card-steam" onclick="selectPublisherOption('steam')">
+                    <div class="pub-icon" style="color: var(--accent-yellow);"><i class="fa-brands fa-steam"></i></div>
+                    <div class="pub-name">Steam 大厂联运</div>
+                    <div class="pub-meta">
+                        <div><span class="pub-lbl">预付款</span><span class="pub-val accent" style="color: var(--accent-pink);">-¥5,000</span></div>
+                        <div><span class="pub-lbl">平台分成</span><span class="pub-val">30% (抽取三成)</span></div>
+                        <div><span class="pub-lbl">粉丝曝光</span><span class="pub-val accent-blue">2.5x 爆发引流</span></div>
+                    </div>
+                    <p class="pub-desc">通过国际发行商上架，需垫付 ¥5,000 申请费，但可带来全球爆发性推广。</p>
+                </div>
+            </div>
+            
+            <button class="btn-modal-close" style="margin-top: 1.5rem; width: 100%;" onclick="confirmPublisherSelection()">
+                签署协议并正式推向市场！
+            </button>
+        </div>
+    </div>
+
+    <!-- 4.5 破产结算模态框 -->
+    <div class="modal-overlay" id="bankruptcy-modal">
+        <div class="review-card" style="max-width: 500px; text-align: center;">
+            <h3 class="review-title" style="color: var(--accent-pink);"><i class="fa-solid fa-skull-crossbones"></i> 工作室破产重组</h3>
+            
+            <div class="rating-box" style="margin: 1rem 0; background: rgba(217, 70, 239, 0.05); border-color: rgba(217, 70, 239, 0.2);">
+                <div class="rating-num" style="font-size: 2.2rem; color: var(--accent-pink);" id="settle-title">创业终结</div>
+                <div class="rating-stars" style="color: var(--text-secondary); font-size: 0.85rem;" id="settle-subtitle">
+                    桔子工作室由于债务赤字宣布破产倒闭
+                </div>
+            </div>
+
+            <div class="review-list" style="text-align: left; gap: 0.75rem;">
+                <div class="list-item" style="border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 0.5rem;">
+                    <span class="list-lbl">已发布游戏数</span>
+                    <span class="list-val" id="settle-games-count" style="color: #fff;">0 款</span>
+                </div>
+                <div class="list-item" style="border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 0.5rem;">
+                    <span class="list-lbl">历史最大粉丝群</span>
+                    <span class="list-val" id="settle-max-fans" style="color: var(--accent-neon);">0 名</span>
+                </div>
+                <div class="list-item" style="border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 0.5rem;">
+                    <span class="list-lbl">公司最终净资产</span>
+                    <span class="list-val" id="settle-final-funds" style="color: var(--accent-yellow);">¥0</span>
+                </div>
+                <div class="list-item" style="padding-top: 0.5rem; justify-content: center; background: rgba(0,240,255,0.04); border: 1px dashed rgba(0,240,255,0.2); border-radius: 8px; padding: 0.8rem; flex-direction: column; align-items: center; gap: 0.4rem;">
+                    <span class="list-lbl" style="font-weight: 700; color: var(--accent-neon);">🏆 获得多周目“桔子勋章”</span>
+                    <span class="list-val" id="settle-medals-gained" style="font-size: 1.5rem; font-family: var(--font-title); color: var(--accent-yellow);">+0 枚</span>
+                    <span style="font-size: 0.7rem; color: var(--text-secondary);">勋章已持久保存，可在新游戏开局前购买永久加成！</span>
+                </div>
+            </div>
+
+            <button class="btn-modal-close" style="margin-top: 1rem; width: 100%; background: linear-gradient(135deg, #d946ef 0%, #7c3aed 100%); box-shadow: 0 0 15px rgba(217,70,239,0.3);" onclick="goToMedalShop()">
+                进入下一世，开启多周目！
+            </button>
+        </div>
+    </div>
+
+    <!-- 4.6 桔子勋章特权商店模态框 -->
+    <div class="modal-overlay" id="medal-shop-modal">
+        <div class="review-card" style="max-width: 650px;">
+            <h3 class="review-title" style="color: var(--accent-yellow);"><i class="fa-solid fa-store"></i> 桔子勋章特权商店</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.15); border-radius: 10px; padding: 0.75rem 1rem;">
+                <span style="font-size: 0.88rem; color: var(--text-secondary);"><i class="fa-solid fa-award"></i> 当前拥有勋章数：</span>
+                <span id="shop-owned-medals" style="font-family: var(--font-title); font-size: 1.25rem; font-weight: 900; color: var(--accent-yellow);">0 枚</span>
+            </div>
+            
+            <p class="panel-desc" style="text-align: center; margin-bottom: 0.5rem;">购买强力传承特权，直接加成下一局初始属性（开局购买，单局内永久生效）</p>
+            
+            <div class="review-list" style="gap: 0.85rem;">
+                <!-- 特权一 -->
+                <div class="list-item" style="flex-direction: row; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.3s;" id="perk-row-funds" onclick="togglePerkSelection('fundsBoost', 1)">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                        <div style="font-size: 1.8rem; color: var(--accent-neon); width: 40px; text-align: center;"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">天使轮注资 (初始资金提升)</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">开局资金提升至 ¥80,000（额外赠送 ¥30,000）</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;">
+                        <span style="font-family: var(--font-title); font-size: 0.85rem; color: var(--accent-yellow); font-weight: 700;">1 勋章</span>
+                        <span class="btn-research" id="perk-badge-funds" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; border-color: rgba(255,255,255,0.2); color: var(--text-secondary); pointer-events: none;">未选中</span>
+                    </div>
+                </div>
+
+                <!-- 特权二 -->
+                <div class="list-item" style="flex-direction: row; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.3s;" id="perk-row-rogue" onclick="togglePerkSelection('roguelikeUnlocked', 2)">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                        <div style="font-size: 1.8rem; color: var(--accent-pink); width: 40px; text-align: center;"><i class="fa-solid fa-skull"></i></div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">技术传承 (初始解锁 Roguelike)</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">无需研究，开局自动解锁高收益游戏类型：“动作地牢”</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;">
+                        <span style="font-family: var(--font-title); font-size: 0.85rem; color: var(--accent-yellow); font-weight: 700;">2 勋章</span>
+                        <span class="btn-research" id="perk-badge-rogue" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; border-color: rgba(255,255,255,0.2); color: var(--text-secondary); pointer-events: none;">未选中</span>
+                    </div>
+                </div>
+
+                <!-- 特权三 -->
+                <div class="list-item" style="flex-direction: row; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.3s;" id="perk-row-fans" onclick="togglePerkSelection('fansGrowthBoost', 3)">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                        <div style="font-size: 1.8rem; color: var(--accent-yellow); width: 40px; text-align: center;"><i class="fa-solid fa-tower-broadcast"></i></div>
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem; text-align: left;">
+                            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">大厂光环 (粉丝自然回流)</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">名气效应加成，游戏公司每天自然吸引 +5 名粉丝</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.3rem;">
+                        <span style="font-family: var(--font-title); font-size: 0.85rem; color: var(--accent-yellow); font-weight: 700;">3 勋章</span>
+                        <span class="btn-research" id="perk-badge-fans" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; border-color: rgba(255,255,255,0.2); color: var(--text-secondary); pointer-events: none;">未选中</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.8rem; padding: 0 0.5rem;">
+                <span style="color: var(--text-secondary);">结算总扣除勋章：<span id="shop-total-cost" style="color: var(--accent-pink); font-family: var(--font-title); font-weight: 700;">0</span> 枚</span>
+                <span style="color: var(--text-secondary);">剩余：<span id="shop-remaining-medals" style="color: var(--accent-neon); font-family: var(--font-title); font-weight: 700;">0</span> 枚</span>
+            </div>
+
+            <button class="btn-modal-close" style="margin-top: 1rem; width: 100%; background: linear-gradient(135deg, #00f0ff 0%, #7c3aed 100%);" onclick="applyMedalShopPerksAndStart()">
+                签署协议，正式重组启程！
+            </button>
+        </div>
+    </div>
+
+    <!-- 6. 自定义高科技弹窗 (Custom Alert Overlay) -->
+    <div id="custom-alert-modal" class="custom-alert-overlay">
+        <div class="custom-alert-card glass-card">
+            <div class="custom-alert-header">
+                <i class="fa-solid fa-bell custom-alert-icon info"></i>
+                <span id="custom-alert-title">系统提示</span>
+            </div>
+            <div class="custom-alert-body" id="custom-alert-message">
+                提示内容
+            </div>
+            <div class="custom-alert-footer">
+                <button class="custom-alert-btn" id="custom-alert-confirm-btn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. 自定义高科技确认弹窗 (Custom Confirm Overlay) -->
+    <div id="custom-confirm-modal" class="custom-alert-overlay">
+        <div class="custom-alert-card glass-card">
+            <div class="custom-alert-header">
+                <i class="fa-solid fa-circle-question custom-alert-icon info"></i>
+                <span id="custom-confirm-title">系统确认</span>
+            </div>
+            <div class="custom-alert-body" id="custom-confirm-message">
+                确认内容
+            </div>
+            <div class="custom-alert-footer" style="gap: 1rem;">
+                <button class="custom-alert-btn" id="custom-confirm-cancel-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: var(--text-secondary); box-shadow: none;">取消</button>
+                <button class="custom-alert-btn" id="custom-confirm-ok-btn">确定</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ==========================================================================
        5. 游戏Tycoon引擎逻辑 (Simulator Engine Script)
        ========================================================================== -->
     <script>
+        // ==========================================================================
+        // 重写 window.alert 弹窗系统 (接管为自定义高科技 Modal 弹窗)
+        // ==========================================================================
+        let alertQueue = [];
+        let isAlertActive = false;
+
+        window.alert = function(message, title = "系统提示") {
+            return new Promise((resolve) => {
+                alertQueue.push({ message, title, resolve });
+                processAlertQueue();
+            });
+        };
+
+        function processAlertQueue() {
+            if (isAlertActive || alertQueue.length === 0) return;
+            isAlertActive = true;
+
+            const { message, title, resolve } = alertQueue.shift();
+
+            const modal = document.getElementById("custom-alert-modal");
+            const titleEl = document.getElementById("custom-alert-title");
+            const msgEl = document.getElementById("custom-alert-message");
+            const btn = document.getElementById("custom-alert-confirm-btn");
+            const iconEl = modal.querySelector(".custom-alert-icon");
+
+            titleEl.innerText = title;
+            msgEl.innerHTML = message; // 允许嵌入一些HTML比如加粗或图标
+
+            // 根据弹窗内容自动分配图标和颜色
+            if (message.includes("⚠️") || message.includes("不足") || message.includes("警告")) {
+                iconEl.className = "fa-solid fa-triangle-exclamation custom-alert-icon warning";
+            } else if (message.includes("恭喜") || message.includes("成功") || message.includes("入职") || message.includes("解除") || message.includes("增加") || message.includes("重组") || message.includes("提升")) {
+                iconEl.className = "fa-solid fa-circle-check custom-alert-icon success";
+            } else {
+                iconEl.className = "fa-solid fa-bell custom-alert-icon info";
+            }
+
+            modal.classList.add("active");
+
+            // 播放提示音效 (如果音频引擎已就绪且可用)
+            if (typeof playSFX === "function") {
+                if (message.includes("不足") || message.includes("⚠️")) {
+                    playSFX("bug");
+                } else if (message.includes("成功") || message.includes("重组") || message.includes("恭喜") || message.includes("提升")) {
+                    playSFX("success");
+                } else {
+                    playSFX("click");
+                }
+            }
+
+            const handleClose = () => {
+                modal.classList.remove("active");
+                btn.removeEventListener("click", handleClose);
+                document.removeEventListener("keydown", handleKeydown);
+                setTimeout(() => {
+                    isAlertActive = false;
+                    resolve();
+                    processAlertQueue();
+                }, 300); // 300ms 渐隐动画结束后执行下一个或 resolve
+            };
+
+            const handleKeydown = (e) => {
+                if (e.key === "Enter" || e.key === "Escape") {
+                    e.preventDefault();
+                    handleClose();
+                }
+            };
+
+            btn.addEventListener("click", handleClose);
+            document.addEventListener("keydown", handleKeydown);
+            
+            // 给按钮焦点，方便键盘操作
+            setTimeout(() => {
+                btn.focus();
+            }, 50);
+        }
+
+        // ==========================================================================
+        // 重写 window.confirm 确认弹窗系统 (接管为自定义高科技 Confirm Modal 弹窗)
+        // ==========================================================================
+        let confirmQueue = [];
+        let isConfirmActive = false;
+
+        window.confirm = function(message, title = "系统确认") {
+            return new Promise((resolve) => {
+                confirmQueue.push({ message, title, resolve });
+                processConfirmQueue();
+            });
+        };
+
+        function processConfirmQueue() {
+            if (isConfirmActive || confirmQueue.length === 0) return;
+            isConfirmActive = true;
+
+            const { message, title, resolve } = confirmQueue.shift();
+
+            const modal = document.getElementById("custom-confirm-modal");
+            const titleEl = document.getElementById("custom-confirm-title");
+            const msgEl = document.getElementById("custom-confirm-message");
+            const okBtn = document.getElementById("custom-confirm-ok-btn");
+            const cancelBtn = document.getElementById("custom-confirm-cancel-btn");
+            const iconEl = modal.querySelector(".custom-alert-icon");
+
+            titleEl.innerText = title;
+            msgEl.innerHTML = message.replace(/\n/g, "<br>"); // 支持换行转换
+
+            // 根据弹窗内容自动分配图标
+            if (message.includes("警告") || message.includes("彻底删除") || message.includes("清除") || message.includes("💀")) {
+                iconEl.className = "fa-solid fa-triangle-exclamation custom-alert-icon warning";
+            } else {
+                iconEl.className = "fa-solid fa-circle-question custom-alert-icon info";
+            }
+
+            modal.classList.add("active");
+
+            // 播放音效
+            if (typeof playSFX === "function") {
+                playSFX("click");
+            }
+
+            const cleanUp = () => {
+                modal.classList.remove("active");
+                okBtn.removeEventListener("click", handleOk);
+                cancelBtn.removeEventListener("click", handleCancel);
+                document.removeEventListener("keydown", handleKeydown);
+            };
+
+            const handleOk = () => {
+                cleanUp();
+                setTimeout(() => {
+                    isConfirmActive = false;
+                    resolve(true);
+                    processConfirmQueue();
+                }, 300);
+            };
+
+            const handleCancel = () => {
+                cleanUp();
+                setTimeout(() => {
+                    isConfirmActive = false;
+                    resolve(false);
+                    processConfirmQueue();
+                }, 300);
+            };
+
+            const handleKeydown = (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleOk();
+                } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    handleCancel();
+                }
+            };
+
+            okBtn.addEventListener("click", handleOk);
+            cancelBtn.addEventListener("click", handleCancel);
+            document.addEventListener("keydown", handleKeydown);
+            
+            // 默认聚焦在确定按钮上
+            setTimeout(() => {
+                okBtn.focus();
+            }, 50);
+        }
         // 游戏数据定义
         const PLATFORMS_DATA = {
             "Mobile": { name: "手机端", cost: 0, scale: 1.0, icon: "fa-solid fa-mobile-screen-button" },
@@ -1665,7 +2361,17 @@
             "Retro": { name: "像素复古", cost: 18000, bestGenres: ["Casual", "Roguelike"], icon: "fa-solid fa-cubes" }
         };
 
-        const RANDOM_NAMES = ["张三", "李四", "王五", "小智", "阿伟", "老陈", "阿强", "小美", "大壮", "杰克", "露西", "艾伦"];
+        // 员工特质定义
+        const EMPLOYEE_TRAITS = {
+            "none": { name: "无", desc: "没有什么突出的特质", badgeClass: "" },
+            "debug": { name: "Debug狂魔", desc: "清除Bug速率+50%", badgeClass: "debug" },
+            "idea": { name: "灵感爆棚", desc: "闲置时RP产出效率+50%", badgeClass: "idea" },
+            "multi": { name: "全能选手", desc: "精英培训时属性增长加成 1.2 倍", badgeClass: "multi" },
+            "salary": { name: "薪水杀手", desc: "能力极强，但每周薪金翻倍", badgeClass: "salary" },
+            "lazy": { name: "摸鱼达人", desc: "培训成本减半，但属性增长极随机", badgeClass: "lazy" }
+        };
+
+        const RANDOM_NAMES = ["张三", "李四", "王五", "小智", "阿伟", "老陈", "阿强", "小美", "大壮", "阿龙", "小华", "杰森"];
 
         // 默认初始化存档状态
         let gameState = {
@@ -1675,7 +2381,7 @@
             rp: 10,
             date: { year: 1, month: 1, week: 1 },
             employees: [
-                { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0 }
+                { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi" }
             ],
             unlockedGenres: ["Casual"],
             unlockedTopics: ["Laborer"],
@@ -1683,8 +2389,15 @@
             releases: [],
             currentProject: null,
             lastIncome: 0,
-            activeTrend: { genre: "Casual", topic: "Laborer" }
+            activeTrend: { genre: "Casual", topic: "Laborer" },
+            // 多周目数据
+            medalsGained: 0,
+            activePerks: { fundsBoost: false, roguelikeUnlocked: false, fansGrowthBoost: false }
         };
+
+        // 跨周目勋章与特权持久化变量
+        let orangeMedalsCount = parseInt(localStorage.getItem("orange_medals") || "0");
+        let shopSelectedPerks = { fundsBoost: false, roguelikeUnlocked: false, fansGrowthBoost: false };
 
         // 临时招聘池
         let hiringPool = [];
@@ -1707,10 +2420,21 @@
             }
         };
 
+        function isGamePaused() {
+            const modals = ["custom-alert-modal", "custom-confirm-modal", "review-modal", "event-modal", "publisher-modal", "bankruptcy-modal", "medal-shop-modal"];
+            return modals.some(id => {
+                const el = document.getElementById(id);
+                return el && el.classList.contains("active");
+            });
+        }
+
         // ==========================================================================
         // 核心时钟 (Game Tick Loop)
         // ==========================================================================
         function gameTick() {
+            // 如果有任何模态弹窗激活，暂停时钟推进
+            if (isGamePaused()) return;
+
             // 递增周数
             gameState.date.week++;
             if (gameState.date.week > 4) {
@@ -1736,7 +2460,13 @@
                     // 收益计算衰减
                     const decay = Math.pow(0.75, game.weeksSinceRelease);
                     let baseRevenue = game.rating * 1500 * (1 + gameState.fans * 0.002) * PLATFORMS_DATA[game.platform].scale;
-                    let thisWeekRev = Math.round(baseRevenue * decay);
+                    
+                    // 应用发行商的分成政策
+                    let shareMultiplier = 1.0;
+                    if (game.publisher === "tiktok") shareMultiplier = 0.5; // 抖音独占扣除 50%
+                    if (game.publisher === "steam") shareMultiplier = 0.7; // Steam联运扣除 30%
+                    
+                    let thisWeekRev = Math.round(baseRevenue * decay * shareMultiplier);
                     weeklySales += thisWeekRev;
                     game.revenueGenerated += thisWeekRev;
                     game.weeksSinceRelease++;
@@ -1746,12 +2476,21 @@
             gameState.funds += weeklySales;
             gameState.lastIncome = weeklySales - totalOut;
 
+            // 大厂光环：名气回流特权（多周目特权）
+            if (gameState.activePerks && gameState.activePerks.fansGrowthBoost) {
+                gameState.fans += 5;
+            }
+
             // 闲置状态下员工积累研发点 (RP)
             if (!gameState.currentProject) {
                 gameState.employees.forEach(emp => {
                     // 每个人闲置时有几率积累 RP
                     if (Math.random() < 0.25) {
-                        gameState.rp += Math.round(emp.level * (Math.random() > 0.5 ? 1 : 2));
+                        let rpGained = emp.level * (Math.random() > 0.5 ? 1 : 2);
+                        if (emp.trait === "idea") {
+                            rpGained = Math.round(rpGained * 1.5); // 灵感爆棚特质
+                        }
+                        gameState.rp += rpGained;
                     }
                 });
             } else {
@@ -1909,6 +2648,8 @@
             const proj = gameState.currentProject;
             if (!proj || proj.state !== "coding") return;
 
+            let anyPointGenerated = false;
+
             // 每周根据雇员能力递增点数
             gameState.employees.forEach((emp, index) => {
                 // 根据工种产生相对应的点数
@@ -1924,11 +2665,12 @@
                     codeGen = (emp.stats.code * 0.1);
                 }
 
-                // 产生 Bug 的概率
-                let bugChance = 0.15;
+                // 产生 Bug 的概率 (Debug 狂魔减半)
+                let bugChance = emp.trait === "debug" ? 0.07 : 0.15;
                 if (Math.random() < bugChance) {
                     proj.bugs += Math.floor(Math.random() * 3) + 1;
                     spawnFloatingText("BUG+", "overlay-bugs", "bug");
+                    playSFX("bug");
                 }
 
                 // 累加属性
@@ -1936,11 +2678,15 @@
                 proj.art += artGen;
                 proj.design += desGen;
 
-                // 飘字动画效果
-                if (codeGen > 2) spawnFloatingText(`+${Math.round(codeGen)}`, "overlay-code", "code");
-                if (artGen > 2) spawnFloatingText(`+${Math.round(artGen)}`, "overlay-art", "art");
-                if (desGen > 2) spawnFloatingText(`+${Math.round(desGen)}`, "overlay-design", "design");
+                // 飘字与音效效果
+                if (codeGen > 2.5) { spawnFloatingText(`+${Math.round(codeGen)}`, "overlay-code", "code"); anyPointGenerated = true; }
+                if (artGen > 2.5) { spawnFloatingText(`+${Math.round(artGen)}`, "overlay-art", "art"); anyPointGenerated = true; }
+                if (desGen > 2.5) { spawnFloatingText(`+${Math.round(desGen)}`, "overlay-design", "design"); anyPointGenerated = true; }
             });
+
+            if (anyPointGenerated) {
+                playSFX("point");
+            }
 
             // 增加开发进度 (进度速度由所有员工总效率决定)
             const teamPower = gameState.employees.reduce((sum, emp) => sum + (emp.stats.code + emp.stats.art + emp.stats.design), 0);
@@ -1950,6 +2696,7 @@
             if (proj.progress >= 100) {
                 proj.progress = 100;
                 proj.state = "debugging";
+                playSFX("success");
             }
 
             updateDevStatsUI();
@@ -1960,24 +2707,45 @@
             if (!proj) return;
 
             if (proj.state === "debugging") {
-                // 点击修复 Bug
-                let qaPower = gameState.employees.reduce((sum, emp) => sum + emp.stats.code, 0) + 10;
+                // 点击修复 Bug (计算 Debug 狂魔加成)
+                let qaPower = gameState.employees.reduce((sum, emp) => {
+                    let power = emp.stats.code;
+                    if (emp.trait === "debug") {
+                        power = Math.round(power * 1.5); // Debug狂魔加成+50%
+                    }
+                    return sum + power;
+                }, 0) + 10;
+                
                 let fixCount = Math.round(qaPower * 0.4 + 2);
                 proj.bugs -= fixCount;
+                playSFX("click");
+                
                 if (proj.bugs <= 0) {
                     proj.bugs = 0;
                     proj.state = "finished";
+                    playSFX("success");
                 }
                 updateDevStatsUI();
             } else if (proj.state === "finished") {
-                // 点击发布游戏，进行结算和模态框显示
-                releaseGame();
+                // 点击发布游戏，改为先弹出发行商选择对话框，而不再直接 releaseGame
+                playSFX("click");
+                showPublisherModal();
             }
         }
 
-        function releaseGame() {
+        function releaseGame(publisherType) {
             const proj = gameState.currentProject;
             if (!proj) return;
+
+            // 应用发行商的前期收支与粉丝曝光乘数
+            let fansMultiplier = 1.0;
+            if (publisherType === "tiktok") {
+                gameState.funds += 5000;
+                fansMultiplier = 1.5;
+            } else if (publisherType === "steam") {
+                gameState.funds -= 5000;
+                fansMultiplier = 2.5;
+            }
 
             // 评估分数算法
             const totalPoints = proj.code + proj.art + proj.design;
@@ -2010,15 +2778,17 @@
                 rating: finalScore,
                 weeksSinceRelease: 0,
                 revenueGenerated: 0,
-                fansGained: Math.round(finalScore * finalScore * 25 * bonus)
+                publisher: publisherType,
+                fansGained: Math.round(finalScore * finalScore * 25 * bonus * fansMultiplier)
             };
 
             gameState.releases.unshift(release);
             gameState.fans += release.fansGained;
             gameState.currentProject = null; // 清空项目
 
-            // 隐藏开发遮罩，弹出评测模态框
+            // 隐藏开发遮罩与发行商选择弹窗，弹出评测模态框
             document.getElementById("development-overlay").classList.remove("active");
+            document.getElementById("publisher-modal").classList.remove("active");
             showReviewModal(release, reviews);
         }
 
@@ -2080,6 +2850,11 @@
                 starContainer.appendChild(star);
             }
 
+            // 绘制霓虹销量图
+            setTimeout(() => {
+                drawTrendChart("modal-chart-box", release.rating);
+            }, 100);
+
             // 评论渲染
             const reviewContainer = document.getElementById("modal-reviews");
             reviewContainer.innerHTML = "";
@@ -2119,8 +2894,16 @@
                 const art = Math.round(role === "artist" ? 28 + seed * 28 : 5 + seed * 15);
                 const design = Math.round(role === "designer" ? 26 + seed * 30 : 8 + seed * 12);
                 
-                const salary = Math.round((code + art + design) * 22 + 500);
+                let salary = Math.round((code + art + design) * 22 + 500);
                 const cost = Math.round(salary * 2); // 招聘费
+
+                // 随机产生员工特质
+                const traitKeys = Object.keys(EMPLOYEE_TRAITS);
+                const randomTrait = Math.random() > 0.35 ? traitKeys[Math.floor(Math.random() * (traitKeys.length - 1)) + 1] : "none";
+                
+                if (randomTrait === "salary") {
+                    salary = salary * 2; // 薪水杀手双倍周薪
+                }
 
                 hiringPool.push({
                     name: rName,
@@ -2128,7 +2911,8 @@
                     stats: { code, art, design },
                     salary: salary,
                     cost: cost,
-                    level: 1
+                    level: 1,
+                    trait: randomTrait
                 });
             }
         }
@@ -2147,6 +2931,9 @@
                 if (cand.role === "artist") { roleColor = "var(--accent-pink)"; roleName = "美术设计师"; iconClass = "fa-palette"; }
                 if (cand.role === "designer") { roleColor = "var(--accent-yellow)"; roleName = "核心策划"; iconClass = "fa-lightbulb"; }
 
+                const traitObj = EMPLOYEE_TRAITS[cand.trait || "none"];
+                const traitHTML = cand.trait && cand.trait !== "none" ? `<span class="trait-badge ${traitObj.badgeClass}" title="${traitObj.desc}">${traitObj.name}</span>` : "";
+
                 card.innerHTML = `
                     <div class="candidate-header">
                         <div class="candidate-info">
@@ -2154,7 +2941,7 @@
                                 <i class="fa-solid ${iconClass}"></i>
                             </div>
                             <div class="staff-profile">
-                                <span class="staff-name">${cand.name}</span>
+                                <span class="staff-name">${cand.name} ${traitHTML}</span>
                                 <span class="staff-level" style="color: ${roleColor}">${roleName}</span>
                             </div>
                         </div>
@@ -2203,7 +2990,8 @@
                 stats: cand.stats,
                 salary: cand.salary,
                 level: 1,
-                xp: 0
+                xp: 0,
+                trait: cand.trait || "none"
             });
 
             // 移除招募池中的该候选人并重新加载招募列表
@@ -2212,29 +3000,48 @@
             saveGame();
             updateStatsUI();
             loadStaffRecruits();
+            playSFX("click");
             alert(`恭喜！${cand.name} 已成功入职！`);
         }
 
         function trainEmployee(idx) {
             const emp = gameState.employees[idx];
-            const cost = emp.level * 4000;
+            let cost = emp.level * 4000;
+            // 摸鱼达人培训成本减半
+            if (emp.trait === "lazy") {
+                cost = Math.round(cost / 2);
+            }
+            
             if (gameState.funds < cost) {
                 alert("资金不足以支付员工培训费！");
                 return;
             }
 
+            // 备份旧状态用于对比展示
+            const oldLevel = emp.level;
+            const oldStats = { ...emp.stats };
+
             gameState.funds -= cost;
             emp.level++;
             
+            // 属性成长加成计算
+            let factor = 1.0;
+            if (emp.trait === "multi") {
+                factor = 1.2; // 全能选手1.2倍
+            }
+            if (emp.trait === "lazy") {
+                factor = Math.random() > 0.5 ? 1.6 : 0.4; // 摸鱼达人非常随机
+            }
+
             // 提升属性
             if (emp.role === "programmer") {
-                emp.stats.code += Math.floor(Math.random() * 8) + 5;
-                emp.stats.design += Math.floor(Math.random() * 3) + 1;
+                emp.stats.code += Math.round((Math.floor(Math.random() * 8) + 5) * factor);
+                emp.stats.design += Math.round((Math.floor(Math.random() * 3) + 1) * factor);
             } else if (emp.role === "artist") {
-                emp.stats.art += Math.floor(Math.random() * 8) + 5;
+                emp.stats.art += Math.round((Math.floor(Math.random() * 8) + 5) * factor);
             } else if (emp.role === "designer") {
-                emp.stats.design += Math.floor(Math.random() * 8) + 5;
-                emp.stats.code += Math.floor(Math.random() * 3) + 1;
+                emp.stats.design += Math.round((Math.floor(Math.random() * 8) + 5) * factor);
+                emp.stats.code += Math.round((Math.floor(Math.random() * 3) + 1) * factor);
             }
 
             // 加薪
@@ -2243,7 +3050,33 @@
             saveGame();
             updateStatsUI();
             loadOfficeDesks();
-            alert(`${emp.name} 完成了深度技术培训！等级提升到 Lv.${emp.level}，全属性增长！`);
+            playSFX("upgrade");
+
+            // 构建精美的晋升数值对比报告
+            const diffs = [];
+            if (emp.stats.code > oldStats.code) {
+                diffs.push(`<span>代码能力:</span> <span>${oldStats.code} ➔ <b style="color: var(--accent-neon);">${emp.stats.code}</b> (+${emp.stats.code - oldStats.code})</span>`);
+            }
+            if (emp.stats.art > oldStats.art) {
+                diffs.push(`<span>美术表现:</span> <span>${oldStats.art} ➔ <b style="color: var(--accent-pink);">${emp.stats.art}</b> (+${emp.stats.art - oldStats.art})</span>`);
+            }
+            if (emp.stats.design > oldStats.design) {
+                diffs.push(`<span>策划创意:</span> <span>${oldStats.design} ➔ <b style="color: var(--accent-yellow);">${emp.stats.design}</b> (+${emp.stats.design - oldStats.design})</span>`);
+            }
+
+            const msg = `
+                <div style="text-align: left; display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.2rem;">
+                    <div style="font-size: 1.05rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.4rem; font-weight: 700; color: #fff;">
+                        🍊 ${emp.name} 培训晋升成功！
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>级别晋升:</span>
+                        <span>Lv.${oldLevel} ➔ <b style="color: var(--accent-yellow);">Lv.${emp.level}</b></span>
+                    </div>
+                    ${diffs.map(d => `<div style="display: flex; justify-content: space-between; font-size: 0.88rem; opacity: 0.95;">${d}</div>`).join('')}
+                </div>
+            `;
+            alert(msg, "工作室人才升级简报");
         }
 
         // ==========================================================================
@@ -2524,8 +3357,64 @@
             });
         }
 
+        // 顶部核心数据 UI 缓存与数值变化闪烁动效
+        let lastUIStats = { funds: 0, fans: 0, rp: 0 };
+        let isUIInitialized = false;
+
+        function triggerValueFlash(elementId, type) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            // 先移除之前的动画类以触发重新播放
+            el.classList.remove("flash-up", "flash-down");
+            void el.offsetWidth; // 强制 Reflow
+            el.classList.add(type === "up" ? "flash-up" : "flash-down");
+        }
+
         // 渲染顶部数据
         function updateStatsUI() {
+            // 在更新数值前，进行高亮闪烁判定及飘字特效触发
+            if (isUIInitialized) {
+                if (lastUIStats.funds !== undefined) {
+                    if (gameState.funds > lastUIStats.funds) {
+                        triggerValueFlash("stat-funds", "up");
+                        spawnFloatingText(`+¥${Math.round(gameState.funds - lastUIStats.funds).toLocaleString()}`, "stat-funds", "up");
+                    }
+                    if (gameState.funds < lastUIStats.funds) {
+                        triggerValueFlash("stat-funds", "down");
+                        spawnFloatingText(`-¥${Math.round(lastUIStats.funds - gameState.funds).toLocaleString()}`, "stat-funds", "down");
+                    }
+                }
+                if (lastUIStats.fans !== undefined) {
+                    if (gameState.fans > lastUIStats.fans) {
+                        triggerValueFlash("stat-fans", "up");
+                        spawnFloatingText(`+${Math.round(gameState.fans - lastUIStats.fans).toLocaleString()} 粉丝`, "stat-fans", "up");
+                    }
+                    if (gameState.fans < lastUIStats.fans) {
+                        triggerValueFlash("stat-fans", "down");
+                        spawnFloatingText(`-${Math.round(lastUIStats.fans - gameState.fans).toLocaleString()} 粉丝`, "stat-fans", "down");
+                    }
+                }
+                if (lastUIStats.rp !== undefined) {
+                    if (gameState.rp > lastUIStats.rp) {
+                        triggerValueFlash("stat-rp", "up");
+                        spawnFloatingText(`+${gameState.rp - lastUIStats.rp} RP`, "stat-rp", "up");
+                    }
+                    if (gameState.rp < lastUIStats.rp) {
+                        triggerValueFlash("stat-rp", "down");
+                        spawnFloatingText(`-${lastUIStats.rp - gameState.rp} RP`, "stat-rp", "down");
+                    }
+                }
+            }
+
+            // 更新缓存，以防下次判定偏离
+            lastUIStats = {
+                funds: gameState.funds,
+                fans: gameState.fans,
+                rp: gameState.rp
+            };
+            isUIInitialized = true;
+
             document.getElementById("stat-funds").innerText = `¥${gameState.funds.toLocaleString()}`;
             document.getElementById("stat-fans").innerText = gameState.fans.toLocaleString();
             document.getElementById("stat-rp").innerText = gameState.rp;
@@ -2557,19 +3446,27 @@
             spawnFloatingText("市场趋势发生偏转！", "stat-date", "design");
         }
 
-        // 飘字特效生成器
+        // 飘字特效生成器 (优化性能：避免 getBoundingClientRect 触发强制 Reflow)
         function spawnFloatingText(text, targetId, className) {
             const targetEl = document.getElementById(targetId);
             if (!targetEl) return;
 
-            const rect = targetEl.getBoundingClientRect();
+            // 动态确保目标父容器具有 relative 定位
+            if (window.getComputedStyle(targetEl).position === "static") {
+                targetEl.style.position = "relative";
+            }
+
             const fl = document.createElement("div");
             fl.className = `floating-point ${className}`;
             fl.innerText = text;
-            fl.style.left = `${rect.left + window.scrollX + (rect.width/2) + (Math.random()*40 - 20)}px`;
-            fl.style.top = `${rect.top + window.scrollY - 10}px`;
+            
+            // 采用局部相对定位
+            fl.style.position = "absolute";
+            fl.style.left = `calc(50% + ${Math.random() * 30 - 15}px)`;
+            fl.style.top = "-15px";
+            fl.style.transform = "translateX(-50%)";
 
-            document.body.appendChild(fl);
+            targetEl.appendChild(fl);
             
             // 动画播放完直接摧毁
             setTimeout(() => {
@@ -2577,34 +3474,450 @@
             }, 1200);
         }
 
-        // 破产保护机制
-        function triggerBankruptcy() {
-            alert("⚠️ 公司的债务已严重超出破产红线（赤字超过 ¥30,000）！桔子工作室宣布倒闭！");
+        // ==========================================================================
+        // 1. 销量趋势 SVG 折线图绘制引擎 (SVG Trend Chart Drawer)
+        // ==========================================================================
+        function drawTrendChart(containerId, rating) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = "";
+
+            const baseValue = Math.round(rating * rating * 90 + 250);
+            let data = [];
+            for (let i = 0; i < 8; i++) {
+                const factor = Math.pow(0.65 + (rating * 0.02), i);
+                data.push(Math.round(baseValue * factor + Math.random() * (baseValue * 0.05)));
+            }
+
+            const width = container.clientWidth || 400;
+            const height = 120;
+            const paddingX = 35;
+            const paddingY = 18;
+
+            const maxVal = Math.max(...data) * 1.15 || 100;
+            const minVal = 0;
+
+            const getX = (idx) => paddingX + (idx * (width - paddingX * 2) / (data.length - 1));
+            const getY = (val) => height - paddingY - ((val - minVal) * (height - paddingY * 2) / (maxVal - minVal));
+
+            let svgContent = `
+                <svg class="chart-svg" viewBox="0 0 ${width} ${height}">
+                    <defs>
+                        <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="var(--accent-neon)" stop-opacity="0.4"/>
+                            <stop offset="100%" stop-color="var(--accent-neon)" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <line x1="${paddingX}" y1="${getY(maxVal*0.75)}" x2="${width - paddingX}" y2="${getY(maxVal*0.75)}" class="chart-grid-line" />
+                    <line x1="${paddingX}" y1="${getY(maxVal*0.5)}" x2="${width - paddingX}" y2="${getY(maxVal*0.5)}" class="chart-grid-line" />
+                    <line x1="${paddingX}" y1="${getY(maxVal*0.25)}" x2="${width - paddingX}" y2="${getY(maxVal*0.25)}" class="chart-grid-line" />
+                    
+                    <line x1="${paddingX}" y1="${height - paddingY}" x2="${width - paddingX}" y2="${height - paddingY}" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" />
+            `;
+
+            let polylinePoints = [];
+            let areaPoints = [`${getX(0)},${height - paddingY}`];
+
+            data.forEach((val, idx) => {
+                const px = getX(idx);
+                const py = getY(val);
+                polylinePoints.push(`${px},${py}`);
+                areaPoints.push(`${px},${py}`);
+                
+                svgContent += `<circle cx="${px}" cy="${py}" class="chart-dot"><title>第${idx+1}周销量: ${val}份</title></circle>`;
+                svgContent += `<text x="${px}" y="${height - 4}" class="chart-label" text-anchor="middle">W${idx+1}</text>`;
+            });
+            areaPoints.push(`${getX(data.length - 1)},${height - paddingY}`);
+
+            svgContent = `
+                <path d="M ${areaPoints.join(' L ')} Z" class="chart-area" />
+                <path d="M ${polylinePoints.join(' L ')}" class="chart-path" />
+            ` + svgContent;
+
+            svgContent += `
+                <text x="${paddingX - 5}" y="${getY(data[0]) + 4}" class="chart-label" text-anchor="end">${data[0]}</text>
+                <text x="${paddingX - 5}" y="${height - paddingY + 4}" class="chart-label" text-anchor="end">0</text>
+                </svg>
+            `;
+
+            container.innerHTML = svgContent;
+        }
+
+        // ==========================================================================
+        // 2. 发行商选择控制与交互 (Publisher Management)
+        // ==========================================================================
+        let tempPublisherType = "self";
+
+        function showPublisherModal() {
+            document.getElementById("publisher-modal").classList.add("active");
+            selectPublisherOption("self");
+        }
+
+        function selectPublisherOption(pubType) {
+            tempPublisherType = pubType;
             
-            // 重置存档
+            // 样式更新
+            const cards = ["self", "tiktok", "steam"];
+            cards.forEach(type => {
+                const cardEl = document.getElementById(`pub-card-${type}`);
+                if (type === pubType) {
+                    cardEl.classList.add("selected");
+                } else {
+                    cardEl.classList.remove("selected");
+                }
+            });
+        }
+
+        function confirmPublisherSelection() {
+            if (tempPublisherType === "steam" && gameState.funds < 5000) {
+                alert("当前资金不足 ¥5,000，无法支付 Steam 发行申请金！请选择其他渠道。");
+                return;
+            }
+            // 真正进行游戏发布
+            releaseGame(tempPublisherType);
+        }
+
+        // ==========================================================================
+        // 3. 破产保护与勋章特权商店 (Bankruptcy & Medal Perks Shop)
+        // ==========================================================================
+        async function confirmRestartGame() {
+            playSFX("click");
+            const ok = await confirm("⚠️ 确定要立刻申请【破产清盘】吗？\n\n这会立刻终结当前的创业周目，当前积累的所有成果与粉丝将按照公式折算为【桔子勋章】！\n您可以携带勋章在多周目特权商店兑换初始资金加倍、动作地牢等继承特权，开启全新的橙色创业帝国之旅！");
+            if (ok) {
+                triggerBankruptcy();
+            }
+        }
+
+        async function resetAllGameData() {
+            playSFX("click");
+            const ok = await confirm("⚠️ 警告：这会彻底删除您当前的游戏进度、所有多周目特权、已积累的【桔子勋章】！\n\n此操作不可逆，确定要清除所有存档并完全重置游戏吗？");
+            if (ok) {
+                localStorage.removeItem("hoshikuzu_tycoon_save");
+                localStorage.removeItem("orange_medals");
+                await alert("已成功清除本地所有数据！页面即将刷新重新开始。");
+                window.location.reload();
+            }
+        }
+
+        function triggerBankruptcy() {
+            playSFX("bankruptcy");
+            clearInterval(loopInterval); // 暂停主时钟
+
+            // 计算本局成绩
+            const gamesCount = gameState.releases.length;
+            const maxFans = gameState.fans;
+            const finalMedals = Math.max(1, Math.floor(maxFans / 800) + Math.floor(gamesCount / 4));
+
+            // 更新多周目勋章数据
+            orangeMedalsCount += finalMedals;
+            localStorage.setItem("orange_medals", orangeMedalsCount);
+
+            // 渲染数据
+            document.getElementById("settle-games-count").innerText = `${gamesCount} 款`;
+            document.getElementById("settle-max-fans").innerText = `${maxFans} 名`;
+            document.getElementById("settle-final-funds").innerText = `¥${Math.round(gameState.funds)}`;
+            document.getElementById("settle-medals-gained").innerText = `+${finalMedals} 枚`;
+
+            // 弹出结算浮层
+            document.getElementById("bankruptcy-modal").classList.add("active");
+        }
+
+        function goToMedalShop() {
+            document.getElementById("bankruptcy-modal").classList.remove("active");
+            
+            // 重置特权商店选中状态
+            shopSelectedPerks = { fundsBoost: false, roguelikeUnlocked: false, fansGrowthBoost: false };
+            
+            updateMedalShopUI();
+            document.getElementById("medal-shop-modal").classList.add("active");
+        }
+
+        function updateMedalShopUI() {
+            document.getElementById("shop-owned-medals").innerText = `${orangeMedalsCount} 枚`;
+            
+            let totalCost = 0;
+            if (shopSelectedPerks.fundsBoost) totalCost += 1;
+            if (shopSelectedPerks.roguelikeUnlocked) totalCost += 2;
+            if (shopSelectedPerks.fansGrowthBoost) totalCost += 3;
+
+            document.getElementById("shop-total-cost").innerText = totalCost;
+            document.getElementById("shop-remaining-medals").innerText = orangeMedalsCount - totalCost;
+
+            // 按钮高亮与状态
+            const perks = [
+                { key: "fundsBoost", rowId: "perk-row-funds", badgeId: "perk-badge-funds" },
+                { key: "roguelikeUnlocked", rowId: "perk-row-rogue", badgeId: "perk-badge-rogue" },
+                { key: "fansGrowthBoost", rowId: "perk-row-fans", badgeId: "perk-badge-fans" }
+            ];
+
+            perks.forEach(p => {
+                const row = document.getElementById(p.rowId);
+                const badge = document.getElementById(p.badgeId);
+                if (shopSelectedPerks[p.key]) {
+                    row.classList.add("perk-selected");
+                    badge.innerText = "已选中";
+                    badge.style.borderColor = "var(--accent-yellow)";
+                    badge.style.color = "var(--accent-yellow)";
+                } else {
+                    row.classList.remove("perk-selected");
+                    badge.innerText = "未选中";
+                    badge.style.borderColor = "rgba(255,255,255,0.2)";
+                    badge.style.color = "var(--text-secondary)";
+                }
+            });
+        }
+
+        function togglePerkSelection(perkKey, cost) {
+            playSFX("click");
+            let tempCost = cost;
+            if (shopSelectedPerks[perkKey]) {
+                shopSelectedPerks[perkKey] = false;
+            } else {
+                // 计算当前已扣除
+                let currentCost = 0;
+                if (shopSelectedPerks.fundsBoost) currentCost += 1;
+                if (shopSelectedPerks.roguelikeUnlocked) currentCost += 2;
+                if (shopSelectedPerks.fansGrowthBoost) currentCost += 3;
+
+                if (currentCost + cost > orangeMedalsCount) {
+                    alert("⚠️ 您的桔子勋章余额不足，无法选购此特权！可通过多周目创业破产获取更多勋章。");
+                    return;
+                }
+                shopSelectedPerks[perkKey] = true;
+            }
+            updateMedalShopUI();
+        }
+
+        function applyMedalShopPerksAndStart() {
+            playSFX("success");
+            let totalCost = 0;
+            if (shopSelectedPerks.fundsBoost) totalCost += 1;
+            if (shopSelectedPerks.roguelikeUnlocked) totalCost += 2;
+            if (shopSelectedPerks.fansGrowthBoost) totalCost += 3;
+
+            orangeMedalsCount -= totalCost;
+            localStorage.setItem("orange_medals", orangeMedalsCount);
+
+            // 全局重置 gameState
             gameState = {
                 companyName: "桔子网络工作室",
-                funds: 50000,
+                funds: shopSelectedPerks.fundsBoost ? 80000 : 50000,
                 fans: 100,
                 rp: 10,
                 date: { year: 1, month: 1, week: 1 },
                 employees: [
-                    { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0 }
+                    { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi" }
                 ],
-                unlockedGenres: ["Casual"],
+                unlockedGenres: shopSelectedPerks.roguelikeUnlocked ? ["Casual", "Roguelike"] : ["Casual"],
                 unlockedTopics: ["Laborer"],
                 unlockedPlatforms: ["Mobile"],
                 releases: [],
                 currentProject: null,
                 lastIncome: 0,
-                activeTrend: { genre: "Casual", topic: "Laborer" }
+                activeTrend: { genre: "Casual", topic: "Laborer" },
+                medalsGained: 0,
+                activePerks: { ...shopSelectedPerks }
             };
+
             saveGame();
-            window.location.reload();
+            document.getElementById("medal-shop-modal").classList.remove("active");
+            
+            // 重新开启定时时钟
+            loopInterval = setInterval(gameTick, 3500);
+            
+            // 重新初始化页面
+            loadOfficeDesks();
+            generateHiringPool();
+            isUIInitialized = false; // 重置标识，避免闪烁上个周目的结算变动数值
+            updateStatsUI();
+            switchScreen('office');
+            
+            alert("🍊 工作室重组成功！携带您的继承特权，正式开启全新的桔子创业帝国之旅！");
         }
 
         // ==========================================================================
-        // 存档与读档 logic (localStorage)
+        // 4. Web Audio API 8-bit 背景音乐与复古音效合成器 (BGM/SFX Engine)
+        // ==========================================================================
+        let bgmEnabled = false;
+        let sfxEnabled = true;
+        let synthAudioCtx = null;
+        let bgmInterval = null;
+        let bgmBeatIndex = 0;
+
+        function initSynthAudio() {
+            if (!synthAudioCtx) {
+                synthAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (synthAudioCtx.state === "suspended") {
+                synthAudioCtx.resume();
+            }
+        }
+
+        // Web Audio 复古音效播放
+        function playSFX(type) {
+            if (!sfxEnabled) return;
+            initSynthAudio();
+            const now = synthAudioCtx.currentTime;
+
+            if (type === "click") {
+                const osc = synthAudioCtx.createOscillator();
+                const gain = synthAudioCtx.createGain();
+                osc.type = "triangle";
+                osc.frequency.setValueAtTime(1000, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+                osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                osc.start(); osc.stop(now + 0.08);
+            } 
+            else if (type === "point") {
+                const osc = synthAudioCtx.createOscillator();
+                const gain = synthAudioCtx.createGain();
+                osc.type = "sine";
+                // 产生欢快的短音
+                osc.frequency.setValueAtTime(1200 + Math.random()*200, now);
+                gain.gain.setValueAtTime(0.015, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+                osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                osc.start(); osc.stop(now + 0.05);
+            } 
+            else if (type === "bug") {
+                const osc = synthAudioCtx.createOscillator();
+                const gain = synthAudioCtx.createGain();
+                osc.type = "sawtooth";
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.setValueAtTime(180, now + 0.08);
+                gain.gain.setValueAtTime(0.02, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+                osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                osc.start(); osc.stop(now + 0.15);
+            } 
+            else if (type === "success") {
+                // 复古琶音 C5-E5-G5-C6
+                const freqs = [523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((freq, idx) => {
+                    const osc = synthAudioCtx.createOscillator();
+                    const gain = synthAudioCtx.createGain();
+                    osc.type = "triangle";
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                    gain.gain.setValueAtTime(0.03, now + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.06 + 0.15);
+                    osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                    osc.start(now + idx * 0.06); osc.stop(now + idx * 0.06 + 0.15);
+                });
+            } 
+            else if (type === "upgrade") {
+                // 连贯向上滑音
+                const osc = synthAudioCtx.createOscillator();
+                const gain = synthAudioCtx.createGain();
+                osc.type = "triangle";
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(1600, now + 0.25);
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                osc.start(); osc.stop(now + 0.25);
+            } 
+            else if (type === "bankruptcy") {
+                // 悲凉降音
+                const osc = synthAudioCtx.createOscillator();
+                const gain = synthAudioCtx.createGain();
+                osc.type = "sawtooth";
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.linearRampToValueAtTime(80, now + 0.8);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+                osc.connect(gain); gain.connect(synthAudioCtx.destination);
+                osc.start(); osc.stop(now + 0.8);
+            }
+        }
+
+        // Web Audio 8-bit 背景音乐合成调度
+        // 弹奏简单的经典 8-bit 和弦旋律（C - G - Am - F）
+        function playBGMBeat() {
+            if (!bgmEnabled) return;
+            const now = synthAudioCtx.currentTime;
+
+            // 和弦对应根音音阶 (C3, G3, A3, F3)
+            const chords = [130.81, 97.99, 110.00, 87.31];
+            // 简单主调旋律
+            const melody = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+
+            const currentChord = chords[Math.floor(bgmBeatIndex / 8) % chords.length];
+            
+            // 1. 低音节奏器 (Oscillator 1)
+            const bassOsc = synthAudioCtx.createOscillator();
+            const bassGain = synthAudioCtx.createGain();
+            bassOsc.type = "triangle";
+            
+            // 拍点低音 (8分音符节奏)
+            const isOffBeat = bgmBeatIndex % 2 === 1;
+            bassOsc.frequency.setValueAtTime(isOffBeat ? currentChord * 1.5 : currentChord, now);
+            
+            bassGain.gain.setValueAtTime(0.008, now); // 音量控制在极其微弱以防杂音
+            bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+            bassOsc.connect(bassGain); bassGain.connect(synthAudioCtx.destination);
+            bassOsc.start(); bassOsc.stop(now + 0.25);
+
+            // 2. 琶音器/主调音符 (Oscillator 2)
+            if (bgmBeatIndex % 4 === 0 || bgmBeatIndex % 4 === 2) {
+                const leadOsc = synthAudioCtx.createOscillator();
+                const leadGain = synthAudioCtx.createGain();
+                leadOsc.type = "sine";
+
+                // 随机选择主调音阶中的符合和弦的音符
+                const note = melody[Math.floor(Math.random() * melody.length)];
+                leadOsc.frequency.setValueAtTime(note, now);
+                
+                leadGain.gain.setValueAtTime(0.005, now);
+                leadGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+                leadOsc.connect(leadGain); leadGain.connect(synthAudioCtx.destination);
+                leadOsc.start(); leadOsc.stop(now + 0.35);
+            }
+
+            bgmBeatIndex = (bgmBeatIndex + 1) % 32;
+        }
+
+        function toggleBGM(e) {
+            if (e) e.stopPropagation();
+            bgmEnabled = !bgmEnabled;
+            initSynthAudio();
+            
+            const btn = document.getElementById("btn-bgm");
+            if (bgmEnabled) {
+                btn.classList.add("active");
+                btn.innerHTML = `<i class="fa-solid fa-music"></i> 音乐: 开`;
+                // 每拍 300 毫秒
+                bgmBeatIndex = 0;
+                bgmInterval = setInterval(playBGMBeat, 300);
+                playSFX("click");
+            } else {
+                btn.classList.remove("active");
+                btn.innerHTML = `<i class="fa-solid fa-music"></i> 音乐: 关`;
+                if (bgmInterval) {
+                    clearInterval(bgmInterval);
+                    bgmInterval = null;
+                }
+            }
+        }
+
+        function toggleSFX(e) {
+            if (e) e.stopPropagation();
+            sfxEnabled = !sfxEnabled;
+            
+            const btn = document.getElementById("btn-sfx");
+            if (sfxEnabled) {
+                btn.classList.add("active");
+                btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> 音效: 开`;
+                playSFX("click");
+            } else {
+                btn.classList.remove("active");
+                btn.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> 音效: 关`;
+            }
+        }
+
+        // ==========================================================================
+        // 5. 存档与读档 logic (localStorage)
         // ==========================================================================
         function saveGame() {
             localStorage.setItem("hoshikuzu_tycoon_save", JSON.stringify(gameState));
@@ -2615,12 +3928,25 @@
             if (data) {
                 try {
                     const parsed = JSON.parse(data);
-                    // 确保创始人字段等基础信息完备
-                    if (parsed.companyName) gameState = parsed;
+                    // 确保创始人及多周目数据完备
+                    if (parsed.companyName) {
+                        gameState = parsed;
+                        // 确保老存档兼容
+                        if (!gameState.activePerks) {
+                            gameState.activePerks = { fundsBoost: false, roguelikeUnlocked: false, fansGrowthBoost: false };
+                        }
+                    }
                 } catch(e) {
                     console.error("存档损坏，已初始化新公司进度", e);
                 }
             }
+            
+            // 针对第一次点击激活 AudioContext
+            document.addEventListener("click", () => {
+                if (synthAudioCtx && synthAudioCtx.state === "suspended") {
+                    synthAudioCtx.resume();
+                }
+            }, { once: true });
         }
     </script>
 </body>
