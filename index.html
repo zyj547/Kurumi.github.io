@@ -150,23 +150,40 @@
         }
 
         .nav-logo {
-            font-family: var(--font-title);
-            font-size: 0.95rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: var(--text-primary);
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 0.6rem;
+            transition: transform 0.3s ease;
         }
 
-        .nav-logo-diamond {
-            width: 14px;
-            height: 14px;
-            background: var(--orange-gradient);
-            transform: rotate(45deg);
+        .nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-logo-icon {
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, #00f0ff 0%, #7c3aed 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.6)) 
+                    drop-shadow(0 0 10px rgba(124, 58, 237, 0.4));
             flex-shrink: 0;
+            display: inline-block;
+            animation: meteor-pulse 3s infinite ease-in-out;
+        }
+
+        .nav-logo-text {
+            font-family: var(--font-title);
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            transform: skewX(-6deg);
+            background: linear-gradient(135deg, #ffffff 30%, #b886f8 70%, #00f0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5));
+            display: inline-block;
         }
 
         .nav-links {
@@ -423,7 +440,7 @@
             gap: 2rem;
         }
 
-        /* CSS 绘制星尘环绕手柄十字键Logo */
+        /* 游戏手柄与星尘环Logo区域 */
         .logo-dpad-container {
             position: relative;
             width: 90px;
@@ -444,49 +461,24 @@
             animation: spin 15s linear infinite;
         }
 
-        .logo-dpad {
+        /* 游戏流星/陨石 Font Awesome 图标样式 */
+        .logo-meteor-icon {
             position: absolute;
-            width: 44px;
-            height: 44px;
-            filter: drop-shadow(0 0 10px rgba(79, 70, 229, 0.5));
-        }
-
-        .logo-dpad-horiz {
-            position: absolute;
-            top: 17px;
-            left: 0;
-            width: 44px;
-            height: 10px;
-            background: linear-gradient(90deg, #4f46e5, #fb923c);
-            border-radius: 4px;
-        }
-
-        .logo-dpad-vert {
-            position: absolute;
-            top: 0;
-            left: 17px;
-            width: 10px;
-            height: 44px;
-            background: linear-gradient(180deg, #7c3aed, #fb923c);
-            border-radius: 4px;
-        }
-
-        .logo-dpad-center {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 14px;
-            height: 14px;
-            background: #ffffff;
-            border-radius: 3px;
-            box-shadow: 0 0 8px #ffffff;
+            font-size: 2.8rem;
+            background: linear-gradient(135deg, #00f0ff 0%, #7c3aed 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6)) 
+                    drop-shadow(0 0 20px rgba(124, 58, 237, 0.4));
+            animation: meteor-float 4s ease-in-out infinite;
+            display: inline-block;
         }
 
         .logo-sparkle {
             position: absolute;
             font-size: 0.75rem;
-            color: var(--labor-yellow);
-            text-shadow: 0 0 5px var(--labor-orange);
+            color: #e0f2fe;
+            text-shadow: 0 0 5px #38bdf8, 0 0 10px #818cf8;
             animation: sparkle-blink 2s infinite alternate;
         }
         .logo-sparkle-1 { top: -2px; left: -2px; animation-delay: 0s; }
@@ -499,14 +491,41 @@
             100% { transform: scale(1.25); opacity: 1; }
         }
 
+        @keyframes meteor-float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-6px) rotate(-8deg);
+            }
+        }
+
+        @keyframes meteor-pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.6)) 
+                        drop-shadow(0 0 10px rgba(124, 58, 237, 0.4));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.8)) 
+                        drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+            }
+        }
+
         .hero-title {
             font-family: var(--font-title);
             font-size: clamp(3.2rem, 7vw, 6rem);
             font-weight: 900;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
             line-height: 1.1;
-            color: var(--text-primary);
-            text-shadow: 0 0 20px rgba(79, 70, 229, 0.5), 0 0 40px rgba(251, 146, 60, 0.2);
+            background: linear-gradient(135deg, #ffffff 15%, #b886f8 55%, #00f0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            transform: skewX(-8deg);
+            filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5)) 
+                    drop-shadow(0 0 30px rgba(0, 240, 255, 0.3));
         }
 
         .hero-subtitle {
@@ -1275,11 +1294,10 @@
 </head>
 <body>
 
-    <!-- 顶部导航栏 -->
     <nav class="nav-bar">
         <a href="#hero" class="nav-logo">
-            <div class="nav-logo-diamond"></div>
-            星屑游戏
+            <i class="fa-solid fa-meteor nav-logo-icon"></i>
+            <span class="nav-logo-text">星屑游戏</span>
         </a>
         <ul class="nav-links">
             <li><a href="#about">关于我们</a></li>
@@ -1320,14 +1338,10 @@
     <!-- 第一屏: Hero Section -->
     <section id="hero">
         <div class="container hero-wrapper">
-            <!-- CSS 抽象游戏十字键 Logo -->
+            <!-- 游戏流星 Logo 区域 -->
             <div class="logo-dpad-container">
                 <div class="logo-orbit-ring"></div>
-                <div class="logo-dpad">
-                    <div class="logo-dpad-horiz"></div>
-                    <div class="logo-dpad-vert"></div>
-                    <div class="logo-dpad-center"></div>
-                </div>
+                <i class="fa-solid fa-meteor logo-meteor-icon"></i>
                 <i class="fa-solid fa-star logo-sparkle logo-sparkle-1"></i>
                 <i class="fa-solid fa-star logo-sparkle logo-sparkle-2"></i>
                 <i class="fa-solid fa-star logo-sparkle logo-sparkle-3"></i>
