@@ -1,0 +1,39 @@
+/* ==========================================================================
+   共享设计令牌与基础重置 (Shared Design Tokens & Reset)
+   官网与模拟器两页共用；必须在各自页面 CSS 之前加载。
+   ========================================================================== */
+:root {
+    --bg-color: #05080f;
+    --accent-neon: #00f0ff;
+    --accent-pink: #d946ef;
+    --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #d946ef 100%);
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8;
+    --font-title: 'Inter', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 无障碍：尊重系统“减少动态效果”偏好，关闭大幅动画/视差，缓解前庭不适并省电 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 标签页切到后台时暂停常驻 CSS 动画（粒子 canvas 的 rAF 浏览器会自动暂停） */
+body.anim-paused *,
+body.anim-paused *::before,
+body.anim-paused *::after {
+    animation-play-state: paused !important;
+}
