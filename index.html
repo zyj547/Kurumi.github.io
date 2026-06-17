@@ -22,9 +22,9 @@
             --bg-color: #05080f;
             --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             --stardust-gradient: linear-gradient(135deg, #4f46e5 0%, #a855f7 100%);
-            --labor-orange: #fb923c;
-            --labor-yellow: #eab308;
-            --orange-gradient: linear-gradient(135deg, #fb923c 0%, #eab308 100%);
+            --accent-neon: #00f0ff;
+            --accent-pink: #d946ef;
+            --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #d946ef 100%);
             --text-primary: #ffffff;
             --text-secondary: #94a3b8;
             --glass-bg: rgba(255, 255, 255, 0.015);
@@ -70,7 +70,9 @@
             aspect-ratio: 1;
             top: -200px;
             left: -200px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            animation: orb-drift-tl 20s ease-in-out infinite;
+            will-change: transform;
         }
 
         .bg-orb-br {
@@ -80,7 +82,137 @@
             aspect-ratio: 1;
             bottom: -150px;
             right: -150px;
-            background: radial-gradient(circle, rgba(251, 146, 60, 0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.22) 0%, transparent 70%);
+            animation: orb-drift-br 25s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        .bg-orb-ct {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            aspect-ratio: 1;
+            top: 30%;
+            left: 35%;
+            background: radial-gradient(circle, rgba(217, 70, 239, 0.25) 0%, transparent 70%);
+            animation: orb-drift-ct 22s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        /* 太空浮游微粒/景深光晕 (Cosmic Space Debris / Bokeh) */
+        .space-bokeh-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -3;
+            overflow: hidden;
+        }
+        .space-bokeh {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.35) 0%, rgba(0, 240, 255, 0.22) 50%, transparent 70%);
+            filter: blur(20px);
+            pointer-events: none;
+            will-change: transform;
+        }
+        .space-bokeh-1 {
+            width: 250px; height: 250px;
+            top: 20%; left: 10%;
+            animation: space-float-1 30s ease-in-out infinite;
+        }
+        .space-bokeh-2 {
+            width: 320px; height: 320px;
+            bottom: 15%; right: 15%;
+            animation: space-float-2 40s ease-in-out infinite;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(124, 58, 237, 0.15) 60%, transparent 80%);
+        }
+        .space-bokeh-3 {
+            width: 180px; height: 180px;
+            top: 60%; left: 70%;
+            animation: space-float-3 35s ease-in-out infinite;
+        }
+
+        @keyframes orb-drift-tl {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(100px, 80px) scale(1.15); }
+        }
+        @keyframes orb-drift-br {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-100px, -60px) scale(1.1); }
+        }
+        @keyframes orb-drift-ct {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-80px, 80px) scale(1.2); }
+        }
+        @keyframes space-float-1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(180px, 120px) rotate(180deg) scale(1.2); }
+        }
+        @keyframes space-float-2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(-150px, -180px) rotate(-180deg) scale(1.1); }
+        }
+        @keyframes space-float-3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(120px, -90px) rotate(120deg) scale(1.25); }
+        }
+
+        /* 太空坐标网格背景 */
+        .bg-grid-mask {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            pointer-events: none;
+            z-index: -4;
+            opacity: 0.5;
+        }
+
+        /* CSS 随机流星雨 */
+        .meteor-shower {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -2;
+            overflow: hidden;
+        }
+        .space-meteor {
+            position: absolute;
+            width: 1.5px;
+            height: 80px;
+            background: linear-gradient(180deg, rgba(0, 240, 255, 1) 0%, rgba(124, 58, 237, 0.3) 50%, transparent 100%);
+            opacity: 0;
+            transform: rotate(45deg);
+            animation: shooting-star 8s linear infinite;
+        }
+        .space-meteor:nth-child(1) { top: -10%; left: 30%; animation-delay: 0s; animation-duration: 6s; }
+        .space-meteor:nth-child(2) { top: -10%; left: 65%; animation-delay: 2.5s; animation-duration: 8s; }
+        .space-meteor:nth-child(3) { top: -10%; left: 15%; animation-delay: 4.8s; animation-duration: 7s; }
+        .space-meteor:nth-child(4) { top: -10%; left: 85%; animation-delay: 1.2s; animation-duration: 9s; }
+        .space-meteor:nth-child(5) { top: -10%; left: 45%; animation-delay: 6.2s; animation-duration: 10s; }
+
+        @keyframes shooting-star {
+            0% {
+                transform: translate3d(0, 0, 0) rotate(45deg);
+                opacity: 0;
+            }
+            8% {
+                opacity: 0.8;
+            }
+            28% {
+                transform: translate3d(400px, 400px, 0) rotate(45deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translate3d(400px, 400px, 0) rotate(45deg);
+                opacity: 0;
+            }
         }
 
         /* 极光光带 */
@@ -97,14 +229,14 @@
         .aurora-band-1 {
             top: 28%;
             height: 120px;
-            background: linear-gradient(90deg, transparent 0%, #6366f1 30%, #a855f7 55%, #fb923c 75%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, #6366f1 30%, #a855f7 55%, #d946ef 75%, transparent 100%);
             animation: aurora-drift 90s linear infinite;
         }
 
         .aurora-band-2 {
             top: 62%;
             height: 80px;
-            background: linear-gradient(90deg, transparent 0%, #fb923c 25%, #6366f1 60%, transparent 100%);
+            background: linear-gradient(90deg, transparent 0%, #00f0ff 25%, #6366f1 60%, transparent 100%);
             animation: aurora-drift 90s linear infinite reverse;
             animation-delay: -45s;
         }
@@ -132,11 +264,11 @@
             background: var(--bg-color);
         }
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #4f46e5, #fb923c);
+            background: linear-gradient(180deg, #7c3aed, #00f0ff);
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--labor-yellow);
+            background: var(--accent-neon);
         }
 
         /* 导航栏 */
@@ -183,11 +315,13 @@
             font-weight: 900;
             letter-spacing: 2px;
             transform: skewX(-6deg);
-            background: linear-gradient(135deg, #ffffff 30%, #b886f8 70%, #00f0ff 100%);
+            background: linear-gradient(90deg, #ffffff 0%, #b886f8 25%, #00f0ff 50%, #b886f8 75%, #ffffff 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 4px rgba(168, 85, 247, 0.5));
             display: inline-block;
+            animation: text-shine 6s linear infinite;
         }
 
         .nav-links {
@@ -213,12 +347,15 @@
             content: '';
             position: absolute;
             bottom: 0; left: 0;
-            width: 0; height: 1px;
-            background: var(--labor-orange);
+            width: 0; height: 2px;
+            background: linear-gradient(90deg, #00f0ff, #7c3aed);
             transition: width 0.3s ease;
         }
 
-        .nav-links a:hover { color: var(--labor-orange); }
+        .nav-links a:hover {
+            color: #00f0ff;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+        }
         .nav-links a:hover::after { width: 100%; }
 
         /* 汉堡按钮 */
@@ -269,7 +406,10 @@
             transition: color 0.3s ease;
         }
 
-        .nav-drawer a:hover { color: var(--labor-orange); }
+        .nav-drawer a:hover {
+            color: #00f0ff;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+        }
 
         .nav-drawer-close {
             position: absolute;
@@ -314,7 +454,7 @@
             margin-left: calc(var(--halo-size) * -0.5);
             margin-top: calc(var(--halo-size) * -0.5);
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(251, 146, 60, 0.05) 0%, rgba(79, 70, 229, 0.02) 55%, rgba(0,0,0,0) 70%);
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, rgba(79, 70, 229, 0.02) 55%, rgba(0,0,0,0) 70%);
             pointer-events: none;
             z-index: -1;
             transform: translate3d(0, 0, 0);
@@ -363,8 +503,8 @@
             display: inline-block;
         }
 
-        .gradient-text-orange {
-            background: var(--orange-gradient);
+        .gradient-text-accent {
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -376,20 +516,75 @@
             position: relative;
             border-radius: 20px;
             background: linear-gradient(160deg, #1c2034, #0f1222);
-            border: 1px solid rgba(124, 110, 237, 0.4);
+            border: 1.2px solid rgba(79, 70, 229, 0.3);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.04);
             overflow: hidden;
+            animation: border-glow-pulse 6s infinite ease-in-out alternate;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s, box-shadow 0.3s;
         }
 
-        /* 横向扫光：transform 驱动，不触发 repaint；z-index 低于内容 */
+        /* 依次延迟卡片流光与内部扫光动画，形成层叠星光波浪涟漪 (使用负延迟错开相位，立即播放) */
+        .about-counters .glass-card:nth-child(1),
+        .timeline-scroll .glass-card:nth-child(1),
+        .pipeline-container .glass-card:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .about-counters .glass-card:nth-child(1)::before,
+        .timeline-scroll .glass-card:nth-child(1)::before,
+        .pipeline-container .glass-card:nth-child(1)::before {
+            animation-delay: 0s;
+        }
+
+        .about-counters .glass-card:nth-child(2),
+        .timeline-scroll .glass-card:nth-child(2),
+        .pipeline-container .glass-card:nth-child(3) {
+            animation-delay: -1s;
+        }
+        .about-counters .glass-card:nth-child(2)::before,
+        .timeline-scroll .glass-card:nth-child(2)::before,
+        .pipeline-container .glass-card:nth-child(3)::before {
+            animation-delay: -1s;
+        }
+
+        .about-counters .glass-card:nth-child(3),
+        .timeline-scroll .glass-card:nth-child(3),
+        .pipeline-container .glass-card:nth-child(5) {
+            animation-delay: -2s;
+        }
+        .about-counters .glass-card:nth-child(3)::before,
+        .timeline-scroll .glass-card:nth-child(3)::before,
+        .pipeline-container .glass-card:nth-child(5)::before {
+            animation-delay: -2s;
+        }
+
+        .pipeline-container .glass-card:nth-child(7) {
+            animation-delay: -3s;
+        }
+        .pipeline-container .glass-card:nth-child(7)::before {
+            animation-delay: -3s;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 240, 255, 0.8) !important;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.3), inset 0 0 15px rgba(0, 240, 255, 0.15) !important;
+            transform: translateY(-5px);
+        }
+
+        /* 炫酷星尘流光扫光：以色彩倾斜条纹流经，z-index 低于内容 */
         .glass-card::before {
             content: '';
             position: absolute;
             top: 0; left: 0;
-            width: 55%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-            transform: translateX(-100%);
-            animation: card-sweep 7s ease-in-out infinite;
+            width: 75%; height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 240, 255, 0.12) 30%, 
+                rgba(124, 58, 237, 0.18) 50%, 
+                rgba(217, 70, 239, 0.12) 70%, 
+                transparent
+            );
+            transform: translateX(-100%) skewX(-15deg);
+            animation: card-sweep 4s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
             will-change: transform;
@@ -399,24 +594,42 @@
         .glass-card > * { position: relative; z-index: 1; }
 
         @keyframes card-sweep {
-            0%   { transform: translateX(-100%); }
-            30%  { transform: translateX(280%); }
-            100% { transform: translateX(280%); }
+            0%   { transform: translateX(-110%) skewX(-15deg); }
+            45%  { transform: translateX(250%) skewX(-15deg); }
+            100% { transform: translateX(250%) skewX(-15deg); }
         }
 
-        /* 橙色打工人技术标签 */
+        @keyframes border-glow-pulse {
+            0% {
+                /* 蓝紫光效 */
+                border-color: rgba(79, 70, 229, 0.6);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(79, 70, 229, 0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+            }
+            50% {
+                /* 青色流光 */
+                border-color: rgba(0, 240, 255, 0.7);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+            }
+            100% {
+                /* 霓虹紫 */
+                border-color: rgba(168, 85, 247, 0.6);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+            }
+        }
+
+        /* 霓虹技术标签 */
         .tech-tag {
             font-family: var(--font-title);
             font-size: 0.75rem;
             font-weight: 700;
-            color: var(--labor-orange);
-            border: 1px solid var(--labor-orange);
+            color: var(--accent-neon);
+            border: 1px solid var(--accent-neon);
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             width: fit-content;
             letter-spacing: 1px;
-            background: rgba(251, 146, 60, 0.05);
-            text-shadow: 0 0 5px rgba(251, 146, 60, 0.2);
+            background: rgba(0, 240, 255, 0.05);
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.2);
         }
 
         /* 滚动进场动画 (Stagger) */
@@ -476,12 +689,13 @@
         .logo-meteor-icon {
             position: absolute;
             font-size: 2.8rem;
-            background: linear-gradient(135deg, #00f0ff 0%, #7c3aed 50%, #d946ef 100%);
+            background: linear-gradient(90deg, #00f0ff 0%, #7c3aed 25%, #d946ef 50%, #7c3aed 75%, #00f0ff 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6)) 
                     drop-shadow(0 0 20px rgba(124, 58, 237, 0.4));
-            animation: meteor-float 4s ease-in-out infinite;
+            animation: meteor-float 4s ease-in-out infinite, text-shine 5s linear infinite;
             display: inline-block;
         }
 
@@ -530,13 +744,20 @@
             font-weight: 900;
             letter-spacing: 4px;
             line-height: 1.1;
-            background: linear-gradient(135deg, #ffffff 15%, #b886f8 55%, #00f0ff 100%);
+            background: linear-gradient(90deg, #ffffff 0%, #b886f8 25%, #00f0ff 50%, #b886f8 75%, #ffffff 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: inline-block;
             transform: skewX(-8deg);
             filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5)) 
                     drop-shadow(0 0 30px rgba(0, 240, 255, 0.3));
+            animation: text-shine 5s linear infinite;
+        }
+
+        @keyframes text-shine {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
         }
 
         .hero-subtitle {
@@ -544,6 +765,7 @@
             font-weight: 300;
             color: var(--text-secondary);
             letter-spacing: 4px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         /* 《热血打工魂》即将登陆抖音大按钮 */
@@ -553,7 +775,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--orange-gradient);
+            background: var(--accent-gradient);
             color: #0b0d10;
             text-decoration: none;
             font-family: var(--font-title);
@@ -563,7 +785,7 @@
             border-radius: 50px;
             border: none;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(251, 146, 60, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
             animation: pulse-breathing 2s infinite ease-in-out;
             transition: all 0.3s ease;
             will-change: transform, box-shadow;
@@ -571,15 +793,15 @@
 
         .btn-game-cta:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(251, 146, 60, 0.75), 0 0 15px rgba(234, 179, 8, 0.5);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.75), 0 0 15px rgba(217, 70, 239, 0.5);
         }
 
         @keyframes pulse-breathing {
             0%, 100% {
-                box-shadow: 0 0 12px rgba(251, 146, 60, 0.35);
+                box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
             }
             50% {
-                box-shadow: 0 0 25px rgba(251, 146, 60, 0.65), 0 0 10px rgba(234, 179, 8, 0.4);
+                box-shadow: 0 0 25px rgba(0, 240, 255, 0.65), 0 0 10px rgba(217, 70, 239, 0.4);
             }
         }
 
@@ -593,7 +815,7 @@
 
         .cta-subtext {
             font-size: 0.85rem;
-            color: var(--labor-orange);
+            color: var(--accent-neon);
             font-weight: 500;
             letter-spacing: 2px;
         }
@@ -635,6 +857,7 @@
             color: var(--text-secondary);
             font-size: 1rem;
             line-height: 1.8;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
         /* 右侧动态数字看板 */
@@ -653,9 +876,9 @@
             font-family: var(--font-title);
             font-size: 2.2rem;
             font-weight: 900;
-            color: var(--labor-orange);
+            color: var(--accent-neon);
             margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px rgba(251, 146, 60, 0.2);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
 
         .counter-lbl {
@@ -693,7 +916,7 @@
             font-family: var(--font-title);
             font-size: 1.15rem;
             font-weight: 800;
-            color: var(--labor-orange);
+            color: var(--accent-neon);
         }
 
         .timeline-title {
@@ -705,6 +928,7 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
             line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
         }
 
         @media (max-width: 1024px) {
@@ -798,7 +1022,7 @@
         }
 
         .pipeline-card:hover .pipeline-step-badge {
-            background: linear-gradient(135deg, #7c3aed, #fb923c);
+            background: linear-gradient(135deg, #7c3aed, #d946ef);
             -webkit-background-clip: text;
             background-clip: text;
         }
@@ -807,7 +1031,7 @@
             font-family: var(--font-title);
             font-size: 0.7rem;
             font-weight: 800;
-            color: var(--labor-orange);
+            color: var(--accent-pink);
             letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 0.5rem;
@@ -825,6 +1049,7 @@
             color: var(--text-secondary);
             line-height: 1.75;
             flex: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
         }
 
         .pipeline-card-bar {
@@ -832,7 +1057,7 @@
             height: 2px;
             width: 100%;
             max-width: 28px;
-            background: var(--orange-gradient);
+            background: var(--accent-gradient);
             border-radius: 2px;
             transition: width 0.4s cubic-bezier(0.25,1,0.5,1);
             will-change: width;
@@ -880,14 +1105,14 @@
                 90deg,
                 transparent 0px,
                 transparent 4px,
-                var(--labor-orange) 4px,
-                var(--labor-orange) 10px,
+                var(--accent-neon) 4px,
+                var(--accent-neon) 10px,
                 transparent 10px,
                 transparent 16px
             );
             opacity: 0;
             filter: blur(0.5px);
-            box-shadow: 0 0 8px var(--labor-orange), 0 0 16px rgba(251,146,60,0.4);
+            box-shadow: 0 0 8px var(--accent-neon), 0 0 16px rgba(0, 240, 255, 0.4);
             transition: opacity 0.3s ease;
             will-change: transform, opacity;
         }
@@ -930,14 +1155,14 @@
 
         .gear {
             font-size: 1.4rem;
-            color: rgba(251, 146, 60, 0.3);
+            color: rgba(0, 240, 255, 0.3);
             transition: color 0.3s ease;
         }
 
         .gear-main { animation: spin 8s linear infinite; animation-play-state: paused; }
         .gear-sub  { font-size: 1rem; color: rgba(79,70,229,0.3); animation: spin-reverse 5s linear infinite; animation-play-state: paused; }
 
-        .glass-card:hover .gear-main { animation-play-state: running; color: var(--labor-orange); }
+        .glass-card:hover .gear-main { animation-play-state: running; color: var(--accent-neon); }
         .glass-card:hover .gear-sub  { animation-play-state: running; color: #7c3aed; }
 
         /* ── 移动端：竖向堆叠 ── */
@@ -975,10 +1200,10 @@
                 background: repeating-linear-gradient(
                     180deg,
                     transparent 0px, transparent 4px,
-                    var(--labor-orange) 4px, var(--labor-orange) 10px,
+                    var(--accent-neon) 4px, var(--accent-neon) 10px,
                     transparent 10px, transparent 16px
                 );
-                box-shadow: 0 0 8px var(--labor-orange);
+                box-shadow: 0 0 8px var(--accent-neon);
             }
 
             .pipeline-connector.flowing::after {
@@ -1025,7 +1250,7 @@
             transform-style: preserve-3d;
             transform: rotateY(-15deg) rotateX(8deg);
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(251, 146, 60, 0.15);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 30px rgba(0, 240, 255, 0.15);
             overflow: hidden;
         }
 
@@ -1045,15 +1270,15 @@
             align-items: center;
             padding: 2rem;
             text-align: center;
-            background: radial-gradient(circle at center, rgba(251, 146, 60, 0.12) 0%, #0b0d10 90%);
+            background: radial-gradient(circle at center, rgba(0, 240, 255, 0.12) 0%, #0b0d10 90%);
         }
 
         .pixel-worker {
             font-family: var(--font-title);
             font-size: 2.2rem;
             font-weight: 900;
-            color: var(--labor-yellow);
-            text-shadow: 0 0 10px var(--labor-orange);
+            color: var(--text-primary);
+            text-shadow: 0 0 10px var(--accent-neon);
             margin-bottom: 0.5rem;
             letter-spacing: 2px;
             z-index: 2;
@@ -1079,7 +1304,7 @@
             position: absolute;
             width: 120px;
             height: 120px;
-            background: linear-gradient(135deg, #7c3aed, #fb923c);
+            background: linear-gradient(135deg, #7c3aed, #00f0ff);
             filter: blur(45px);
             opacity: 0.25;
             animation: pulse-block 4s infinite alternate;
@@ -1101,7 +1326,7 @@
             font-family: var(--font-title);
             font-size: 0.85rem;
             font-weight: 700;
-            color: var(--labor-orange);
+            color: var(--accent-neon);
             letter-spacing: 2px;
         }
 
@@ -1122,6 +1347,7 @@
             color: var(--text-secondary);
             font-size: 1rem;
             line-height: 1.8;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
         }
 
         .btn-register-cta {
@@ -1131,8 +1357,8 @@
             align-items: center;
             justify-content: center;
             background: transparent;
-            color: var(--labor-orange);
-            border: 2px solid var(--labor-orange);
+            color: var(--accent-neon);
+            border: 2px solid var(--accent-neon);
             font-family: var(--font-title);
             font-weight: 800;
             font-size: 0.95rem;
@@ -1141,13 +1367,13 @@
             cursor: pointer;
             width: fit-content;
             transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(251, 146, 60, 0.1);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
 
         .btn-register-cta:hover {
-            background: var(--labor-orange);
+            background: var(--accent-neon);
             color: #0b0d10;
-            box-shadow: 0 0 25px var(--labor-orange);
+            box-shadow: 0 0 25px var(--accent-neon);
             transform: translateY(-2px);
         }
 
@@ -1204,8 +1430,12 @@
 
         .footer-logo-icon {
             font-size: 1.5rem;
-            color: var(--labor-orange);
-            text-shadow: 0 0 10px var(--labor-orange);
+            background: linear-gradient(135deg, #00f0ff 0%, #7c3aed 50%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.6)) 
+                    drop-shadow(0 0 10px rgba(124, 58, 237, 0.4));
+            display: inline-block;
         }
 
         .footer-social-icons {
@@ -1231,10 +1461,10 @@
         }
 
         .footer-social-btn:hover {
-            color: var(--labor-orange);
-            border-color: var(--labor-orange);
+            color: #00f0ff;
+            border-color: #00f0ff;
             transform: translateY(-3px);
-            box-shadow: 0 0 15px rgba(251, 146, 60, 0.25);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
         }
 
         .footer-copyright {
@@ -1346,6 +1576,25 @@
 </head>
 <body>
 
+    <!-- 太空坐标网格背景 -->
+    <div class="bg-grid-mask"></div>
+
+    <!-- CSS 随机流星雨层 -->
+    <div class="meteor-shower">
+        <div class="space-meteor"></div>
+        <div class="space-meteor"></div>
+        <div class="space-meteor"></div>
+        <div class="space-meteor"></div>
+        <div class="space-meteor"></div>
+    </div>
+
+    <!-- 太空浮游微粒/景深光晕 (Cosmic Space Debris / Bokeh) -->
+    <div class="space-bokeh-container">
+        <div class="space-bokeh space-bokeh-1"></div>
+        <div class="space-bokeh space-bokeh-2"></div>
+        <div class="space-bokeh space-bokeh-3"></div>
+    </div>
+
     <nav class="nav-bar">
         <a href="#hero" class="nav-logo">
             <i class="fa-solid fa-meteor nav-logo-icon"></i>
@@ -1376,6 +1625,7 @@
     <!-- 氛围光晕层 -->
     <div class="bg-orb bg-orb-tl"></div>
     <div class="bg-orb bg-orb-br"></div>
+    <div class="bg-orb bg-orb-ct"></div>
 
     <!-- 极光光带 -->
     <div class="aurora-band aurora-band-1"></div>
@@ -1430,7 +1680,7 @@
                     <span class="tech-tag">ABOUT STARDUST</span>
                     <h2 class="about-h2">
                         大厂老兵 All-in 抖音小游戏，<br>
-                        <span class="gradient-text-orange">以纯粹的数据驱动流量</span>
+                        <span class="gradient-text-accent">以纯粹的数据驱动流量</span>
                     </h2>
                     <p class="about-desc">
                         重庆星屑网络游戏科技核心团队成员全部来自一线大厂，平均从业年限10年以上。亲历了端游开发、页游转手游以及手游内购的完整周期变革。如今，我们全力深耕抖音小游戏生态。
@@ -1575,7 +1825,7 @@
                 <!-- 右侧: 产品详情 -->
                 <div class="product-info animate-on-scroll" style="transition-delay: 0.15s;">
                     <span class="product-tagline">STARDUST FIRST DEBUT</span>
-                    <h2 class="product-name gradient-text-orange">《热血打工魂》</h2>
+                    <h2 class="product-name gradient-text-accent">《热血打工魂》</h2>
                     
                     <div class="tag-row">
                         <span class="tech-tag">【堆叠消除】</span>
@@ -1599,7 +1849,7 @@
     <section id="footer">
         <div class="container footer-wrapper">
             <div class="footer-logo-box">
-                <i class="fa-solid fa-wand-magic-sparkles footer-logo-icon"></i>
+                <i class="fa-solid fa-meteor footer-logo-icon"></i>
                 <span class="footer-company-name">重庆星屑网络游戏科技</span>
             </div>
 
@@ -1677,6 +1927,26 @@
 
                     for (let i = 0; i < this.particles.length; i++) {
                         let p = this.particles[i];
+
+                        // 鼠标引力场吸附与自旋微动交互 (Gravity field pull)
+                        if (mouseXPos && mouseYPos) {
+                            let dx = mouseXPos - p.x;
+                            let dy = mouseYPos - p.y;
+                            let dist = Math.sqrt(dx * dx + dy * dy);
+                            if (dist < 200) {
+                                let force = (200 - dist) / 200 * 0.08;
+                                p.vx += (dx / dist) * force;
+                                p.vy += (dy / dist) * force;
+
+                                // 速度阈值限制，防止粒子飞逸
+                                let speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+                                if (speed > 0.8) {
+                                    p.vx = (p.vx / speed) * 0.8;
+                                    p.vy = (p.vy / speed) * 0.8;
+                                }
+                            }
+                        }
+
                         p.x += p.vx;
                         p.y += p.vy;
 
@@ -1723,7 +1993,7 @@
 
                             if (dist < 150) {
                                 let alpha = (1 - dist / 150) * 0.22;
-                                this.ctx.strokeStyle = `rgba(251, 146, 60, ${alpha})`;
+                                this.ctx.strokeStyle = `rgba(0, 240, 255, ${alpha})`;
                                 this.ctx.lineWidth = 0.8;
                                 this.ctx.beginPath();
                                 this.ctx.moveTo(p.x, p.y);
@@ -1864,6 +2134,31 @@
             drawerClose.addEventListener('click', () => drawer.classList.remove('open'));
             drawer.querySelectorAll('.drawer-link').forEach(link => {
                 link.addEventListener('click', () => drawer.classList.remove('open'));
+            });
+
+            /* ==========================================================================
+               4. 3D 卡片悬停陀螺仪倾斜 (3D Card Tilt)
+               ========================================================================== */
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    // 仅在非移动端时触发 3D 倾斜，保障移动端触摸滚动体验
+                    if (window.innerWidth <= 768) {
+                        card.style.transform = '';
+                        return;
+                    }
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    const rotY = (x / (rect.width / 2)) * 8;
+                    const rotX = -(y / (rect.height / 2)) * 8;
+                    card.style.transition = 'transform 0.08s ease, border-color 0.3s, box-shadow 0.3s';
+                    card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-8px)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s, box-shadow 0.3s';
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
+                });
             });
 
         });
