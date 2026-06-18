@@ -1,101 +1,220 @@
 // ==========================================================================
-// 核心时钟 (Game Tick Loop)
+// 推进式时间系统 (Player-Driven Advance Clock)
+// 世界默认静止，只有玩家下达「推进至…」指令后，时间才按周流逝并在锚点暂停。
 // ==========================================================================
-function gameTick() {
-    // 如果有任何模态弹窗激活，暂停时钟推进
-    if (isGamePaused()) return;
+let advanceTimer = null;     // 当前推进的 setInterval 句柄
+let advanceRemaining = 0;    // 剩余要推进的周数
+let advanceReason = "";      // 推进目标，用于到点后的提示（"week"/"payday"/"event"/"card"）
+let advanceOnDone = null;    // 推进结束后的回调（卡片研发用）
+
+function isAdvancing() {
+    return advanceTimer !== null;
+}
+
+// 是否处于「不能推进」的阻塞态（有弹窗时）
+function isGameBlocked() {
+    const modals = ["custom-alert-modal", "custom-confirm-modal", "share-modal", "review-modal",
+        "event-modal", "publisher-modal", "bankruptcy-modal", "medal-shop-modal", "founder-modal", "card-result-modal", "stageup-modal"];
+    return modals.some(id => {
+        const el = document.getElementById(id);
+        return el && el.classList.contains("active");
+    });
+}
+
+// 兼容旧调用名
+function isGamePaused() { return isGameBlocked(); }
+
+function stopAdvance() {
+    if (advanceTimer) {
+        clearInterval(advanceTimer);
+        advanceTimer = null;
+    }
+    advanceRemaining = 0;
+    advanceReason = "";
+    advanceOnDone = null;
+    updateAdvanceUI();
+}
+
+// 核心入口：推进 weeks 周；reason 决定锚点；onDone 在自然走完后触发
+function startAdvance(weeks, reason = "week", onDone = null) {
+    if (isAdvancing() || isGameBlocked()) return;
+    if (!gameState.founderBackground) return; // 尚未选择创始人背景
+    advanceRemaining = Math.max(1, Math.round(weeks));
+    advanceReason = reason;
+    advanceOnDone = onDone;
+
+    advanceTimer = setInterval(() => {
+        if (isGameBlocked()) return; // 弹窗期间冻结，不消耗时间
+        const interrupted = weeklyStep();
+        advanceRemaining--;
+
+        if (interrupted) {
+            // 重大事件强制暂停（破产 / 空窗随机事件）
+            stopAdvance();
+            return;
+        }
+        if (advanceRemaining <= 0) {
+            const done = advanceOnDone;
+            const why = advanceReason;
+            stopAdvance();
+            if (typeof done === "function") {
+                done();
+            } else if (why === "payday") {
+                showPaydayBrief();
+            }
+        }
+    }, BALANCE.stepMs);
+
+    updateAdvanceUI();
+}
+
+// 推进至发薪日（本月月末）
+function advanceToPayday() {
+    const weeksLeft = (4 - gameState.date.week) + 1; // 到下个月初
+    startAdvance(weeksLeft, "payday");
+}
+
+// 推进至下一个关键节点（空窗期：等待随机事件/趋势/RP 积累，最多 12 周）
+function advanceToNextBeat() {
+    startAdvance(12, "event");
+}
+
+// ==========================================================================
+// 单周结算（推进过程中每“周”执行一次）
+// 返回 true 表示触发了需强制暂停的重大事件。
+// ==========================================================================
+function weeklyStep() {
+    let interrupted = false;
 
     // 递增周数
     gameState.date.week++;
+    let isPayday = false;
     if (gameState.date.week > 4) {
         gameState.date.week = 1;
         gameState.date.month++;
+        isPayday = true; // 跨月 => 发薪日
         if (gameState.date.month > 12) {
             gameState.date.month = 1;
             gameState.date.year++;
         }
     }
 
-    // 处理每周支出 (租金与员工工资)
-    const weeklyWages = gameState.employees.reduce((sum, emp) => sum + emp.salary, 0);
-    const totalOut = weeklyWages + BALANCE.weeklyRent;
+    // 每周固定租金
+    gameState.funds -= BALANCE.weeklyRent;
 
-    gameState.funds -= totalOut;
+    // 月薪制：仅在发薪日统一扣除全员月薪
+    let wagesPaid = 0;
+    if (isPayday) {
+        wagesPaid = gameState.employees.reduce((sum, emp) => sum + emp.salary, 0);
+        gameState.funds -= wagesPaid;
+    }
 
-    // 处理每日销量带来的持续收益
+    // 在售游戏的持续营收（含市场疲劳已写入 rating，不再重复）
     let weeklySales = 0;
     gameState.releases.forEach(game => {
         if (game.weeksSinceRelease < BALANCE.salesWindowWeeks) {
-            // 收益计算衰减
             const decay = Math.pow(BALANCE.revenueDecay, game.weeksSinceRelease);
-            let baseRevenue = game.rating * BALANCE.revenuePerRating * (1 + gameState.fans * BALANCE.fansRevenueFactor) * PLATFORMS_DATA[game.platform].scale;
-
-            // 应用发行商的分成政策（保留比例，未知发行商默认全额自营）
+            const baseRevenue = game.rating * BALANCE.revenuePerRating * (1 + gameState.fans * BALANCE.fansRevenueFactor) * PLATFORMS_DATA[game.platform].scale;
             const shareMultiplier = BALANCE.publisherShare[game.publisher] ?? 1.0;
-
-            let thisWeekRev = Math.round(baseRevenue * decay * shareMultiplier);
+            const thisWeekRev = Math.round(baseRevenue * decay * shareMultiplier);
             weeklySales += thisWeekRev;
             game.revenueGenerated += thisWeekRev;
             game.weeksSinceRelease++;
         }
     });
-
     gameState.funds += weeklySales;
-    gameState.lastSales = weeklySales;
-    gameState.lastIncome = weeklySales - totalOut;
 
-    // 大厂光环：名气回流特权（多周目特权）
+    // 负债利息：资金为负时持续承压
+    let interest = 0;
+    if (gameState.funds < 0) {
+        interest = Math.round(Math.abs(gameState.funds) * BALANCE.debtInterestRate);
+        gameState.funds -= interest;
+    }
+
+    gameState.lastSales = weeklySales;
+    gameState.lastIncome = weeklySales - BALANCE.weeklyRent - wagesPaid - interest;
+
+    // 特权 / 科技带来的每周粉丝增长
     if (gameState.activePerks && gameState.activePerks.fansGrowthBoost) {
         gameState.fans += BALANCE.fansBoostPerWeek;
     }
-
     if (gameState.researchPerks && gameState.researchPerks.community) {
         gameState.fans += 8;
     }
 
-    // 闲置状态下员工积累研发点 (RP)
     if (!gameState.currentProject) {
+        // 空窗期：员工恢复 + 闲置积累 RP
         gameState.employees.forEach(emp => {
             emp.fatigue = Math.max(0, (emp.fatigue || 0) - 8);
             emp.morale = Math.min(100, (emp.morale == null ? 75 : emp.morale) + 2);
-            // 每个人闲置时有几率积累 RP
             const rpChance = BALANCE.idleRpChance + (gameState.researchPerks && gameState.researchPerks.analytics ? 0.08 : 0);
             if (Math.random() < rpChance) {
                 let rpGained = emp.level * (Math.random() > 0.5 ? 1 : 2);
-                if (emp.trait === "idea") {
-                    rpGained = Math.round(rpGained * BALANCE.ideaTraitMultiplier); // 灵感爆棚特质
-                }
-                if (gameState.researchPerks && gameState.researchPerks.analytics) {
-                    rpGained += 1;
-                }
+                if (emp.trait === "idea") rpGained = Math.round(rpGained * BALANCE.ideaTraitMultiplier);
+                if (gameState.researchPerks && gameState.researchPerks.analytics) rpGained += 1;
                 gameState.rp += rpGained;
             }
         });
     } else {
-        // 如果在开发中，处理开发进度
-        developProgressTick();
+        // 研发期：员工自动产出研发点数（进度仅由卡片推进，不在此处增长）
+        accumulateDevPoints();
     }
 
-    // 偶尔更新热门趋势
-    if (Math.random() < BALANCE.trendUpdateChance) {
+    // 趋势刷新
+    if (Math.random() < trendUpdateChance()) {
         updateTrends();
     }
 
-    // 偶尔触发随机事件（研发期间不触发，避免打断操作）
+    // 空窗期偶发随机事件（强制暂停处理）
     if (!gameState.currentProject && Math.random() < BALANCE.randomEventChance) {
         triggerRandomEvent();
+        interrupted = true;
     }
 
-    // 数据检测，若资金赤字严重提示游戏结束 (破产)
+    // 破产线
     if (gameState.funds < BALANCE.bankruptcyThreshold) {
         triggerBankruptcy();
+        interrupted = true;
     }
 
-    // 保存进度并更新界面
     saveGame();
     updateStatsUI();
-    
-    // 重刷当前视图
     refreshActiveScreen();
+    return interrupted;
 }
 
+// 破产老兵：更敏锐捕捉趋势 => 更高刷新概率
+function trendUpdateChance() {
+    return BALANCE.trendUpdateChance + (gameState.founderBackground === "veteran" ? 0.06 : 0);
+}
+
+// 发薪日财务简报
+function showPaydayBrief() {
+    const wages = gameState.employees.reduce((sum, emp) => sum + emp.salary, 0);
+    const fundsTone = gameState.funds < 0 ? "var(--accent-pink)" : "var(--accent-neon)";
+    const msg = `
+        <div style="text-align:left; display:flex; flex-direction:column; gap:0.5rem;">
+            <div style="font-weight:700; color:#fff;">📅 第 ${gameState.date.year} 年 ${gameState.date.month} 月 · 发薪日结算</div>
+            <div style="display:flex; justify-content:space-between;"><span>本月员工月薪</span><span style="color:var(--accent-pink);">-¥${wages.toLocaleString()}</span></div>
+            <div style="display:flex; justify-content:space-between;"><span>当前资金余额</span><span style="color:${fundsTone};">¥${Math.round(gameState.funds).toLocaleString()}</span></div>
+        </div>`;
+    alert(msg, "财务简报");
+}
+
+// ==========================================================================
+// 推进控制条 UI 同步
+// ==========================================================================
+function updateAdvanceUI() {
+    const statusEl = document.getElementById("advance-status");
+    if (statusEl) {
+        statusEl.innerText = isAdvancing()
+            ? `推进中… 剩余 ${advanceRemaining} 周`
+            : "时间静止 · 等待您的指令";
+        statusEl.style.color = isAdvancing() ? "var(--accent-yellow)" : "var(--text-secondary)";
+    }
+    document.querySelectorAll(".advance-btn").forEach(btn => {
+        btn.disabled = isAdvancing();
+    });
+    const pauseBtn = document.getElementById("advance-pause-btn");
+    if (pauseBtn) pauseBtn.style.display = isAdvancing() ? "" : "none";
+}

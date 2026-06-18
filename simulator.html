@@ -72,11 +72,15 @@
                         <span class="stat-val" id="stat-date">第 1 年 1 月 1 周</span>
                     </div>
                 </div>
-                <!-- 倍速控制 -->
-                <div class="speed-control">
-                    <button class="speed-btn active" data-speed="1" onclick="setGameSpeed(1)"><i class="fa-solid fa-play"></i> 1x</button>
-                    <button class="speed-btn" data-speed="2" onclick="setGameSpeed(2)"><i class="fa-solid fa-forward"></i> 2x</button>
-                    <button class="speed-btn" data-speed="3" onclick="setGameSpeed(3)"><i class="fa-solid fa-forward-fast"></i> 3x</button>
+                <!-- 推进控制盘（时间由玩家驱动） -->
+                <div class="advance-control">
+                    <span class="advance-status" id="advance-status">时间静止 · 等待您的指令</span>
+                    <div class="advance-btns">
+                        <button class="advance-btn" onclick="startAdvance(1, 'week')"><i class="fa-solid fa-angle-right"></i> 推进1周</button>
+                        <button class="advance-btn" onclick="advanceToPayday()"><i class="fa-solid fa-sack-dollar"></i> 至发薪日</button>
+                        <button class="advance-btn" onclick="advanceToNextBeat()"><i class="fa-solid fa-forward"></i> 至关键节点</button>
+                        <button class="advance-btn pause" id="advance-pause-btn" style="display:none;" onclick="stopAdvance()"><i class="fa-solid fa-pause"></i> 暂停</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -156,6 +160,17 @@
                                 <h3 class="aside-title"><i class="fa-solid fa-chart-line"></i>运营简报</h3>
                                 <div class="stat-list">
                                     <div class="list-item">
+                                        <span class="list-lbl">公司阶段</span>
+                                        <span class="list-val" id="aside-stage-name" style="color: var(--text-secondary);">独立作坊</span>
+                                    </div>
+                                    <div class="list-item">
+                                        <span class="list-lbl">晋级进度</span>
+                                        <span class="list-val" id="aside-stage-next" style="color: var(--text-secondary); font-size: 0.78rem; text-align: right;">—</span>
+                                    </div>
+                                    <button class="btn-stageup" id="aside-stageup-btn" onclick="openStageUpModal()">
+                                        <i class="fa-solid fa-arrow-trend-up"></i> 申请晋级公司阶段
+                                    </button>
+                                    <div class="list-item">
                                         <span class="list-lbl">已发布游戏数</span>
                                         <span class="list-val" id="aside-released-count">0 款</span>
                                     </div>
@@ -178,7 +193,7 @@
                                         </div>
                                     </div>
                                     <div class="list-item">
-                                        <span class="list-lbl">每周员工工资</span>
+                                        <span class="list-lbl">员工月薪(发薪日扣)</span>
                                         <span class="list-val" id="aside-weekly-wages" style="color: var(--accent-pink);">¥0</span>
                                     </div>
                                     <div class="list-item">
@@ -340,68 +355,33 @@
                     </div>
                 </div>
 
-                <!-- 4.1 游戏研发过程遮罩层 -->
+                <!-- 4.1 卡片化研发看板 -->
                 <div class="dev-overlay" id="development-overlay">
-                    <!-- Bug 爬行除虫区 -->
-                    <div id="bug-spawn-zone" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; overflow: hidden;"></div>
                     <div class="dev-header">
-                        <div class="dev-game-name" id="overlay-game-name">项目名</div>
-                        <div class="dev-game-meta" id="overlay-game-meta">Casual | 抖音小游戏</div>
+                        <div class="dev-game-name" id="board-game-name">项目名</div>
+                        <div class="dev-game-meta" id="board-game-meta">Casual | 抖音小游戏</div>
                     </div>
 
-                    <!-- 进度罐 -->
-                    <div class="particle-reactor" id="reactor-container">
-                        <div class="reactor-core">
-                            <span class="reactor-progress-val" id="overlay-progress">0%</span>
-                            <span class="reactor-progress-lbl">开发进度</span>
-                        </div>
+                    <!-- 属性与进度汇总 -->
+                    <div class="board-stats-row">
+                        <div class="points-counter"><span class="points-val code" id="board-code">0</span><span class="points-lbl">代码</span></div>
+                        <div class="points-counter"><span class="points-val art" id="board-art">0</span><span class="points-lbl">美术</span></div>
+                        <div class="points-counter"><span class="points-val design" id="board-design">0</span><span class="points-lbl">设计</span></div>
+                        <div class="points-counter"><span class="points-val bugs" id="board-bugs" style="color: var(--accent-pink);">0</span><span class="points-lbl">Bug</span></div>
+                        <div class="points-counter"><span class="points-val" id="board-progress" style="color: var(--accent-yellow);">0%</span><span class="points-lbl">进度</span></div>
                     </div>
-
-                    <!-- 四种属性汇总 -->
-                    <div class="points-dashboard">
-                        <div class="points-counter">
-                            <span class="points-val code" id="overlay-code">0</span>
-                            <span class="points-lbl">代码实力</span>
-                        </div>
-                        <div class="points-counter">
-                            <span class="points-val art" id="overlay-art">0</span>
-                            <span class="points-lbl">美术表现</span>
-                        </div>
-                        <div class="points-counter">
-                            <span class="points-val design" id="overlay-design">0</span>
-                            <span class="points-lbl">核心设计</span>
-                        </div>
-                        <div class="points-counter">
-                            <span class="points-val bugs" id="overlay-bugs" style="color: var(--accent-pink);">0</span>
-                            <span class="points-lbl">程序Bug</span>
-                        </div>
-                    </div>
-
-                    <!-- 进度条 -->
                     <div class="progress-container">
-                        <div class="progress-bar" id="overlay-progress-bar"></div>
-                        <span class="dev-phase-label" id="dev-phase-label">📐 概念设计阶段</span>
+                        <div class="progress-bar" id="board-progress-bar"></div>
+                        <span class="dev-phase-label" id="board-phase">📐 概念设计阶段</span>
                     </div>
 
-                                        <!-- Bug小游戏UI -->
-                    <div class="bug-game-hud" id="bug-game-hud" style="display:none;">
-                        <div class="bug-hud-row">
-                            <div class="bug-timer-box">
-                                <i class="fa-solid fa-clock"></i>
-                                <span id="bug-timer">30</span>s
-                                <div class="bug-timer-track"><div class="bug-timer-bar" id="bug-timer-bar"></div></div>
-                            </div>
-                            <div class="bug-combo-box">
-                                <span class="combo-label">COMBO</span>
-                                <span class="combo-value" id="bug-combo">0</span>
-                            </div>
-                        </div>
-                    </div>
+                    <p class="board-hint" id="board-hint">从下列开发卡中选择 1 张……</p>
 
-                    <!-- 开发者实时操作交互按钮 -->
-                    <button class="btn-dev-action disabled" id="dev-action-btn" onclick="triggerDevAction()">
-                        正在火热研发中...
-                    </button>
+                    <!-- 三张事件卡 -->
+                    <div class="dev-board-cards" id="dev-board-cards"></div>
+
+                    <!-- 完成 / 打磨阶段操作区 -->
+                    <div class="dev-board-finish" id="dev-board-finish" style="display:none;"></div>
                 </div>
 
             </div>
@@ -707,19 +687,53 @@
         </div>
      </div>
 
+    <!-- 10. 创始人背景选择弹窗 -->
+    <div id="founder-modal" class="modal-overlay">
+        <div class="review-card" style="max-width: 760px;">
+            <h3 class="review-title" style="color: var(--accent-neon);"><i class="fa-solid fa-id-badge"></i> 选择你的创始人背景</h3>
+            <p class="panel-desc" style="text-align:center; margin-bottom:1rem;">你的出身将决定整个周目的玩法风格——选择后不可更改。</p>
+            <div class="founder-grid" id="founder-choices"></div>
+        </div>
+    </div>
+
+    <!-- 11. 开发卡结果弹窗 -->
+    <div id="card-result-modal" class="modal-overlay">
+        <div class="event-card">
+            <h3 class="event-title" id="card-result-title"><i class="fa-solid fa-book-open"></i> 开发手记</h3>
+            <p class="event-desc" id="card-result-desc">事件描述</p>
+            <div class="event-choices" id="card-result-choices"></div>
+        </div>
+    </div>
+
+    <!-- 12. 公司晋级评估弹窗 -->
+    <div id="stageup-modal" class="modal-overlay">
+        <div class="event-card glass-card" style="max-width: 480px; border-color: var(--accent-yellow); box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 25px rgba(251,191,36,0.18);">
+            <h3 class="event-title" id="stageup-modal-title" style="color: var(--accent-yellow);"><i class="fa-solid fa-arrow-trend-up"></i> 申请晋级</h3>
+            <div id="stageup-modal-body"><!-- 动态渲染条件 --></div>
+            <div style="display:flex; gap:0.8rem; margin-top:1rem;">
+                <button class="btn-modal-close" style="flex:1; background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--text-secondary);" onclick="closeStageUpModal()">关闭</button>
+                <button class="btn-modal-close" id="stageup-confirm-btn" style="flex:1;" onclick="confirmStageUp()">确认晋级</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 13. 公司晋级成功全屏特效 -->
+    <div id="stageup-fx"></div>
+
     <!-- ==========================================================================
        5. 游戏Tycoon引擎逻辑 (Simulator Engine Script)
        ========================================================================== -->
-    <script src="assets/js/data.js"></script>
-    <script src="assets/js/simulator/ui-modals.js"></script>
-    <script src="assets/js/simulator/state.js?v=2"></script>
-    <script src="assets/js/simulator/storage.js"></script>
+    <script src="assets/js/data.js?v=3"></script>
+    <script src="assets/js/simulator/ui-modals.js?v=3"></script>
+    <script src="assets/js/simulator/state.js?v=3"></script>
+    <script src="assets/js/simulator/stages.js?v=3"></script>
+    <script src="assets/js/simulator/storage.js?v=3"></script>
     <script src="assets/js/simulator/audio.js"></script>
-    <script src="assets/js/simulator/boot.js?v=2"></script>
-    <script src="assets/js/simulator/game-loop.js?v=2"></script>
-    <script src="assets/js/simulator/development.js?v=2"></script>
-    <script src="assets/js/simulator/team-research-events.js"></script>
-    <script src="assets/js/simulator/views.js"></script>
-    <script src="assets/js/simulator/meta-systems.js?v=2"></script>
+    <script src="assets/js/simulator/boot.js?v=3"></script>
+    <script src="assets/js/simulator/game-loop.js?v=3"></script>
+    <script src="assets/js/simulator/development.js?v=3"></script>
+    <script src="assets/js/simulator/team-research-events.js?v=3"></script>
+    <script src="assets/js/simulator/views.js?v=3"></script>
+    <script src="assets/js/simulator/meta-systems.js?v=3"></script>
 </body>
 </html>

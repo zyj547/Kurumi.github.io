@@ -119,7 +119,7 @@ function loadStaffRecruits() {
                 </div>
             </div>
             <div class="candidate-salary-box">
-                <span class="list-lbl">期望周薪</span>
+                <span class="list-lbl">期望月薪</span>
                 <span class="candidate-salary">¥${cand.salary}</span>
             </div>
             <div class="candidate-salary-box">
@@ -198,14 +198,16 @@ function hireCandidate(idx) {
 }
 
 function getOfficeExpandCost() {
-    const slots = gameState.officeSlots || 5;
-    return 60000 + Math.max(0, slots - 5) * 45000;
+    const slots = gameState.officeSlots || 3;
+    return 60000 + Math.max(0, slots - 3) * 45000;
 }
 
 function expandOfficeSlots() {
-    const slots = gameState.officeSlots || 5;
-    if (slots >= 8) {
-        alert("当前办公室已经扩建到上限（8 个工位）。");
+    const slots = gameState.officeSlots || 3;
+    const cap = typeof stageSlotCap === "function" ? stageSlotCap() : 8;
+    if (slots >= cap) {
+        const stageName = typeof currentStage === "function" ? currentStage().name : "当前";
+        alert(`当前【${stageName}】阶段工位已达上限（${cap} 个）。发展公司晋级到更高阶段才能继续扩建。`);
         return;
     }
 

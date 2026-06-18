@@ -49,7 +49,8 @@ function base64ToUtf8(base64) {
 }
 
 // 存档结构版本号（结构变更时递增，供未来迁移判断）
-const SAVE_VERSION = 1;
+// v2: 推进式时间系统 + 卡片化研发 + 创始人背景（与 v1 不兼容，旧档将清空重开）
+const SAVE_VERSION = 2;
 
 // 全新一局的默认状态（单一数据源，供初始化、存档迁移、重组复用）
 function createDefaultGameState() {
@@ -59,10 +60,12 @@ function createDefaultGameState() {
         fans: 100,
         rp: 10,
         date: { year: 1, month: 1, week: 1 },
+        founderBackground: null, // 开局选择前为 null，选择后写入背景 key
         employees: [
             { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, fatigue: 0 }
         ],
-        officeSlots: 5,
+        officeSlots: 3,
+        companyStage: 0, // 公司发展阶段索引（0=独立作坊）
         hiringRefreshes: 0,
         unlockedGenres: ["Casual"],
         unlockedTopics: ["Laborer"],
@@ -71,6 +74,7 @@ function createDefaultGameState() {
         currentProject: null,
         lastIncome: 0,
         lastSales: 0,
+        recentGenres: [], // 最近发布的类型序列，用于市场疲劳度判定
         activeTrend: { genre: "Casual", topic: "Laborer" },
         // 多周目数据
         medalsGained: 0,
@@ -116,7 +120,7 @@ const SAVE_LIMITS = {
 
 const VALID_ROLES = ["designer", "programmer", "artist"];
 const VALID_SPECIALTIES = ["engine", "fullstack", "concept", "animator", "systems", "writer"];
-const VALID_PROJECT_STATES = ["coding", "debugging", "finished"];
+const VALID_PROJECT_STATES = ["developing", "polishing", "finished"];
 const VALID_PUBLISHERS = ["self", "tiktok", "steam"];
 
 function clonePlain(value) {
@@ -199,11 +203,11 @@ function sanitizeProject(project) {
         art: clampInteger(project.art, 0, 99999, 0),
         design: clampInteger(project.design, 0, 99999, 0),
         bugs: clampInteger(project.bugs, 0, 9999, 0),
-        devEventCooldown: clampInteger(project.devEventCooldown, 0, 12, 0),
-        miniCooldown: clampInteger(project.miniCooldown, 0, 8, 0),
-        miniStreak: clampInteger(project.miniStreak, 0, 99, 0),
-        miniReady: Boolean(project.miniReady),
-        state: enumValue(project.state, VALID_PROJECT_STATES, "coding")
+        cardsResolved: clampInteger(project.cardsResolved, 0, 99, 0),
+        cardsNeeded: clampInteger(project.cardsNeeded, 3, 20, 6),
+        polishWeeksLeft: clampInteger(project.polishWeeksLeft, 0, 8, 0),
+        rushPenalty: Boolean(project.rushPenalty),
+        state: enumValue(project.state, VALID_PROJECT_STATES, "developing")
     };
 }
 
@@ -275,7 +279,8 @@ function sanitizeSave(rawSave) {
     clean.fans = clampInteger(migrated.fans, 0, SAVE_LIMITS.fans, defaults.fans);
     clean.rp = clampInteger(migrated.rp, 0, SAVE_LIMITS.rp, defaults.rp);
     clean.date = sanitizeDate(migrated.date);
-    clean.officeSlots = clampInteger(migrated.officeSlots, 5, 8, defaults.officeSlots);
+    clean.officeSlots = clampInteger(migrated.officeSlots, 2, 8, defaults.officeSlots);
+    clean.companyStage = clampInteger(migrated.companyStage, 0, COMPANY_STAGES.length - 1, 0);
     clean.hiringRefreshes = clampInteger(migrated.hiringRefreshes, 0, 999999, defaults.hiringRefreshes);
     clean.employees = (Array.isArray(migrated.employees) ? migrated.employees : defaults.employees)
         .slice(0, clean.officeSlots)
@@ -291,6 +296,9 @@ function sanitizeSave(rawSave) {
         .map(sanitizeRelease)
         .filter(Boolean);
     clean.currentProject = sanitizeProject(migrated.currentProject);
+    clean.founderBackground = enumValue(migrated.founderBackground, Object.keys(FOUNDER_BACKGROUNDS), null);
+    clean.recentGenres = (Array.isArray(migrated.recentGenres) ? migrated.recentGenres : [])
+        .filter(g => Object.keys(GENRES_DATA).includes(g)).slice(-5);
     clean.lastIncome = clampInteger(migrated.lastIncome, -SAVE_LIMITS.funds, SAVE_LIMITS.funds, 0);
     clean.lastSales = clampInteger(migrated.lastSales, 0, SAVE_LIMITS.funds, 0);
     clean.activeTrend = {
@@ -322,7 +330,7 @@ let gameSpeed = 1;
 // 经济与节奏平衡参数（集中管理，便于数值调参）
 // ==========================================================================
 const BALANCE = {
-    tickMs: 8000,             // 主时钟每周时长（毫秒）
+    stepMs: 900,              // 推进时每“周”的实际耗时（毫秒），仅在推进中流逝
     weeklyRent: 500,          // 每周固定租金
     salesWindowWeeks: 16,     // 单款游戏在售周数
     revenueDecay: 0.75,       // 每周营收衰减系数
@@ -333,7 +341,10 @@ const BALANCE = {
     idleRpChance: 0.25,       // 闲置员工每周积累 RP 概率
     ideaTraitMultiplier: 1.5, // “灵感爆棚”特质 RP 加成
     trendUpdateChance: 0.1,   // 每周刷新趋势概率
-    randomEventChance: 0.08,  // 每周随机事件概率
-    bankruptcyThreshold: -30000 // 破产资金线
+    randomEventChance: 0.08,  // 每周随机事件概率（仅空窗期）
+    bankruptcyThreshold: -30000, // 破产资金线
+    debtInterestRate: 0.02,   // 负债时每周额外利息（占负债绝对值）
+    fatigueDecayPerMarketGame: 0.06, // 市场疲劳：每条最近同类记录的评分衰减
+    marketFatigueWindow: 3    // 市场疲劳统计最近 N 款
 };
 

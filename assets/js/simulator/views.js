@@ -72,10 +72,11 @@ function teamSummary() {
 }
 
 function nextActionHint(weeklyOut) {
-    const officeSlots = gameState.officeSlots || 5;
+    const officeSlots = gameState.officeSlots || 3;
     if (gameState.currentProject) return "推进当前项目";
     if (gameState.funds < weeklyOut * 6) return "控制开支";
-    if (gameState.employees.length >= officeSlots && officeSlots < 8) return "扩张工位";
+    const slotCap = typeof stageSlotCap === "function" ? stageSlotCap() : 8;
+    if (gameState.employees.length >= officeSlots && officeSlots < slotCap) return "扩张工位";
     if (gameState.employees.length < Math.min(3, officeSlots)) return "补齐团队";
     if (gameState.rp >= 18) return "研究新路线";
     if (gameState.releases.length === 0) return "立项首作";
@@ -96,7 +97,7 @@ function loadOfficeDesks() {
         writer: "创意主笔"
     };
 
-    const officeSlots = gameState.officeSlots || 5;
+    const officeSlots = gameState.officeSlots || 3;
 
     // 循环遍历渲染当前办公室卡座
     for (let i = 0; i < officeSlots; i++) {
@@ -219,7 +220,8 @@ function loadOfficeDesks() {
         container.appendChild(card);
     }
 
-    if (officeSlots < 8) {
+    const slotCap = typeof stageSlotCap === "function" ? stageSlotCap() : 8;
+    if (officeSlots < slotCap) {
         const cost = getOfficeExpandCost();
         const card = document.createElement("div");
         card.className = "desk-card office-expand-card";
@@ -230,7 +232,7 @@ function loadOfficeDesks() {
                 </div>
                 <div class="staff-profile">
                     <span class="staff-name">扩建办公室</span>
-                    <span class="staff-level">当前容量 ${gameState.employees.length}/${officeSlots}，最高 8 人</span>
+                    <span class="staff-level">当前容量 ${gameState.employees.length}/${officeSlots}，本阶段上限 ${slotCap} 人</span>
                 </div>
             </div>
             <div class="desk-status-text">新增 1 个员工槽位</div>
@@ -343,10 +345,11 @@ function updateStatsUI() {
     inc.innerText = `${gameState.lastIncome >= 0 ? '+' : ''}¥${gameState.lastIncome.toLocaleString()}`;
     inc.style.color = gameState.lastIncome >= 0 ? "var(--accent-neon)" : "var(--accent-pink)";
 
-    const weeklyWages = gameState.employees.reduce((sum, emp) => sum + emp.salary, 0);
-    document.getElementById("aside-weekly-wages").innerText = `¥${weeklyWages}`;
+    const monthlyWages = gameState.employees.reduce((sum, emp) => sum + emp.salary, 0);
+    document.getElementById("aside-weekly-wages").innerText = `¥${monthlyWages}`;
     document.getElementById("aside-weekly-rent").innerText = `¥500`;
-    const weeklyOut = weeklyWages + BALANCE.weeklyRent;
+    // 周均支出 = 月薪/4 + 周租金（月薪制下用于估算现金可撑周数）
+    const weeklyOut = monthlyWages / 4 + BALANCE.weeklyRent;
     const runwayWeeks = gameState.funds > 0 ? Math.floor(gameState.funds / Math.max(1, weeklyOut)) : 0;
     document.getElementById("aside-runway").innerText = `${runwayWeeks} 周`;
     document.getElementById("aside-runway").style.color = runwayWeeks < 6 ? "var(--accent-pink)" : runwayWeeks < 12 ? "var(--accent-yellow)" : "var(--accent-neon)";
@@ -354,7 +357,7 @@ function updateStatsUI() {
     document.getElementById("aside-team-focus").innerText = summary.focus;
     const officeSlotEl = document.getElementById("aside-office-slots");
     if (officeSlotEl) {
-        const officeSlots = gameState.officeSlots || 5;
+        const officeSlots = gameState.officeSlots || 3;
         officeSlotEl.innerText = `${gameState.employees.length}/${officeSlots}`;
         officeSlotEl.style.color = gameState.employees.length >= officeSlots ? "var(--accent-yellow)" : "var(--accent-neon)";
     }
@@ -366,11 +369,14 @@ function updateStatsUI() {
     // 财务折叠面板内容更新
     const lastSalesVal = gameState.lastSales || 0;
     document.getElementById("bill-game-sales").innerText = `+¥${lastSalesVal.toLocaleString()}`;
-    document.getElementById("bill-employee-wages").innerText = `-¥${weeklyWages.toLocaleString()}`;
+    document.getElementById("bill-employee-wages").innerText = `-¥${monthlyWages.toLocaleString()}`;
 
     // 趋势更新
     document.getElementById("aside-trend-genre").innerText = GENRES_DATA[gameState.activeTrend.genre].name;
     document.getElementById("aside-trend-topic").innerText = TOPICS_DATA[gameState.activeTrend.topic].name;
+
+    // 公司发展阶段简报
+    if (typeof renderStageBrief === "function") renderStageBrief();
 }
 
 // 更新大趋势
