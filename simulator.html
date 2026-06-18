@@ -14,7 +14,7 @@
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/simulator.css?v=2">
+    <link rel="stylesheet" href="assets/css/simulator.css?v=4">
 </head>
 <body>
 
@@ -79,6 +79,7 @@
                         <button class="advance-btn" onclick="startAdvance(1, 'week')"><i class="fa-solid fa-angle-right"></i> 推进1周</button>
                         <button class="advance-btn" onclick="advanceToPayday()"><i class="fa-solid fa-sack-dollar"></i> 至发薪日</button>
                         <button class="advance-btn" onclick="advanceToNextBeat()"><i class="fa-solid fa-forward"></i> 至关键节点</button>
+                        <button class="advance-btn" onclick="advanceToContractExpiry()"><i class="fa-solid fa-file-signature"></i> 至合同到期</button>
                         <button class="advance-btn pause" id="advance-pause-btn" style="display:none;" onclick="stopAdvance()"><i class="fa-solid fa-pause"></i> 暂停</button>
                     </div>
                 </div>
@@ -222,6 +223,11 @@
                             <div class="glass-box" id="aux-projects-box" style="display:none;">
                                 <h3 class="aside-title" style="color: var(--accent-yellow);"><i class="fa-solid fa-layer-group"></i>并行项目（B组）</h3>
                                 <div id="aux-projects-list"></div>
+                            </div>
+
+                            <div class="glass-box" id="platform-rep-box" style="display:none;">
+                                <h3 class="aside-title" style="color: var(--accent-neon);"><i class="fa-solid fa-shield-halved"></i>平台信誉</h3>
+                                <div id="platform-rep-list"></div>
                             </div>
 
                             <div class="glass-box">
@@ -734,17 +740,19 @@
     <!-- ==========================================================================
        5. 游戏Tycoon引擎逻辑 (Simulator Engine Script)
        ========================================================================== -->
-    <script src="assets/js/data.js?v=3"></script>
-    <script src="assets/js/simulator/ui-modals.js?v=3"></script>
-    <script src="assets/js/simulator/state.js?v=3"></script>
-    <script src="assets/js/simulator/stages.js?v=3"></script>
-    <script src="assets/js/simulator/storage.js?v=3"></script>
+    <script src="assets/js/data.js?v=4"></script>
+    <script src="assets/js/simulator/ui-modals.js?v=4"></script>
+    <script src="assets/js/simulator/state.js?v=4"></script>
+    <script src="assets/js/simulator/stages.js?v=4"></script>
+    <script src="assets/js/simulator/contracts.js?v=4"></script>
+    <script src="assets/js/simulator/platform-rep.js?v=4"></script>
+    <script src="assets/js/simulator/storage.js?v=4"></script>
     <script src="assets/js/simulator/audio.js"></script>
-    <script src="assets/js/simulator/boot.js?v=3"></script>
-    <script src="assets/js/simulator/game-loop.js?v=3"></script>
-    <script src="assets/js/simulator/development.js?v=3"></script>
-    <script src="assets/js/simulator/team-research-events.js?v=3"></script>
-    <script src="assets/js/simulator/views.js?v=3"></script>
-    <script src="assets/js/simulator/meta-systems.js?v=3"></script>
+    <script src="assets/js/simulator/boot.js?v=4"></script>
+    <script src="assets/js/simulator/game-loop.js?v=4"></script>
+    <script src="assets/js/simulator/development.js?v=4"></script>
+    <script src="assets/js/simulator/team-research-events.js?v=4"></script>
+    <script src="assets/js/simulator/views.js?v=4"></script>
+    <script src="assets/js/simulator/meta-systems.js?v=4"></script>
 </body>
 </html>

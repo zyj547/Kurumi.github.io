@@ -2554,3 +2554,18 @@
         .aux-proj-meta { font-size: 0.72rem; color: var(--text-secondary); margin: 0.15rem 0 0.4rem; }
         .aux-proj-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
         .aux-proj-bar { height: 100%; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-pink)); border-radius: 6px; transition: width 0.2s; }
+
+        /* ── 平台信誉面板 ── */
+        .prep-item { margin-bottom: 0.55rem; }
+        .prep-item:last-child { margin-bottom: 0; }
+        .prep-head { display: flex; justify-content: space-between; align-items: baseline; }
+        .prep-name { font-size: 0.82rem; color: var(--text-primary); }
+        .prep-val { font-family: var(--font-title); font-weight: 700; font-size: 0.82rem; }
+        .prep-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; margin-top: 0.25rem; }
+        .prep-bar { height: 100%; border-radius: 6px; transition: width 0.3s; }
+
+        /* 立项平台按钮：信誉色调与锁定态 */
+        .select-btn .btn-cost.good { color: var(--accent-neon); }
+        .select-btn .btn-cost.warn { color: var(--accent-yellow); }
+        .select-btn .btn-cost.risk { color: var(--accent-pink); }
+        .select-btn.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); border-color: rgba(239,68,68,0.4) !important; }

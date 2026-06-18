@@ -80,6 +80,18 @@
         };
 
         // ==========================================================================
+        // 平台信誉与淘汰 (Platform Reputation)
+        // 在某平台连续发布低分作品会拉低该平台信誉：降低营收、甚至被高端平台拒绝合作。
+        // premium 平台信誉过低会被锁定立项，需靠时间回暖或在其它平台积累口碑后恢复。
+        // ==========================================================================
+        const PLATFORM_REP_CONFIG = {
+            "Mobile":  { start: 60, premium: false, lockThreshold: 0 },
+            "TikTok":  { start: 55, premium: false, lockThreshold: 0 },
+            "PC":      { start: 50, premium: true,  lockThreshold: 28 },
+            "Console": { start: 45, premium: true,  lockThreshold: 34 }
+        };
+
+        // ==========================================================================
         // 公司发展阶段 (Company Stages)
         // 按累计发布数 / 粉丝 / 资金里程碑自动晋级，每阶段提升工位上限、基础士气与效率。
         // require: 晋级到「下一阶段」需要满足的门槛（达到本阶段后用 next 的 require 判定）。

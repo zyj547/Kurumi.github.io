@@ -164,6 +164,7 @@ function hireCandidate(idx) {
     }
 
     gameState.funds -= cand.cost;
+    const contractYears = 1 + Math.floor(Math.random() * 3); // 1~3 年合同
     gameState.employees.push({
         name: cand.name,
         role: cand.role,
@@ -174,7 +175,10 @@ function hireCandidate(idx) {
         trait: cand.trait || "none",
         rarity: cand.rarity || "R",
         morale: 75,
-        fatigue: 0
+        fatigue: 0,
+        contractYears: contractYears,
+        contractWeeksLeft: contractYears * 48, // 每年 48 周（12 月 × 4 周）
+        pendingRenewal: false
     });
 
     // 移除招募池中的该候选人，并补一个新候选人保持市场可逛

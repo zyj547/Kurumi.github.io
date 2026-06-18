@@ -62,7 +62,7 @@ function createDefaultGameState() {
         date: { year: 1, month: 1, week: 1 },
         founderBackground: null, // 开局选择前为 null，选择后写入背景 key
         employees: [
-            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, fatigue: 0 }
+            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, fatigue: 0, contractWeeksLeft: null, contractYears: 0, pendingRenewal: false }
         ],
         officeSlots: 3,
         companyStage: 0, // 公司发展阶段索引（0=独立作坊）
@@ -76,6 +76,7 @@ function createDefaultGameState() {
         lastIncome: 0,
         lastSales: 0,
         recentGenres: [], // 最近发布的类型序列，用于市场疲劳度判定
+        platformRep: Object.keys(PLATFORM_REP_CONFIG).reduce((acc, k) => { acc[k] = PLATFORM_REP_CONFIG[k].start; return acc; }, {}),
         activeTrend: { genre: "Casual", topic: "Laborer" },
         // 多周目数据
         medalsGained: 0,
@@ -181,7 +182,10 @@ function sanitizeEmployee(emp, fallback) {
         trait: enumValue(source.trait, Object.keys(EMPLOYEE_TRAITS), fallback.trait || "none"),
         rarity: enumValue(source.rarity, ["R", "SR", "SSR"], fallback.rarity || "R"),
         morale: clampInteger(source.morale, 0, 100, fallback.morale == null ? 75 : fallback.morale),
-        fatigue: clampInteger(source.fatigue, 0, 100, fallback.fatigue || 0)
+        fatigue: clampInteger(source.fatigue, 0, 100, fallback.fatigue || 0),
+        contractWeeksLeft: source.contractWeeksLeft == null ? null : clampInteger(source.contractWeeksLeft, 0, 400, 96),
+        contractYears: clampInteger(source.contractYears, 0, 3, 0),
+        pendingRenewal: Boolean(source.pendingRenewal)
     };
     if (VALID_SPECIALTIES.includes(source.specialty)) {
         clean.specialty = source.specialty;
@@ -306,6 +310,11 @@ function sanitizeSave(rawSave) {
     clean.founderBackground = enumValue(migrated.founderBackground, Object.keys(FOUNDER_BACKGROUNDS), null);
     clean.recentGenres = (Array.isArray(migrated.recentGenres) ? migrated.recentGenres : [])
         .filter(g => Object.keys(GENRES_DATA).includes(g)).slice(-5);
+    clean.platformRep = Object.keys(PLATFORM_REP_CONFIG).reduce((acc, k) => {
+        const src = migrated.platformRep && migrated.platformRep[k];
+        acc[k] = clampInteger(src, 0, 100, PLATFORM_REP_CONFIG[k].start);
+        return acc;
+    }, {});
     clean.lastIncome = clampInteger(migrated.lastIncome, -SAVE_LIMITS.funds, SAVE_LIMITS.funds, 0);
     clean.lastSales = clampInteger(migrated.lastSales, 0, SAVE_LIMITS.funds, 0);
     clean.activeTrend = {

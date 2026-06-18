@@ -193,6 +193,7 @@ function loadOfficeDesks() {
                     <div class="condition-pill ${staffHealthTone(morale)}">心情 ${morale}</div>
                     <div class="condition-pill ${staffHealthTone(fatigue, true)}">疲劳 ${fatigue}</div>
                     <div class="condition-pill ${staffHealthTone(efficiency)}">效率 ${efficiency}%</div>
+                    <div class="condition-pill ${typeof contractTone === "function" ? contractTone(emp) : "good"}">${typeof contractLabel === "function" ? contractLabel(emp) : ""}</div>
                 </div>
                 <div class="staff-actions">
                     ${actionButtonHtml}
@@ -380,6 +381,9 @@ function updateStatsUI() {
 
     // 并行辅助项目面板
     renderAuxProjects();
+
+    // 平台信誉面板
+    if (typeof renderPlatformRep === "function") renderPlatformRep();
 }
 
 function renderAuxProjects() {

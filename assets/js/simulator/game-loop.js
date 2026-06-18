@@ -116,7 +116,8 @@ function weeklyStep() {
             const decay = Math.pow(BALANCE.revenueDecay, game.weeksSinceRelease);
             const baseRevenue = game.rating * BALANCE.revenuePerRating * (1 + gameState.fans * BALANCE.fansRevenueFactor) * PLATFORMS_DATA[game.platform].scale;
             const shareMultiplier = BALANCE.publisherShare[game.publisher] ?? 1.0;
-            const thisWeekRev = Math.round(baseRevenue * decay * shareMultiplier);
+            const repMultiplier = typeof platformRevenueMultiplier === "function" ? platformRevenueMultiplier(game.platform) : 1.0;
+            const thisWeekRev = Math.round(baseRevenue * decay * shareMultiplier * repMultiplier);
             weeklySales += thisWeekRev;
             game.revenueGenerated += thisWeekRev;
             game.weeksSinceRelease++;
@@ -169,14 +170,26 @@ function weeklyStep() {
         tickAuxProjects(rate);
     }
 
+    // 平台信誉每周向中位回归
+    if (typeof driftPlatformRep === "function") driftPlatformRep();
+
     // 趋势刷新
     if (Math.random() < trendUpdateChance()) {
         updateTrends();
     }
 
-    // 空窗期偶发随机事件（强制暂停处理）
-    if (!gameState.currentProject && Math.random() < BALANCE.randomEventChance) {
+    // 合同到期结算（任何时候都递减；到期强制暂停处理续约）
+    if (typeof processContracts === "function" && processContracts()) {
+        interrupted = true;
+    }
+
+    // 空窗期偶发：随机事件 / 核心员工被挖角（强制暂停处理）
+    const inSpaceWindow = !gameState.currentProject && (gameState.auxProjects || []).length === 0;
+    if (!interrupted && inSpaceWindow && Math.random() < BALANCE.randomEventChance) {
         triggerRandomEvent();
+        interrupted = true;
+    }
+    if (!interrupted && inSpaceWindow && typeof maybePoach === "function" && maybePoach()) {
         interrupted = true;
     }
 

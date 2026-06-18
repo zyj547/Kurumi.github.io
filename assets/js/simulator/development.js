@@ -134,14 +134,23 @@ function renderProjectPreview() {
 }
 
 function setupDevelopForm() {
+    // 若当前选中平台被信誉锁定，自动回退到手机端
+    if (typeof isPlatformLocked === "function" && isPlatformLocked(selectedPlatform)) {
+        selectedPlatform = "Mobile";
+    }
+
     const platContainer = document.getElementById("dev-platforms");
     platContainer.innerHTML = "";
     gameState.unlockedPlatforms.forEach(platKey => {
         const plat = PLATFORMS_DATA[platKey];
+        const locked = typeof isPlatformLocked === "function" && isPlatformLocked(platKey);
+        const repLabel = typeof platformRepLabel === "function" ? platformRepLabel(platKey) : "";
+        const repTone = typeof platformRepTone === "function" ? platformRepTone(platKey) : "good";
         const btn = document.createElement("button");
-        btn.className = `select-btn ${selectedPlatform === platKey ? 'selected' : ''}`;
-        btn.onclick = () => { selectedPlatform = platKey; setupDevelopForm(); };
-        btn.innerHTML = `<span><i class="${plat.icon}"></i> ${plat.name}</span><span class="btn-cost">配额金 ¥${plat.cost}</span>`;
+        btn.className = `select-btn ${selectedPlatform === platKey ? 'selected' : ''} ${locked ? 'locked' : ''}`;
+        btn.disabled = locked;
+        if (!locked) btn.onclick = () => { selectedPlatform = platKey; setupDevelopForm(); };
+        btn.innerHTML = `<span><i class="${plat.icon}"></i> ${plat.name}</span><span class="btn-cost ${repTone}">${locked ? '⛔ ' + repLabel : `¥${plat.cost} · ${repLabel}`}</span>`;
         platContainer.appendChild(btn);
     });
 
@@ -192,6 +201,10 @@ function setupDevelopForm() {
 
 function startDevelopment() {
     if (gameState.currentProject) { showDevBoard(); return; }
+    if (typeof isPlatformLocked === "function" && isPlatformLocked(selectedPlatform)) {
+        alert(`【${PLATFORMS_DATA[selectedPlatform].name}】因近期口碑不佳暂时拒绝与工作室合作，请改选其它平台或先在其它平台积累口碑。`);
+        return;
+    }
     const nameInput = document.getElementById("dev-name").value.trim();
     const gameName = nameInput || `桔子秘境 ${Math.floor(Math.random() * 100)}`;
     const { totalCost } = calculateProjectCost();
@@ -290,6 +303,10 @@ function startAuxProject() {
         alert(`当前阶段最多并行 ${cap} 个辅助项目，已达上限。`);
         return;
     }
+    if (typeof isPlatformLocked === "function" && isPlatformLocked(selectedPlatform)) {
+        alert(`【${PLATFORMS_DATA[selectedPlatform].name}】因近期口碑不佳暂时拒绝合作，无法在此平台开设辅助项目。`);
+        return;
+    }
     const nameInput = document.getElementById("dev-name").value.trim();
     const gameName = nameInput || `并行企划 ${Math.floor(Math.random() * 100)}`;
     const { totalCost } = calculateProjectCost();
@@ -349,6 +366,7 @@ function autoReleaseAux(aux) {
     gameState.releases.unshift(release);
     gameState.fans += release.fansGained;
     gameState.recentGenres = (gameState.recentGenres || []).concat(aux.genre).slice(-5);
+    if (typeof updatePlatformRepOnRelease === "function") updatePlatformRepOnRelease(aux.platform, finalScore);
     addChronicleEntry(`🧩 并行辅助项目《${aux.name}》后台开发完成，自动自主发行上线！评分 ${finalScore}，新增 ${release.fansGained.toLocaleString()} 粉丝。`);
     if (typeof playSFX === "function") playSFX("success");
 }
@@ -592,6 +610,8 @@ function releaseGame(publisherType) {
     gameState.fans += release.fansGained;
     // 市场疲劳记录
     gameState.recentGenres = (gameState.recentGenres || []).concat(proj.genre).slice(-5);
+    // 平台信誉调整
+    if (typeof updatePlatformRepOnRelease === "function") updatePlatformRepOnRelease(proj.platform, finalScore);
     gameState.currentProject = null;
     currentHandCards = [];
 
