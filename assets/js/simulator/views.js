@@ -375,9 +375,9 @@ function updateStatsUI() {
     };
     isUIInitialized = true;
 
-    document.getElementById("stat-funds").innerText = `¥${gameState.funds.toLocaleString()}`;
-    document.getElementById("stat-fans").innerText = gameState.fans.toLocaleString();
-    document.getElementById("stat-rp").innerText = gameState.rp;
+    rollStat("stat-funds", Math.round(gameState.funds), v => `¥${Math.round(v).toLocaleString()}`);
+    rollStat("stat-fans", Math.round(gameState.fans), v => Math.round(v).toLocaleString());
+    rollStat("stat-rp", Math.round(gameState.rp), v => String(Math.round(v)));
     document.getElementById("stat-date").innerText = `第 ${gameState.date.year} 年 ${gameState.date.month} 月 ${gameState.date.week} 周`;
 
     // 侧栏简报更新

@@ -625,7 +625,11 @@ function releaseGame(publisherType) {
 
     document.getElementById("development-overlay").classList.remove("active");
     document.getElementById("publisher-modal").classList.remove("active");
-    showReviewModal(release, reviews, evaluation);
+    if (typeof playReleaseReveal === "function") {
+        playReleaseReveal(release, evaluation, () => showReviewModal(release, reviews, evaluation));
+    } else {
+        showReviewModal(release, reviews, evaluation);
+    }
 }
 
 function buildReleaseEvaluation(proj) {
