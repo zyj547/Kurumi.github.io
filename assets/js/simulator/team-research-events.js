@@ -92,66 +92,119 @@ function generateHiringPool(forceSSR = false) {
     updateHiringMarketUI();
 }
 
+function getCandidateRoleMeta(role) {
+    if (role === "artist") return { color: "var(--accent-pink)", name: "美术设计师", shortName: "美术", iconClass: "fa-palette", mainStat: "art" };
+    if (role === "designer") return { color: "var(--accent-yellow)", name: "核心策划", shortName: "策划", iconClass: "fa-lightbulb", mainStat: "design" };
+    return { color: "var(--accent-neon)", name: "程序员", shortName: "代码", iconClass: "fa-laptop-code", mainStat: "code" };
+}
+
+function getCandidateValueScore(cand) {
+    const totalStats = cand.stats.code + cand.stats.art + cand.stats.design;
+    return Math.round(totalStats / Math.max(1, cand.salary / 1000));
+}
+
+function getCandidateTagHtml(cand) {
+    const traitObj = EMPLOYEE_TRAITS[cand.trait || "none"];
+    const traitHTML = cand.trait && cand.trait !== "none" ? `<span class="trait-badge ${traitObj.badgeClass}" title="${traitObj.desc}">${traitObj.name}</span>` : "";
+    const arch = EMPLOYEE_ARCHETYPES[cand.archetype || "pragmatic"];
+    const archHTML = `<span class="trait-badge archetype" title="${arch.desc}">${arch.name}</span>`;
+    return { traitObj, traitHTML, arch, archHTML };
+}
+
 function loadStaffRecruits() {
     updateHiringMarketUI();
     renderList(document.getElementById("hiring-list"), hiringPool, (cand, idx) => {
-        let iconClass = "fa-laptop-code";
-        let roleColor = "var(--accent-neon)";
-        let roleName = "程序员";
-        if (cand.role === "artist") { roleColor = "var(--accent-pink)"; roleName = "美术设计师"; iconClass = "fa-palette"; }
-        if (cand.role === "designer") { roleColor = "var(--accent-yellow)"; roleName = "核心策划"; iconClass = "fa-lightbulb"; }
-
-        const traitObj = EMPLOYEE_TRAITS[cand.trait || "none"];
-        const traitHTML = cand.trait && cand.trait !== "none" ? `<span class="trait-badge ${traitObj.badgeClass}" title="${traitObj.desc}">${traitObj.name}</span>` : "";
-        const arch = EMPLOYEE_ARCHETYPES[cand.archetype || "pragmatic"];
-        const archHTML = `<span class="trait-badge archetype" title="${arch.desc}">${arch.name}</span>`;
+        const roleMeta = getCandidateRoleMeta(cand.role);
+        const { traitHTML, archHTML } = getCandidateTagHtml(cand);
         const rarity = HIRING_RARITIES[cand.rarity || "R"];
-        const totalStats = cand.stats.code + cand.stats.art + cand.stats.design;
-        const salaryEfficiency = Math.round(totalStats / Math.max(1, cand.salary / 1000));
+        const mainStat = cand.stats[roleMeta.mainStat] || 0;
+        const interviewFee = getInterviewFee(cand, gameState.date.year);
 
         return { className: `candidate-card rarity-${cand.rarity || "R"}`, html: `
             <div class="candidate-header">
                 <div class="candidate-info">
-                    <div class="staff-avatar ${cand.role}">
-                        <i class="fa-solid ${iconClass}"></i>
+                    <div class="staff-avatar ${cand.role}" style="color:${roleMeta.color}; border-color:${roleMeta.color};">
+                        <i class="fa-solid ${roleMeta.iconClass}"></i>
                     </div>
                     <div class="staff-profile">
-                        <span class="staff-name">${cand.name} ${archHTML} ${traitHTML}</span>
-                        <span class="staff-level" style="color: ${roleColor}">${roleName}</span>
+                        <span class="staff-name">${escapeHtml(cand.name)}</span>
+                        <span class="staff-level" style="color: ${roleMeta.color}">${roleMeta.name} · Lv.${cand.level}</span>
                     </div>
                 </div>
                 <div class="rarity-badge" style="color:${rarity.color}; border-color:${rarity.color};">${rarity.name}</div>
             </div>
-            <div class="candidate-rarity-line" style="color:${rarity.color};">
-                ${rarity.label} · 入职 Lv.${cand.level}
+            <div class="candidate-tagline" style="color:${rarity.color};">
+                <span>${rarity.label}</span>
+                <span>${archHTML}${traitHTML}</span>
             </div>
-            <div class="candidate-skills">
-                <div class="candidate-skill">
-                    <span class="candidate-skill-val" style="color: var(--accent-neon);">${cand.stats.code}</span>
-                    <span class="candidate-skill-lbl">代码</span>
-                </div>
-                <div class="candidate-skill">
-                    <span class="candidate-skill-val" style="color: var(--accent-pink);">${cand.stats.art}</span>
-                    <span class="candidate-skill-lbl">美术</span>
-                </div>
-                <div class="candidate-skill">
-                    <span class="candidate-skill-val" style="color: var(--accent-yellow);">${cand.stats.design}</span>
-                    <span class="candidate-skill-lbl">策划</span>
-                </div>
+            <div class="candidate-snapshot">
+                <span><b style="color:${roleMeta.color};">${mainStat}</b>${roleMeta.shortName}</span>
+                <span><b>¥${cand.expectedSalary.toLocaleString()}</b>期望</span>
+                <span><b style="color: var(--accent-neon);">${getCandidateValueScore(cand)}</b>性价比</span>
             </div>
-            <div class="candidate-salary-box">
-                <span class="list-lbl">期望月薪</span>
-                <span class="candidate-salary">¥${cand.expectedSalary}</span>
+            <div class="candidate-actions">
+                <button class="btn-candidate-detail" onclick="openCandidateDetail(${idx})">查看详情</button>
+                <button class="btn-hire" onclick="startInterview(${idx})">邀约 ¥${interviewFee.toLocaleString()}</button>
             </div>
-            <div class="candidate-salary-box">
-                <span class="list-lbl">性价比指数</span>
-                <span class="candidate-salary" style="color: var(--accent-neon);">${salaryEfficiency}</span>
-            </div>
-            <button class="btn-hire" onclick="startInterview(${idx})">
-                邀约面试 (渠道费 ¥${getInterviewFee(cand, gameState.date.year).toLocaleString()})
-            </button>
         ` };
     });
+}
+
+function closeCandidateDetail() {
+    const modal = document.getElementById("candidate-detail-modal");
+    if (modal) modal.classList.remove("active");
+}
+
+function startInterviewFromDetail(idx) {
+    closeCandidateDetail();
+    startInterview(idx);
+}
+
+function openCandidateDetail(idx) {
+    const cand = hiringPool[idx];
+    const modal = document.getElementById("candidate-detail-modal");
+    const title = document.getElementById("candidate-detail-title");
+    const body = document.getElementById("candidate-detail-body");
+    const action = document.getElementById("candidate-detail-interview-btn");
+    if (!cand || !modal || !title || !body || !action) return;
+
+    const roleMeta = getCandidateRoleMeta(cand.role);
+    const rarity = HIRING_RARITIES[cand.rarity || "R"];
+    const { traitObj, traitHTML, arch, archHTML } = getCandidateTagHtml(cand);
+    const interviewFee = getInterviewFee(cand, gameState.date.year);
+
+    title.innerHTML = `<i class="fa-solid ${roleMeta.iconClass}"></i> ${escapeHtml(cand.name)} · ${roleMeta.name}`;
+    body.innerHTML = `
+        <div class="candidate-detail-hero">
+            <div class="staff-avatar ${cand.role}" style="color:${roleMeta.color}; border-color:${roleMeta.color};">
+                <i class="fa-solid ${roleMeta.iconClass}"></i>
+            </div>
+            <div class="candidate-detail-summary">
+                <div class="candidate-detail-name">
+                    <span>${rarity.label} Lv.${cand.level}</span>
+                    <span class="rarity-badge" style="color:${rarity.color}; border-color:${rarity.color};">${rarity.name}</span>
+                </div>
+                <div class="candidate-detail-tags">${archHTML}${traitHTML}</div>
+            </div>
+        </div>
+        <div class="candidate-detail-stats">
+            <div class="candidate-detail-stat"><b style="color: var(--accent-neon);">${cand.stats.code}</b><span>代码</span></div>
+            <div class="candidate-detail-stat"><b style="color: var(--accent-pink);">${cand.stats.art}</b><span>美术</span></div>
+            <div class="candidate-detail-stat"><b style="color: var(--accent-yellow);">${cand.stats.design}</b><span>策划</span></div>
+        </div>
+        <div class="candidate-detail-lines">
+            <div><span>期望月薪</span><b>¥${cand.expectedSalary.toLocaleString()}</b></div>
+            <div><span>心理底价</span><b>¥${cand.salaryFloor.toLocaleString()}</b></div>
+            <div><span>邀约渠道费</span><b>¥${interviewFee.toLocaleString()}</b></div>
+            <div><span>性价比指数</span><b>${getCandidateValueScore(cand)}</b></div>
+        </div>
+        <div class="candidate-detail-note">
+            <p><strong>${arch.name}</strong>：${arch.desc}</p>
+            ${cand.trait && cand.trait !== "none" ? `<p><strong>${traitObj.name}</strong>：${traitObj.desc}</p>` : ""}
+        </div>
+    `;
+    action.onclick = () => startInterviewFromDetail(idx);
+    modal.classList.add("active");
 }
 
 function refreshHiringMarket() {

@@ -23,7 +23,7 @@ function isDevAdvanceReason(reason) {
 // 是否处于「不能推进」的阻塞态（有弹窗时）
 function isGameBlocked() {
     const modals = ["custom-alert-modal", "custom-confirm-modal", "share-modal", "review-modal",
-        "event-modal", "publisher-modal", "bankruptcy-modal", "medal-shop-modal", "founder-modal", "card-result-modal", "stageup-modal"];
+        "event-modal", "publisher-modal", "bankruptcy-modal", "medal-shop-modal", "founder-modal", "candidate-detail-modal", "card-result-modal", "stageup-modal"];
     return modals.some(id => {
         const el = document.getElementById(id);
         return el && el.classList.contains("active");

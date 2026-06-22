@@ -14,7 +14,7 @@
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/simulator.css?v=7">
+    <link rel="stylesheet" href="assets/css/simulator.css?v=10">
 </head>
 <body>
 
@@ -37,6 +37,7 @@
             <div class="studio-brand" onclick="switchScreen('office')">
                 <i class="fa-solid fa-star brand-icon"></i>
                 <span class="brand-name" id="top-studio-name">桔子工作室</span>
+                <span class="top-stage-chip" id="top-stage-chip">独立作坊</span>
             </div>
             
             <div class="stats-row">
@@ -151,7 +152,6 @@
                         <h2 class="panel-title"><i class="fa-solid fa-laptop-code" style="color: var(--accent-neon);"></i>开发卡座</h2>
                         <p class="panel-desc">这是您的工作室核心，闲置时员工会默默为您积累研发点数（RP）。</p>
                     </div>
-                    
                     <div class="office-grid">
                         <!-- 开发卡座列表 -->
                         <div class="desks-section" id="office-desks">
@@ -160,6 +160,21 @@
 
                         <!-- 办公室财务与状态侧栏 -->
                         <div class="office-aside">
+                            <div class="stage-hero" id="stage-hero">
+                                <div class="stage-hero-main">
+                                    <div class="stage-hero-icon" id="stage-hero-icon"><i class="fa-solid fa-house-laptop"></i></div>
+                                    <div class="stage-hero-copy">
+                                        <span class="stage-hero-kicker">公司阶段</span>
+                                        <div class="stage-hero-name" id="stage-hero-name">独立作坊</div>
+                                        <p class="stage-hero-desc" id="stage-hero-desc">一切从小小工作室开始。</p>
+                                    </div>
+                                </div>
+                                <div class="stage-hero-perks">
+                                    <span id="stage-hero-slots">工位 3</span>
+                                    <span id="stage-hero-morale">士气 +0</span>
+                                    <span id="stage-hero-eff">效率 +0%</span>
+                                </div>
+                            </div>
                             <div class="glass-box">
                                 <h3 class="aside-title"><i class="fa-solid fa-chart-line"></i>运营简报</h3>
                                 <div class="stat-list">
@@ -487,6 +502,18 @@
         </div>
     </div>
 
+    <!-- 候选人详情弹窗 -->
+    <div class="modal-overlay" id="candidate-detail-modal">
+        <div class="event-card candidate-detail-card">
+            <h3 class="event-title" id="candidate-detail-title"><i class="fa-solid fa-id-card"></i> 候选人详情</h3>
+            <div class="event-desc candidate-detail-body" id="candidate-detail-body"></div>
+            <div class="event-choices candidate-detail-actions">
+                <button class="choice-btn" id="candidate-detail-interview-btn">邀约面试</button>
+                <button class="choice-btn choice-muted" onclick="closeCandidateDetail()">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 发行评分揭晓全屏仪式 -->
     <div class="modal-overlay reveal-overlay" id="reveal-overlay">
         <div class="reveal-card">
@@ -803,7 +830,7 @@
     <script src="assets/js/data-events.js?v=6"></script>
     <script src="assets/js/simulator/ui-modals.js?v=6"></script>
     <script src="assets/js/simulator/state.js?v=7"></script>
-    <script src="assets/js/simulator/stages.js?v=7"></script>
+    <script src="assets/js/simulator/stages.js?v=8"></script>
     <script src="assets/js/simulator/contracts.js?v=6"></script>
     <script src="assets/js/simulator/platform-rep.js?v=6"></script>
     <script src="assets/js/simulator/founder-title.js?v=6"></script>
@@ -814,10 +841,10 @@
     <script src="assets/js/simulator/interview-calc.js?v=6"></script>
     <script src="assets/js/simulator/fx.js?v=6"></script>
     <script src="assets/js/simulator/event-engine.js?v=6"></script>
-    <script src="assets/js/simulator/game-loop.js?v=7"></script>
+    <script src="assets/js/simulator/game-loop.js?v=10"></script>
     <script src="assets/js/simulator/development.js?v=7"></script>
     <script src="assets/js/simulator/release-reveal.js?v=6"></script>
-    <script src="assets/js/simulator/team-research-events.js?v=6"></script>
+    <script src="assets/js/simulator/team-research-events.js?v=10"></script>
     <script src="assets/js/simulator/interview.js?v=6"></script>
     <script src="assets/js/simulator/views.js?v=6"></script>
     <script src="assets/js/simulator/meta-systems.js?v=6"></script>

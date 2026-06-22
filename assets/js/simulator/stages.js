@@ -130,6 +130,12 @@ function confirmStageUp() {
     saveGame();
     updateStatsUI();
     loadOfficeDesks();
+    const hero = document.getElementById("stage-hero");
+    if (hero) {
+        hero.classList.remove("upgraded");
+        void hero.offsetWidth;
+        hero.classList.add("upgraded");
+    }
 
     document.getElementById("stageup-modal").classList.remove("active");
     playStageUpEffect(stage);
@@ -196,9 +202,39 @@ function showStageUpModal(stage) {
 // 渲染运营简报里的阶段进度
 function renderStageBrief() {
     const stage = currentStage();
+    const idx = currentStageIndex();
+    const topChip = document.getElementById("top-stage-chip");
+    if (topChip) {
+        topChip.className = `top-stage-chip stage-chip-${idx}`;
+        topChip.innerHTML = `<i class="${stage.icon}"></i> ${stage.name}`;
+        topChip.style.color = stage.color;
+    }
+    const hero = document.getElementById("stage-hero");
+    if (hero) {
+        hero.className = `stage-hero stage-hero-${idx}`;
+        hero.style.setProperty("--stage-color", stage.color);
+        const heroIcon = document.getElementById("stage-hero-icon");
+        const heroName = document.getElementById("stage-hero-name");
+        const heroDesc = document.getElementById("stage-hero-desc");
+        const heroSlots = document.getElementById("stage-hero-slots");
+        const heroMorale = document.getElementById("stage-hero-morale");
+        const heroEff = document.getElementById("stage-hero-eff");
+        if (heroIcon) {
+            heroIcon.innerHTML = `<i class="${stage.icon}"></i>`;
+            heroIcon.style.color = stage.color;
+        }
+        if (heroName) {
+            heroName.innerText = stage.name;
+            heroName.style.color = stage.color;
+        }
+        if (heroDesc) heroDesc.innerText = stage.desc;
+        if (heroSlots) heroSlots.innerText = `工位 ${stage.slotCap}`;
+        if (heroMorale) heroMorale.innerText = `士气 +${stage.moraleBonus}`;
+        if (heroEff) heroEff.innerText = `效率 +${Math.round(stage.efficiencyBonus * 100)}%`;
+    }
     const stageNameEl = document.getElementById("aside-stage-name");
     if (stageNameEl) {
-        stageNameEl.className = `list-val stage-badge stage-badge-${currentStageIndex()}`;
+        stageNameEl.className = `list-val stage-badge stage-badge-${idx}`;
         stageNameEl.innerHTML = `<i class="${stage.icon}"></i><span>${stage.name}</span>`;
         stageNameEl.style.color = stage.color;
     }
