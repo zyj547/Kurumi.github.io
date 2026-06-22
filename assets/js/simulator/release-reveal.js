@@ -47,9 +47,13 @@ function playReleaseReveal(release, evaluation, onDone) {
     const verdictEl = document.getElementById("reveal-verdict");
     const burstEl = document.getElementById("reveal-burst");
     const contBtn = document.getElementById("reveal-continue");
+    const coverEl = document.getElementById("reveal-cover");
 
     // 重置
     document.getElementById("reveal-title").textContent = `《${release.name}》`;
+    if (coverEl && typeof renderProjectCover === "function") {
+        coverEl.innerHTML = renderProjectCover(release, { compact: true });
+    }
     factorsEl.innerHTML = "";
     finalEl.classList.remove("show");
     verdictEl.classList.remove("show");

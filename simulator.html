@@ -14,7 +14,7 @@
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/simulator.css?v=10">
+    <link rel="stylesheet" href="assets/css/simulator.css?v=12">
 </head>
 <body>
 
@@ -421,8 +421,11 @@
                 <!-- 4.1 卡片化研发看板 -->
                 <div class="dev-overlay" id="development-overlay">
                     <div class="dev-header">
-                        <div class="dev-game-name" id="board-game-name">项目名</div>
-                        <div class="dev-game-meta" id="board-game-meta">Casual | 抖音小游戏</div>
+                        <div id="board-project-cover" class="board-project-cover"></div>
+                        <div class="dev-header-copy">
+                            <div class="dev-game-name" id="board-game-name">项目名称</div>
+                            <div class="dev-game-meta" id="board-game-meta">Casual | 手机端</div>
+                        </div>
                     </div>
 
                     <!-- 属性与进度汇总 -->
@@ -517,7 +520,8 @@
     <!-- 发行评分揭晓全屏仪式 -->
     <div class="modal-overlay reveal-overlay" id="reveal-overlay">
         <div class="reveal-card">
-            <div class="reveal-eyebrow">EVALUATION · 评测揭晓</div>
+                <div class="reveal-eyebrow">EVALUATION · 评测揭晓</div>
+                <div id="reveal-cover" class="reveal-cover"></div>
             <div class="reveal-title" id="reveal-title">《作品》</div>
             <div class="reveal-factors" id="reveal-factors"></div>
             <div class="reveal-final" id="reveal-final">
@@ -840,13 +844,14 @@
     <script src="assets/js/simulator/boot.js?v=6"></script>
     <script src="assets/js/simulator/interview-calc.js?v=6"></script>
     <script src="assets/js/simulator/fx.js?v=6"></script>
+    <script src="assets/js/simulator/project-visuals.js?v=11"></script>
     <script src="assets/js/simulator/event-engine.js?v=6"></script>
     <script src="assets/js/simulator/game-loop.js?v=10"></script>
-    <script src="assets/js/simulator/development.js?v=7"></script>
-    <script src="assets/js/simulator/release-reveal.js?v=6"></script>
+    <script src="assets/js/simulator/development.js?v=11"></script>
+    <script src="assets/js/simulator/release-reveal.js?v=11"></script>
     <script src="assets/js/simulator/team-research-events.js?v=10"></script>
     <script src="assets/js/simulator/interview.js?v=6"></script>
-    <script src="assets/js/simulator/views.js?v=6"></script>
+    <script src="assets/js/simulator/views.js?v=11"></script>
     <script src="assets/js/simulator/meta-systems.js?v=6"></script>
 </body>
 </html>

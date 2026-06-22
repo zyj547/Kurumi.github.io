@@ -101,6 +101,12 @@ function renderProjectPreview() {
     const box = document.getElementById("project-preview");
     if (!box) return;
     const plan = estimateProjectPlan();
+    const previewProject = {
+        name: document.getElementById("dev-name")?.value || "未命名项目",
+        platform: selectedPlatform,
+        genre: selectedGenre,
+        topic: selectedTopic
+    };
     const cashAfter = gameState.funds - plan.cost.totalCost;
     const fitPct = Math.round(plan.fit.fit * 100);
     const scoreText = plan.estimatedScore.toFixed(1);
@@ -108,6 +114,9 @@ function renderProjectPreview() {
     const scoreTone = factorTone(plan.estimatedScore / 9.0, 0.82, 0.62);
     const fatigueWarn = plan.fatigueMul < 1 ? `市场疲劳！连续同类作品评分 -${Math.round((1 - plan.fatigueMul) * 100)}%。` : "";
     box.innerHTML = `
+        <div class="project-preview-visual">
+            ${typeof renderProjectCover === "function" ? renderProjectCover(previewProject, { compact: true }) : ""}
+        </div>
         <div class="preview-metric">
             <span class="preview-label">预算</span>
             <span class="preview-value ${cashAfter < 0 ? 'risk' : 'good'}">¥${plan.cost.totalCost.toLocaleString()}</span>
@@ -134,6 +143,12 @@ function renderProjectPreview() {
 }
 
 function setupDevelopForm() {
+    const nameField = document.getElementById("dev-name");
+    if (nameField && !nameField.dataset.previewBound) {
+        nameField.dataset.previewBound = "1";
+        nameField.addEventListener("input", renderProjectPreview);
+    }
+
     // 若当前选中平台被信誉锁定，自动回退到手机端
     if (typeof isPlatformLocked === "function" && isPlatformLocked(selectedPlatform)) {
         selectedPlatform = "Mobile";
@@ -541,6 +556,10 @@ function showDevBoard() {
     if (typeof updateAdvanceUI === "function") updateAdvanceUI();
     const proj = gameState.currentProject;
     document.getElementById("board-game-name").innerText = proj.name;
+    const cover = document.getElementById("board-project-cover");
+    if (cover && typeof renderProjectCover === "function") {
+        cover.innerHTML = renderProjectCover(proj, { compact: true });
+    }
     document.getElementById("board-game-meta").innerHTML = `
         <i class="${GENRES_DATA[proj.genre].icon}"></i> ${GENRES_DATA[proj.genre].name} |
         <i class="${PLATFORMS_DATA[proj.platform].icon}"></i> ${PLATFORMS_DATA[proj.platform].name}`;

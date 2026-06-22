@@ -294,6 +294,9 @@ function loadHistoryReleases() {
     renderList(document.getElementById("history-releases"), gameState.releases, (game) => ({
         className: "history-item",
         html: `
+            <div class="history-cover-slot">
+                ${typeof renderProjectCover === "function" ? renderProjectCover(game, { compact: true }) : ""}
+            </div>
             <div class="game-title-box">
                 <span class="game-title">${escapeHtml(game.name)}</span>
                 <span class="game-metadata">${TOPICS_DATA[game.topic].name} | ${GENRES_DATA[game.genre].name}</span>
