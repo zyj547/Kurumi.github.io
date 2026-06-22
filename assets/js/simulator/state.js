@@ -219,6 +219,9 @@ function sanitizeProject(project) {
         bugs: clampInteger(project.bugs, 0, 9999, 0),
         cardsResolved: clampInteger(project.cardsResolved, 0, 99, 0),
         cardsNeeded: clampInteger(project.cardsNeeded, 3, 20, 6),
+        seenCardIds: Array.isArray(project.seenCardIds)
+            ? project.seenCardIds.filter(id => typeof id === "string").slice(-40)
+            : [],
         polishWeeksLeft: clampInteger(project.polishWeeksLeft, 0, 8, 0),
         rushPenalty: Boolean(project.rushPenalty),
         isAux: Boolean(project.isAux),

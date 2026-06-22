@@ -11,6 +11,15 @@ function isAdvancing() {
     return advanceTimer !== null;
 }
 
+function hasActiveMainDevelopment() {
+    return gameState.currentProject &&
+        (gameState.currentProject.state === "developing" || gameState.currentProject.state === "polishing");
+}
+
+function isDevAdvanceReason(reason) {
+    return reason === "card";
+}
+
 // 是否处于「不能推进」的阻塞态（有弹窗时）
 function isGameBlocked() {
     const modals = ["custom-alert-modal", "custom-confirm-modal", "share-modal", "review-modal",
@@ -39,6 +48,12 @@ function stopAdvance() {
 function startAdvance(weeks, reason = "week", onDone = null) {
     if (isAdvancing() || isGameBlocked()) return;
     if (!gameState.founderBackground) return; // 尚未选择创始人背景
+    if (hasActiveMainDevelopment() && !isDevAdvanceReason(reason)) {
+        if (typeof showDevBoard === "function") showDevBoard();
+        alert("项目研发中，请在开发看板选择研发事件或完成打磨来推进时间。");
+        updateAdvanceUI();
+        return;
+    }
     advanceRemaining = Math.max(1, Math.round(weeks));
     advanceReason = reason;
     advanceOnDone = onDone;
@@ -247,8 +262,13 @@ function updateAdvanceUI() {
         statusEl.style.color = isAdvancing() ? "var(--accent-yellow)" : "var(--text-secondary)";
     }
     document.querySelectorAll(".advance-btn").forEach(btn => {
-        btn.disabled = isAdvancing();
+        if (btn.id === "advance-pause-btn") return;
+        const isTopAdvanceButton = Boolean(btn.closest(".advance-btns"));
+        btn.disabled = isAdvancing() || (isTopAdvanceButton && hasActiveMainDevelopment());
     });
     const pauseBtn = document.getElementById("advance-pause-btn");
-    if (pauseBtn) pauseBtn.style.display = isAdvancing() ? "" : "none";
+    if (pauseBtn) {
+        pauseBtn.disabled = false;
+        pauseBtn.style.display = isAdvancing() ? "" : "none";
+    }
 }

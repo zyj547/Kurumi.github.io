@@ -331,6 +331,46 @@
                     { text: "保持风格统一，稳步推进", result: "稳，但不惊艳。", effect: (p) => { p.art += 10; p.design += 8; } }
                 ]
             },
+            {
+                id: "g_core_loop", title: "核心循环定稿", genre: "any", phase: "early", weeks: 1,
+                story: "项目刚开工，团队需要先回答一个朴素问题：玩家每 30 秒到底在重复什么乐趣？",
+                choices: [
+                    { text: "先做一个可玩的最小原型", result: "方向变清楚了，后面的取舍都有了依据。", effect: (p) => { p.design += 14; p.code += 8; } },
+                    { text: "先把完整设计文档写透", result: "设想更完整，但落到手感上还要继续验证。", effect: (p) => { p.design += 18; } }
+                ]
+            },
+            {
+                id: "g_input_feel", title: "第一版手感试做", genre: "any", phase: "early", weeks: 1,
+                story: "程序把角色移动、点击反馈或镜头跟随拼出了第一版。它能跑，但还谈不上顺手。",
+                choices: [
+                    { text: "先调到顺手，再扩内容", result: "基础手感稳了，后续内容不容易返工。", effect: (p) => { p.code += 10; p.design += 10; } },
+                    { text: "先铺内容框架，手感后面统一调", result: "框架搭得更快，但后续可能要集中返修。", effect: (p) => { p.code += 14; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "g_placeholder_assets", title: "临时素材方案", genre: "any", phase: "early", weeks: 1,
+                story: "现在还没有正式美术资源。是用方块和占位图快速验证玩法，还是先定一版视觉基调？",
+                choices: [
+                    { text: "占位素材先跑通玩法", result: "验证速度很快，但画面暂时很毛坯。", effect: (p) => { p.code += 8; p.design += 12; } },
+                    { text: "先做一张品质标杆图", result: "团队知道最终要长什么样了。", effect: (p) => { p.art += 16; } }
+                ]
+            },
+            {
+                id: "g_risk_register", title: "风险清单第一次复盘", genre: "any", phase: "early", weeks: 1,
+                story: "项目刚起步，几个不确定点已经冒头：技术可行性、内容量、上线窗口。你要先把风险写清楚吗？",
+                choices: [
+                    { text: "列风险清单，逐项拆解", result: "团队知道哪些地方不能赌运气。", effect: (p) => { p.design += 10; p.code += 6; p.bugs = Math.max(0, p.bugs - 1); } },
+                    { text: "边做边看，先别开会", result: "推进更快，但隐患还藏在角落。", effect: (p) => { p.code += 10; p.art += 6; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "g_vertical_slice", title: "垂直切片取舍", genre: "any", phase: "early", weeks: 2,
+                story: "要做一个能代表最终品质的小关卡，还是先铺完整框架？两种路线都会影响后续节奏。",
+                choices: [
+                    { text: "先做高品质垂直切片", result: "项目目标变得非常具体。", effect: (p) => { p.art += 12; p.design += 14; } },
+                    { text: "先打通完整流程", result: "整体链路跑通了，后续填内容更安心。", effect: (p) => { p.code += 14; p.design += 8; } }
+                ]
+            },
             // ── 通用 · 中期 ──
             {
                 id: "g_coupling", title: "代码耦合度告急", genre: "any", phase: "mid", weeks: 2,
@@ -356,6 +396,22 @@
                     { text: "放假团建，恢复精力", result: "回来后人人满血。", effect: (p) => { gameState.employees.forEach(e => { e.fatigue = Math.max(0, (e.fatigue || 0) - 20); e.morale = Math.min(100, (e.morale == null ? 75 : e.morale) + 15); }); } }
                 ]
             },
+            {
+                id: "g_save_system", title: "存档方案争论", genre: "any", phase: "mid", weeks: 1,
+                story: "自动存档、云同步、检查点回滚，听起来都是基础功能，但做不好就会毁掉玩家信任。",
+                choices: [
+                    { text: "补完整存档保护", result: "基础体验稳了许多。", effect: (p) => { p.code += 16; p.bugs = Math.max(0, p.bugs - 2); } },
+                    { text: "先做本地存档够用", result: "节省了时间，但边界情况还要小心。", effect: (p) => { p.code += 8; p.design += 6; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "g_tutorial_pass", title: "新手引导补课", genre: "any", phase: "mid", weeks: 1,
+                story: "内部试玩时，大家第二分钟就开始问同一个问题：我现在该干什么？",
+                choices: [
+                    { text: "重做前三分钟引导", result: "玩家更快进入状态。", effect: (p) => { p.design += 16; p.art += 4; } },
+                    { text: "加提示文本快速解决", result: "能看懂了，但有点生硬。", effect: (p) => { p.design += 8; p.code += 6; } }
+                ]
+            },
             // ── 通用 · 后期 ──
             {
                 id: "g_perf", title: "底层性能瓶颈暴露", genre: "any", phase: "late", weeks: 2,
@@ -371,6 +427,62 @@
                 choices: [
                     { text: "全员加班修复，绝不带病上线", result: "通宵换来干净的版本。", effect: (p) => { p.bugs = Math.max(0, p.bugs - 8); gameState.employees.forEach(e => e.fatigue = Math.min(100, (e.fatigue || 0) + 18)); } },
                     { text: "先标记，上线后热修", result: "带着隐患冲线，评分将受罚。", effect: (p) => { p.rushPenalty = true; } }
+                ]
+            },
+            {
+                id: "g_scope_lock", title: "功能范围冻结会", genre: "any", phase: "mid", weeks: 1,
+                story: "看板上堆满了“顺手加一下”的小需求。制作人提醒：再不冻结范围，后期测试会被拖垮。",
+                choices: [
+                    { text: "砍掉低优先级功能，保住主循环", result: "版本边界清楚了，团队推进明显顺畅。", effect: (p) => { p.design += 12; p.code += 8; p.bugs = Math.max(0, p.bugs - 1); } },
+                    { text: "保留创意清单，做出差异化", result: "亮点多了，但接口和配置也更复杂。", effect: (p) => { p.design += 20; p.bugs += 3; } }
+                ]
+            },
+            {
+                id: "g_playtest_notes", title: "小范围可玩性测试", genre: "any", phase: "mid", weeks: 1,
+                story: "十几名真实玩家试玩了 30 分钟，反馈集中在“新手引导不清”和“前五分钟不够爽”。",
+                choices: [
+                    { text: "按反馈重排前期体验", result: "玩家更快理解了乐趣在哪里。", effect: (p) => { p.design += 18; p.art += 4; } },
+                    { text: "只修最明显的问题，保持进度", result: "核心没乱，但一些细节暂时留下了。", effect: (p) => { p.code += 8; p.design += 6; p.bugs = Math.max(0, p.bugs - 1); } }
+                ]
+            },
+            {
+                id: "g_build_pipeline", title: "自动打包脚本罢工", genre: "any", phase: "mid", weeks: 1,
+                story: "每次出测试包都要人工点十几个步骤，今天还把旧资源打进了新包。继续手动会越来越危险。",
+                choices: [
+                    { text: "花一天整理流水线", result: "后续测试包稳定多了。", effect: (p) => { p.code += 14; p.bugs = Math.max(0, p.bugs - 2); } },
+                    { text: "先人工盯住，别耽误内容开发", result: "内容继续往前走，但发布流程还是悬着。", effect: (p) => { p.design += 8; p.art += 6; p.bugs += 2; } }
+                ]
+            },
+            {
+                id: "g_store_page", title: "商店页素材截稿", genre: "any", phase: "late", weeks: 1,
+                story: "上线前要交商店页截图、短视频和一句话卖点。素材能不能讲清游戏，直接影响首批玩家点不点进来。",
+                choices: [
+                    { text: "重剪演示，突出真实玩法", result: "卖点更清楚，愿望单和关注都涨了。", effect: (p) => { p.art += 10; p.design += 8; gameState.fans += 120; } },
+                    { text: "用现有素材快速过审", result: "赶上档期，但第一印象比较普通。", effect: (p) => { p.code += 6; p.art += 4; } }
+                ]
+            },
+            {
+                id: "g_compat_matrix", title: "兼容性清单拉响警报", genre: "any", phase: "late", weeks: 1,
+                story: "低配设备、宽屏比例和旧显卡驱动各冒出一批问题。它们不酷，但会决定玩家能不能顺利玩上。",
+                choices: [
+                    { text: "集中修兼容性，减少首日翻车", result: "看不见的质量提升，最能保住口碑。", effect: (p) => { p.code += 16; p.bugs = Math.max(0, p.bugs - 3); } },
+                    { text: "优先照顾主流设备", result: "大多数玩家没问题，少数边缘环境只能后续补。", effect: (p) => { p.art += 8; p.design += 6; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "g_release_checklist", title: "上线清单逐项打勾", genre: "any", phase: "late", weeks: 1,
+                story: "商店描述、年龄分级、隐私协议、崩溃日志、客服邮箱，全都不性感，但缺一项就可能卡上线。",
+                choices: [
+                    { text: "按清单逐项验收", result: "发布流程稳稳落地。", effect: (p) => { p.code += 8; p.design += 8; p.bugs = Math.max(0, p.bugs - 2); } },
+                    { text: "先处理平台硬性要求", result: "能过审，但发布后运营压力会大一些。", effect: (p) => { p.design += 8; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "g_feedback_triage", title: "反馈优先级分诊", genre: "any", phase: "late", weeks: 1,
+                story: "测试反馈堆成了墙：有人要新内容，有人要修手感，有人要改 UI。全都做一定会炸。",
+                choices: [
+                    { text: "只修高频痛点", result: "版本收敛得更干净。", effect: (p) => { p.design += 10; p.bugs = Math.max(0, p.bugs - 2); } },
+                    { text: "挑几个高呼声需求加进去", result: "玩家会惊喜，但版本风险上升。", effect: (p) => { p.design += 14; gameState.fans += 60; p.bugs += 2; } }
                 ]
             },
             // ── 消除休闲（轻松幽默）──
@@ -390,6 +502,30 @@
                     { text: "克制设计，保持清爽", result: "长线玩家更舒服。", effect: (p) => { p.design += 14; } }
                 ]
             },
+            {
+                id: "c_retention_curve", title: "次日留存曲线下滑", genre: "Casual", phase: "late", weeks: 1,
+                story: "数据看板显示，不少玩家在第 7 关前流失。关卡太平，奖励节奏也不够明确。",
+                choices: [
+                    { text: "重排前十关节奏", result: "新手期更顺，玩家愿意多玩几局。", effect: (p) => { p.design += 18; gameState.fans += 80; } },
+                    { text: "加每日奖励先稳住", result: "短期数据好看了一些，但系统复杂度上来了。", effect: (p) => { p.design += 10; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "c_level_batch", title: "关卡批量生产", genre: "Casual", phase: "mid", weeks: 1,
+                story: "核心玩法跑通后，内容量成了问题。是用模板批量出关，还是慢慢雕每一关？",
+                choices: [
+                    { text: "做关卡模板批量扩充", result: "内容量迅速补上来了。", effect: (p) => { p.design += 12; p.code += 8; } },
+                    { text: "手工打磨关键关卡", result: "少而精，前期体验更扎实。", effect: (p) => { p.design += 16; p.art += 4; } }
+                ]
+            },
+            {
+                id: "c_ad_placement", title: "广告点位边界", genre: "Casual", phase: "late", weeks: 1,
+                story: "休闲游戏需要商业化，但广告插得太狠会毁掉节奏。团队要定下底线。",
+                choices: [
+                    { text: "控制广告频率，保留体验", result: "口碑更稳，长期留存更健康。", effect: (p) => { p.design += 14; gameState.fans += 80; } },
+                    { text: "多给激励广告入口", result: "商业化空间更大，但界面更拥挤。", effect: (p) => { p.design += 8; p.bugs += 1; } }
+                ]
+            },
             // ── 角色扮演RPG（宏大叙事）──
             {
                 id: "r_npc", title: "剧情杀了我的NPC", genre: "RPG", phase: "mid", weeks: 2,
@@ -405,6 +541,30 @@
                 choices: [
                     { text: "收束聚焦，做深一条主线", result: "故事密度极高。", effect: (p) => { p.design += 22; } },
                     { text: "放飞自我，构建史诗宇宙", result: "宏大但有点散。", effect: (p) => { p.design += 12; p.art += 10; p.bugs += 2; } }
+                ]
+            },
+            {
+                id: "r_quest_flags", title: "任务旗标互相打架", genre: "RPG", phase: "late", weeks: 1,
+                story: "QA 发现玩家如果先救村长再偷档案，会把主线 NPC 卡成两种状态。分支越多，组合爆炸越真实。",
+                choices: [
+                    { text: "补状态机和回归测试", result: "复杂剧情终于稳住了。", effect: (p) => { p.code += 14; p.design += 8; p.bugs = Math.max(0, p.bugs - 3); } },
+                    { text: "锁掉少见路径，保证主线可通", result: "主线稳了，但自由度缩水。", effect: (p) => { p.code += 8; p.bugs = Math.max(0, p.bugs - 1); } }
+                ]
+            },
+            {
+                id: "r_dialogue_pass", title: "对白口吻统一", genre: "RPG", phase: "mid", weeks: 1,
+                story: "同一个角色前后像两个人写的：一会儿冷酷，一会儿吐槽。玩家很容易出戏。",
+                choices: [
+                    { text: "统一角色语气表", result: "角色更可信，剧情读起来顺了。", effect: (p) => { p.design += 16; } },
+                    { text: "只改主线关键对白", result: "主线观感保住了，支线先放一放。", effect: (p) => { p.design += 10; p.code += 4; } }
+                ]
+            },
+            {
+                id: "r_combat_pacing", title: "战斗节奏拖沓", genre: "RPG", phase: "late", weeks: 1,
+                story: "测试玩家反馈普通战斗太长，剧情还没推进就先被小怪耗累了。",
+                choices: [
+                    { text: "缩短杂兵战，强化精英战", result: "节奏紧凑了，战斗重点更清晰。", effect: (p) => { p.design += 18; } },
+                    { text: "增加自动战斗选项", result: "便利性提升，但系统复杂了一点。", effect: (p) => { p.code += 10; p.design += 8; p.bugs += 1; } }
                 ]
             },
             // ── 动作地牢Roguelike（随机性 / 数据崩坏）──
@@ -424,6 +584,30 @@
                     { text: "加个保底救济，先上线", result: "治标，但能跑。", effect: (p) => { p.bugs += 2; p.design += 6; } }
                 ]
             },
+            {
+                id: "k_meta_progress", title: "局外成长被质疑太肝", genre: "Roguelike", phase: "late", weeks: 1,
+                story: "核心玩家喜欢挑战，但普通玩家抱怨解锁太慢。成长曲线如果调不好，会让失败显得像浪费时间。",
+                choices: [
+                    { text: "压缩前期解锁，保留后期深度", result: "失败仍有收获，节奏轻快很多。", effect: (p) => { p.design += 18; } },
+                    { text: "坚持硬核门槛", result: "核心味更足，但劝退风险也更高。", effect: (p) => { p.design += 10; gameState.fans += 60; } }
+                ]
+            },
+            {
+                id: "k_room_readability", title: "房间可读性不足", genre: "Roguelike", phase: "mid", weeks: 1,
+                story: "怪物、陷阱、掉落和特效挤在一起，玩家经常看不清自己是怎么死的。",
+                choices: [
+                    { text: "重做视觉优先级", result: "战斗信息清楚多了。", effect: (p) => { p.art += 10; p.design += 12; } },
+                    { text: "降低特效密度", result: "画面安静了，但爽感也少了一点。", effect: (p) => { p.code += 8; p.design += 8; } }
+                ]
+            },
+            {
+                id: "k_boss_pattern", title: "首领招式太随机", genre: "Roguelike", phase: "late", weeks: 1,
+                story: "Boss 难是难，但玩家觉得输得不明不白。随机性需要边界。",
+                choices: [
+                    { text: "给招式加节奏提示", result: "失败更像学习，而不是被坑。", effect: (p) => { p.design += 16; p.art += 6; } },
+                    { text: "保留混乱压迫感", result: "高压感更强，但争议也会更大。", effect: (p) => { p.design += 12; gameState.fans += 50; p.bugs += 1; } }
+                ]
+            },
             // ── 模拟经营Tycoon（系统钩稽 / 经济循环）──
             {
                 id: "t_exploit", title: "无限刷钱漏洞", genre: "Tycoon", phase: "mid", weeks: 2,
@@ -439,6 +623,30 @@
                 choices: [
                     { text: "引入通胀与税收曲线", result: "长线深度立刻拉满。", effect: (p) => { p.design += 22; } },
                     { text: "简单封顶了事", result: "能用，但略糙。", effect: (p) => { p.design += 8; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "t_telemetry_gap", title: "运营数据埋点缺口", genre: "Tycoon", phase: "mid", weeks: 1,
+                story: "模拟经营的系统很多，但你们还看不清玩家卡在哪一步。没有埋点，后续调参只能靠感觉。",
+                choices: [
+                    { text: "补关键埋点和调参面板", result: "团队终于能用数据看见经济循环。", effect: (p) => { p.code += 10; p.design += 14; } },
+                    { text: "先靠测试反馈调", result: "节省了开发时间，但问题定位仍然模糊。", effect: (p) => { p.design += 10; p.bugs += 1; } }
+                ]
+            },
+            {
+                id: "t_ui_density", title: "信息密度过载", genre: "Tycoon", phase: "mid", weeks: 1,
+                story: "面板越来越多，玩家打开菜单像在看财务报表。系统深度需要更好的呈现方式。",
+                choices: [
+                    { text: "重排仪表盘层级", result: "复杂系统终于变得可读。", effect: (p) => { p.design += 16; p.art += 6; } },
+                    { text: "保留专业感，减少弹窗", result: "硬核玩家喜欢，但新手压力仍在。", effect: (p) => { p.design += 10; p.code += 6; } }
+                ]
+            },
+            {
+                id: "t_endgame_goal", title: "后期目标缺口", genre: "Tycoon", phase: "late", weeks: 1,
+                story: "玩家已经赚钱了，但不知道接下来该追什么。经营游戏最怕后期只剩数字变大。",
+                choices: [
+                    { text: "加入长期里程碑目标", result: "后期有了明确追求。", effect: (p) => { p.design += 18; } },
+                    { text: "开放沙盒自定义规则", result: "自由度提升，但调试成本也上来了。", effect: (p) => { p.code += 10; p.design += 10; p.bugs += 1; } }
                 ]
             }
         ];

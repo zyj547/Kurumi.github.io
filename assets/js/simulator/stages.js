@@ -198,7 +198,8 @@ function renderStageBrief() {
     const stage = currentStage();
     const stageNameEl = document.getElementById("aside-stage-name");
     if (stageNameEl) {
-        stageNameEl.innerHTML = `<i class="${stage.icon}"></i> ${stage.name}`;
+        stageNameEl.className = `list-val stage-badge stage-badge-${currentStageIndex()}`;
+        stageNameEl.innerHTML = `<i class="${stage.icon}"></i><span>${stage.name}</span>`;
         stageNameEl.style.color = stage.color;
     }
     const btn = document.getElementById("aside-stageup-btn");
@@ -206,7 +207,9 @@ function renderStageBrief() {
     if (!progEl) return;
     const next = nextStage();
     if (!next) {
-        progEl.innerText = "已达最高阶段";
+        progEl.innerHTML = `
+            <span class="stage-progress-line max"><i class="fa-solid fa-crown"></i> 已达最高阶段</span>
+            <span class="stage-bonus-row">工位 ${stage.slotCap} · 士气 +${stage.moraleBonus} · 效率 +${Math.round(stage.efficiencyBonus * 100)}%</span>`;
         progEl.style.color = "var(--accent-pink)";
         if (btn) btn.style.display = "none";
         return;
@@ -224,6 +227,10 @@ function renderStageBrief() {
     if (gameState.releases.length < req.releases) parts.push(`作品 ${gameState.releases.length}/${req.releases}`);
     if (gameState.fans < req.fans) parts.push(`粉丝 ${Math.round(gameState.fans / 1000)}k/${Math.round(req.fans / 1000)}k`);
     if (gameState.funds < req.funds) parts.push(`资金 ${Math.round(gameState.funds / 1000)}k/${Math.round(req.funds / 1000)}k`);
-    progEl.innerText = parts.length ? `距「${next.name}」：${parts.join("，")}` : `可晋级「${next.name}」`;
+    progEl.innerHTML = parts.length
+        ? `<span class="stage-progress-line">距「${next.name}」：${parts.join("，")}</span>
+           <span class="stage-bonus-row">当前加成：工位 ${stage.slotCap} · 士气 +${stage.moraleBonus} · 效率 +${Math.round(stage.efficiencyBonus * 100)}%</span>`
+        : `<span class="stage-progress-line ready"><i class="fa-solid fa-circle-up"></i> 可晋级「${next.name}」</span>
+           <span class="stage-bonus-row">晋级后：工位 ${next.slotCap} · 士气 +${next.moraleBonus} · 效率 +${Math.round(next.efficiencyBonus * 100)}%</span>`;
     progEl.style.color = parts.length ? "var(--text-secondary)" : "var(--accent-neon)";
 }

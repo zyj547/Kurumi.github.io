@@ -14,7 +14,7 @@
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/simulator.css?v=6">
+    <link rel="stylesheet" href="assets/css/simulator.css?v=7">
 </head>
 <body>
 
@@ -418,8 +418,10 @@
                         <div class="points-counter"><span class="points-val bugs" id="board-bugs" style="color: var(--accent-pink);">0</span><span class="points-lbl">Bug</span></div>
                         <div class="points-counter"><span class="points-val" id="board-progress" style="color: var(--accent-yellow);">0%</span><span class="points-lbl">进度</span></div>
                     </div>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="board-progress-bar"></div>
+                    <div class="progress-container dev-progress-shell">
+                        <div class="dev-progress-track">
+                            <div class="progress-bar" id="board-progress-bar"></div>
+                        </div>
                         <span class="dev-phase-label" id="board-phase">📐 概念设计阶段</span>
                     </div>
 
@@ -797,11 +799,11 @@
     <!-- ==========================================================================
        5. 游戏Tycoon引擎逻辑 (Simulator Engine Script)
        ========================================================================== -->
-    <script src="assets/js/data.js?v=6"></script>
+    <script src="assets/js/data.js?v=7"></script>
     <script src="assets/js/data-events.js?v=6"></script>
     <script src="assets/js/simulator/ui-modals.js?v=6"></script>
-    <script src="assets/js/simulator/state.js?v=6"></script>
-    <script src="assets/js/simulator/stages.js?v=6"></script>
+    <script src="assets/js/simulator/state.js?v=7"></script>
+    <script src="assets/js/simulator/stages.js?v=7"></script>
     <script src="assets/js/simulator/contracts.js?v=6"></script>
     <script src="assets/js/simulator/platform-rep.js?v=6"></script>
     <script src="assets/js/simulator/founder-title.js?v=6"></script>
@@ -812,8 +814,8 @@
     <script src="assets/js/simulator/interview-calc.js?v=6"></script>
     <script src="assets/js/simulator/fx.js?v=6"></script>
     <script src="assets/js/simulator/event-engine.js?v=6"></script>
-    <script src="assets/js/simulator/game-loop.js?v=6"></script>
-    <script src="assets/js/simulator/development.js?v=6"></script>
+    <script src="assets/js/simulator/game-loop.js?v=7"></script>
+    <script src="assets/js/simulator/development.js?v=7"></script>
     <script src="assets/js/simulator/release-reveal.js?v=6"></script>
     <script src="assets/js/simulator/team-research-events.js?v=6"></script>
     <script src="assets/js/simulator/interview.js?v=6"></script>

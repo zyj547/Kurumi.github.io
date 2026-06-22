@@ -216,7 +216,7 @@ function startDevelopment() {
     gameState.funds -= totalCost;
 
     const scale = PLATFORMS_DATA[selectedPlatform].scale;
-    const cardsNeeded = Math.max(5, Math.round(4 + scale * 1.6)); // 6 ~ 9 张卡
+    const cardsNeeded = Math.max(5, Math.round(4 + scale * 1.2)); // 5 ~ 8 张关键事件
 
     gameState.currentProject = {
         name: gameName,
@@ -227,6 +227,7 @@ function startDevelopment() {
         code: 0, art: 0, design: 0, bugs: 0,
         cardsResolved: 0,
         cardsNeeded,
+        seenCardIds: [],
         polishWeeksLeft: 0,
         rushPenalty: false,
         state: "developing"
@@ -319,7 +320,7 @@ function startAuxProject() {
     gameState.auxProjects.push({
         name: gameName, platform: selectedPlatform, genre: selectedGenre, topic: selectedTopic,
         progress: 0, code: 0, art: 0, design: 0, bugs: 0,
-        cardsResolved: 0, cardsNeeded: Math.max(5, Math.round(4 + scale * 1.6)),
+        cardsResolved: 0, cardsNeeded: Math.max(5, Math.round(4 + scale * 1.2)),
         polishWeeksLeft: 0, rushPenalty: false, isAux: true, state: "developing"
     });
     addChronicleEntry(`🧩 B 组启动并行辅助项目《${gameName}》，将在后台自动推进研发。`);
@@ -386,9 +387,158 @@ function projectPhase(proj) {
     return "late";
 }
 
+const DEV_CARD_RULES = {
+    g_dawn: { group: "bug", cond: { requiresRole: "programmer", minBugs: 1, maxCardsResolved: 2 } },
+    g_streamer: { group: "community", cond: { minFans: 500, minProgress: 25, maxCardsResolved: 3 } },
+    g_artref: { group: "art", cond: { requiresRole: "artist", maxCardsResolved: 2 } },
+    g_core_loop: { group: "planning", cond: { maxCardsResolved: 1, maxProgress: 25 } },
+    g_input_feel: { group: "feel", cond: { maxCardsResolved: 1, maxProgress: 30 } },
+    g_placeholder_assets: { group: "art", cond: { maxCardsResolved: 1, maxProgress: 30 } },
+    g_risk_register: { group: "production", cond: { maxCardsResolved: 2, maxProgress: 35 } },
+    g_vertical_slice: { group: "planning", cond: { maxCardsResolved: 2, maxProgress: 45 } },
+    g_coupling: { group: "tech", cond: { requiresRole: "programmer", minCardsResolved: 1 } },
+    g_sdk: { group: "tech", cond: { requiresRole: "programmer", minCardsResolved: 1 } },
+    g_morale: { group: "team", cond: { minAvgMorale: 72, maxAvgFatigue: 68, minTeam: 2 } },
+    g_save_system: { group: "tech", cond: { requiresRole: "programmer", minCardsResolved: 1 } },
+    g_tutorial_pass: { group: "onboarding", cond: { minCardsResolved: 1, minProgress: 25 } },
+    g_perf: { group: "tech", cond: { requiresRole: "programmer", minBugs: 1 } },
+    g_crash: { group: "bug", cond: { minBugs: 2 } },
+    g_scope_lock: { group: "production", cond: { minCardsResolved: 1, maxProgress: 80 } },
+    g_playtest_notes: { group: "playtest", cond: { minCardsResolved: 1, minProgress: 25 } },
+    g_build_pipeline: { group: "production", cond: { minTeam: 2, minCardsResolved: 1 } },
+    g_store_page: { group: "marketing", cond: { minProgress: 70 } },
+    g_compat_matrix: { group: "qa", cond: { minBugs: 1, minProgress: 65 } },
+    g_release_checklist: { group: "production", cond: { minProgress: 70 } },
+    g_feedback_triage: { group: "playtest", cond: { minProgress: 65 } },
+    c_cat: { group: "content", cond: { minProgress: 25, maxProgress: 70 } },
+    c_juice: { group: "feel", cond: { requiresRoles: ["designer", "programmer"], minCardsResolved: 1 } },
+    c_retention_curve: { group: "analytics", cond: { minFans: 200, minProgress: 65 } },
+    c_level_batch: { group: "content", cond: { minCardsResolved: 1, minProgress: 25 } },
+    c_ad_placement: { group: "monetization", cond: { minProgress: 65 } },
+    r_npc: { group: "narrative", cond: { requiresRole: "designer", minFans: 100, minProgress: 35 } },
+    r_world: { group: "narrative", cond: { requiresRole: "designer", maxCardsResolved: 2 } },
+    r_quest_flags: { group: "qa", cond: { minBugs: 1 } },
+    r_dialogue_pass: { group: "narrative", cond: { requiresRole: "designer", minCardsResolved: 1 } },
+    r_combat_pacing: { group: "balance", cond: { minProgress: 65 } },
+    k_weapon: { group: "balance", cond: { minCardsResolved: 1 } },
+    k_seed: { group: "qa", cond: { minBugs: 1 } },
+    k_meta_progress: { group: "balance", cond: { minCardsResolved: 2 } },
+    k_room_readability: { group: "readability", cond: { minProgress: 25 } },
+    k_boss_pattern: { group: "boss", cond: { minProgress: 65 } },
+    t_exploit: { group: "economy", cond: { minCardsResolved: 1 } },
+    t_balance: { group: "balance", cond: { minCardsResolved: 2 } },
+    t_telemetry_gap: { group: "analytics", cond: { minCardsResolved: 1, minTeam: 2 } },
+    t_ui_density: { group: "ui", cond: { minProgress: 25 } },
+    t_endgame_goal: { group: "endgame", cond: { minProgress: 65 } }
+};
+
+function devCardRule(card) {
+    const rule = DEV_CARD_RULES[card.id] || {};
+    return {
+        group: card.group || rule.group || card.id,
+        cond: Object.assign({}, rule.cond || {}, card.cond || {})
+    };
+}
+
+function devCardContext(proj) {
+    const employees = gameState.employees || [];
+    const team = employees.length;
+    const roles = employees.reduce((map, emp) => {
+        map[emp.role] = (map[emp.role] || 0) + 1;
+        return map;
+    }, {});
+    const avgMorale = team
+        ? employees.reduce((sum, emp) => sum + (emp.morale == null ? 75 : emp.morale), 0) / team
+        : 75;
+    const avgFatigue = team
+        ? employees.reduce((sum, emp) => sum + (emp.fatigue || 0), 0) / team
+        : 0;
+    return {
+        phase: projectPhase(proj),
+        progress: proj.progress || 0,
+        cardsResolved: proj.cardsResolved || 0,
+        bugs: proj.bugs || 0,
+        fans: gameState.fans || 0,
+        team,
+        roles,
+        avgMorale,
+        avgFatigue,
+        platformScale: (PLATFORMS_DATA[proj.platform] && PLATFORMS_DATA[proj.platform].scale) || 1
+    };
+}
+
+function matchDevCardCondition(card, proj) {
+    const cond = devCardRule(card).cond;
+    if (!cond || Object.keys(cond).length === 0) return true;
+    const ctx = devCardContext(proj);
+    if (cond.minBugs != null && ctx.bugs < cond.minBugs) return false;
+    if (cond.maxBugs != null && ctx.bugs > cond.maxBugs) return false;
+    if (cond.minFans != null && ctx.fans < cond.minFans) return false;
+    if (cond.maxFans != null && ctx.fans > cond.maxFans) return false;
+    if (cond.requiresRole != null && !((ctx.roles[cond.requiresRole] || 0) >= 1)) return false;
+    if (Array.isArray(cond.requiresRoles) && cond.requiresRoles.some(role => !((ctx.roles[role] || 0) >= 1))) return false;
+    if (cond.minTeam != null && ctx.team < cond.minTeam) return false;
+    if (cond.maxTeam != null && ctx.team > cond.maxTeam) return false;
+    if (cond.minProgress != null && ctx.progress < cond.minProgress) return false;
+    if (cond.maxProgress != null && ctx.progress > cond.maxProgress) return false;
+    if (cond.minCardsResolved != null && ctx.cardsResolved < cond.minCardsResolved) return false;
+    if (cond.maxCardsResolved != null && ctx.cardsResolved > cond.maxCardsResolved) return false;
+    if (cond.minAvgMorale != null && ctx.avgMorale < cond.minAvgMorale) return false;
+    if (cond.maxAvgMorale != null && ctx.avgMorale > cond.maxAvgMorale) return false;
+    if (cond.minAvgFatigue != null && ctx.avgFatigue < cond.minAvgFatigue) return false;
+    if (cond.maxAvgFatigue != null && ctx.avgFatigue > cond.maxAvgFatigue) return false;
+    if (cond.minPlatformScale != null && ctx.platformScale < cond.minPlatformScale) return false;
+    if (cond.maxPlatformScale != null && ctx.platformScale > cond.maxPlatformScale) return false;
+    return true;
+}
+
+function shuffleCards(cards) {
+    return [...cards].sort(() => Math.random() - 0.5);
+}
+
+function pickDiversifiedCards(candidates, count, excludeIds = new Set()) {
+    const picked = [];
+    const pickedIds = new Set();
+    const usedGroups = new Set();
+    const shuffled = shuffleCards(candidates).filter(card => !excludeIds.has(card.id));
+
+    shuffled.forEach(card => {
+        if (picked.length >= count) return;
+        const group = devCardRule(card).group;
+        if (usedGroups.has(group)) return;
+        picked.push(card);
+        pickedIds.add(card.id);
+        usedGroups.add(group);
+    });
+
+    shuffled.forEach(card => {
+        if (picked.length >= count) return;
+        if (pickedIds.has(card.id)) return;
+        picked.push(card);
+        pickedIds.add(card.id);
+    });
+
+    return picked;
+}
+
+function excludedCardIds(picked, seenInProject, avoidSeen) {
+    const excluded = new Set(picked.map(card => card.id));
+    if (avoidSeen) {
+        seenInProject.forEach(id => excluded.add(id));
+    }
+    return excluded;
+}
+
+function safeStarterCards(proj) {
+    if ((proj.cardsResolved || 0) > 1 || (proj.progress || 0) > 30) return [];
+    const ids = new Set(["g_core_loop", "g_input_feel", "g_placeholder_assets"]);
+    return DEV_CARDS.filter(card => ids.has(card.id) && matchDevCardCondition(card, proj));
+}
+
 function showDevBoard() {
     const overlay = document.getElementById("development-overlay");
     overlay.classList.add("active");
+    if (typeof updateAdvanceUI === "function") updateAdvanceUI();
     const proj = gameState.currentProject;
     document.getElementById("board-game-name").innerText = proj.name;
     document.getElementById("board-game-meta").innerHTML = `
@@ -425,23 +575,35 @@ function renderBoardStats() {
 function drawHandCards() {
     const proj = gameState.currentProject;
     const phase = projectPhase(proj);
-    const pool = DEV_CARDS.filter(c =>
+    const stagePool = DEV_CARDS.filter(c =>
         (c.genre === "any" || c.genre === proj.genre) &&
         (c.phase === "any" || c.phase === phase)
     );
-    // 退路：阶段卡不足时放宽到全类型同阶段
-    let candidates = pool.length >= 3 ? pool : DEV_CARDS.filter(c => c.genre === "any" || c.genre === proj.genre);
-    // 随机抽 3 张不重复
-    const shuffled = [...candidates].sort(() => Math.random() - 0.5);
-    const picked = [];
-    const seen = new Set();
-    for (const c of shuffled) {
-        if (seen.has(c.id)) continue;
-        seen.add(c.id);
-        picked.push(c);
-        if (picked.length === 3) break;
+    const genrePool = DEV_CARDS.filter(c => c.genre === "any" || c.genre === proj.genre);
+    const seenInProject = new Set(proj.seenCardIds || []);
+
+    const strict = stagePool.filter(card => matchDevCardCondition(card, proj));
+    const relaxedGenre = genrePool.filter(card => matchDevCardCondition(card, proj));
+    const starterFallback = safeStarterCards(proj);
+
+    let picked = pickDiversifiedCards(strict, 3, seenInProject);
+    if (picked.length < 3) {
+        picked = picked.concat(pickDiversifiedCards(relaxedGenre, 3 - picked.length, excludedCardIds(picked, seenInProject, true)));
     }
+    if (picked.length < 3) {
+        picked = picked.concat(pickDiversifiedCards(strict, 3 - picked.length, excludedCardIds(picked, seenInProject, false)));
+    }
+    if (picked.length < 3) {
+        picked = picked.concat(pickDiversifiedCards(relaxedGenre, 3 - picked.length, excludedCardIds(picked, seenInProject, false)));
+    }
+    if (picked.length < 3) {
+        picked = picked.concat(pickDiversifiedCards(starterFallback, 3 - picked.length, excludedCardIds(picked, seenInProject, false)));
+    }
+
     currentHandCards = picked;
+    const shownIds = new Set(proj.seenCardIds || []);
+    picked.forEach(card => shownIds.add(card.id));
+    proj.seenCardIds = Array.from(shownIds).slice(-40);
 }
 
 function renderHandCards() {
@@ -508,6 +670,7 @@ function resolveCardChoice(card, choice) {
     }
 
     proj.bugs = Math.max(0, Math.round(proj.bugs));
+    proj.seenCardIds = Array.from(new Set([...(proj.seenCardIds || []), card.id])).slice(-40);
     proj.cardsResolved++;
     proj.progress = Math.min(100, Math.round((proj.cardsResolved / proj.cardsNeeded) * 100));
 
@@ -539,8 +702,16 @@ function renderPolishingBoard() {
     finish.style.display = "flex";
     document.getElementById("board-hint").innerText = "品质打磨进行中，时间推进后将自动完成。";
     finish.innerHTML = `
-        <p style="color:var(--accent-yellow);">🔧 延期打磨中… 剩余 ${gameState.currentProject.polishWeeksLeft} 周</p>
-        <button class="btn-start-dev advance-btn" onclick="startAdvance(${gameState.currentProject.polishWeeksLeft}, 'card', showDevBoard)">推进至打磨完成</button>
+        <div class="dev-finish-card polish">
+            <div class="finish-kicker"><i class="fa-solid fa-wand-magic-sparkles"></i> 品质打磨</div>
+            <div class="finish-title">正在进行最终调校</div>
+            <p class="finish-copy">剩余 ${gameState.currentProject.polishWeeksLeft} 周。团队会集中清理体验粗糙点，并提升代码、美术和设计完成度。</p>
+            <div class="finish-actions">
+                <button class="btn-start-dev advance-btn finish-action primary" onclick="startAdvance(${gameState.currentProject.polishWeeksLeft}, 'card', showDevBoard)">
+                    <i class="fa-solid fa-forward"></i> 推进至打磨完成
+                </button>
+            </div>
+        </div>
     `;
 }
 
@@ -551,13 +722,23 @@ function renderFinishedBoard() {
     finish.style.display = "flex";
     document.getElementById("board-hint").innerText = "开发完成！请决定上线策略。";
     const bugsLeft = proj.bugs || 0;
-    const rushWarn = bugsLeft > 0 ? `<p style="color:var(--accent-pink);">⚠️ 残留 ${bugsLeft} 个 Bug，强行上线将扣减评分！</p>` : "";
+    const rushWarn = bugsLeft > 0
+        ? `<div class="finish-alert risk"><i class="fa-solid fa-triangle-exclamation"></i> 残留 ${bugsLeft} 个 Bug，强行上线将扣减评分。</div>`
+        : `<div class="finish-alert good"><i class="fa-solid fa-shield-heart"></i> 当前版本没有残留 Bug，可以更从容地选择上线策略。</div>`;
     finish.innerHTML = `
-        <p style="color:var(--accent-neon); font-weight:700;">🎉 《${proj.name}》研发完成！</p>
+        <div class="dev-finish-card complete">
+            <div class="finish-kicker"><i class="fa-solid fa-star"></i> 研发完成</div>
+            <div class="finish-title">《${proj.name}》已经可以发布</div>
+            <p class="finish-copy">核心内容已封版。你可以用 2 周继续打磨换取更高完成度，或趁热立即上线抢占窗口。</p>
         ${rushWarn}
-        <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center;">
-            <button class="btn-start-dev advance-btn" style="background:linear-gradient(135deg,#fbbf24,#f97316);" onclick="choosePolish()">🔧 延期打磨（+2周，全属性+15%）</button>
-            <button class="btn-start-dev" onclick="chooseRelease()">🚀 立即上线${bugsLeft > 0 ? '（有Bug惩罚）' : ''}</button>
+            <div class="finish-actions">
+                <button class="btn-start-dev advance-btn finish-action polish" onclick="choosePolish()">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> 延期打磨 <span>+2周 / 全属性+15%</span>
+                </button>
+                <button class="btn-start-dev finish-action release" onclick="chooseRelease()">
+                    <i class="fa-solid fa-rocket"></i> 立即上线${bugsLeft > 0 ? '<span>有 Bug 惩罚</span>' : ''}
+                </button>
+            </div>
         </div>
     `;
     updateAdvanceUI();
@@ -619,6 +800,7 @@ function releaseGame(publisherType) {
     if (typeof consumeCreativeSpark === "function") consumeCreativeSpark();
     gameState.currentProject = null;
     currentHandCards = [];
+    if (typeof updateAdvanceUI === "function") updateAdvanceUI();
 
     const pubNames = { self: "自主发行", tiktok: "抖音独占推广", steam: "Steam签约发行" };
     addChronicleEntry(`🎮 由【${pubNames[publisherType]}】承销的《${release.name}》成功发布，综合评分 ${release.rating}，吸引 ${release.fansGained.toLocaleString()} 名新粉丝！`);
