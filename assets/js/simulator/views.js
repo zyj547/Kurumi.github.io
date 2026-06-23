@@ -24,7 +24,11 @@ function switchScreen(screenId) {
     if (screenId === "develop") setupDevelopForm();
     if (screenId === "staff") loadStaffRecruits();
     if (screenId === "research") loadResearchTree();
-    if (screenId === "history") loadHistoryReleases();
+    if (screenId === "history") {
+        const chronicleActive = document.getElementById("tab-history-chronicle")?.classList.contains("active");
+        if (chronicleActive && typeof loadChronicleTimeline === "function") loadChronicleTimeline();
+        else loadHistoryReleases();
+    }
 }
 
 function refreshActiveScreen() {
@@ -34,7 +38,7 @@ function refreshActiveScreen() {
     // 办公室卡座内容只在玩家操作后变化（招募/培训/专精时已各自重绘），
     // 无需每周全量重建——避免重置 3D 悬停态、滚动位置和不必要的重排。
     // 历史发布榜仅当仍有在售游戏（营收逐周增长）时才需要刷新。
-    if (screenId === "history" && gameState.releases.some(g => g.weeksSinceRelease < 16)) {
+    if (screenId === "history" && !document.getElementById("tab-history-chronicle")?.classList.contains("active") && gameState.releases.some(g => g.weeksSinceRelease < 16)) {
         loadHistoryReleases();
     }
 }
@@ -488,21 +492,18 @@ function spawnFloatingText(text, targetId, className) {
     if (!targetEl) return;
 
     // 动态确保目标父容器具有 relative 定位
-    if (window.getComputedStyle(targetEl).position === "static") {
-        targetEl.style.position = "relative";
-    }
-
     const fl = document.createElement("div");
     fl.className = `floating-point ${className}`;
     fl.innerText = text;
     
     // 采用局部相对定位
-    fl.style.position = "absolute";
-    fl.style.left = `calc(50% + ${Math.random() * 30 - 15}px)`;
-    fl.style.top = "-15px";
+    const rect = targetEl.getBoundingClientRect();
+    fl.style.position = "fixed";
+    fl.style.left = `${rect.left + rect.width / 2 + (Math.random() * 30 - 15)}px`;
+    fl.style.top = `${Math.max(8, rect.top - 12)}px`;
     fl.style.transform = "translateX(-50%)";
 
-    targetEl.appendChild(fl);
+    document.body.appendChild(fl);
     
     // 动画播放完直接摧毁
     setTimeout(() => {

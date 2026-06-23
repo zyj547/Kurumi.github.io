@@ -227,18 +227,20 @@ function switchHistoryTab(tab) {
     const btnChronicle = document.getElementById("tab-history-chronicle");
     const panelGames = document.getElementById("history-releases");
     const panelChronicle = document.getElementById("history-chronicle");
+    if (panelGames) panelGames.style.display = "";
+    if (panelChronicle) panelChronicle.style.display = "";
 
     if (tab === "games") {
         btnGames.classList.add("active");
         btnChronicle.classList.remove("active");
-        panelGames.style.display = "flex";
-        panelChronicle.style.display = "none";
+        panelGames.classList.add("active");
+        panelChronicle.classList.remove("active");
         loadHistoryReleases();
     } else {
         btnGames.classList.remove("active");
         btnChronicle.classList.add("active");
-        panelGames.style.display = "none";
-        panelChronicle.style.display = "flex";
+        panelGames.classList.remove("active");
+        panelChronicle.classList.add("active");
         loadChronicleTimeline();
     }
 }
