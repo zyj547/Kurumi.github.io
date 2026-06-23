@@ -193,6 +193,10 @@ function weeklyStep() {
         tickAuxProjects(rate);
     }
 
+    if (typeof tickEmployeeEcosystem === "function") {
+        tickEmployeeEcosystem(gameState, activeDevCount, isPayday, Math.random);
+    }
+
     // 平台信誉每周向中位回归
     if (typeof driftPlatformRep === "function") driftPlatformRep();
 
@@ -211,6 +215,12 @@ function weeklyStep() {
 
     // 空窗期偶发：随机事件 / 核心员工被挖角（强制暂停处理）
     const inSpaceWindow = !gameState.currentProject && (gameState.auxProjects || []).length === 0;
+    if (!interrupted && inSpaceWindow && typeof maybeTriggerEmployeeChemistry === "function") {
+        maybeTriggerEmployeeChemistry(gameState, Math.random);
+    }
+    if (!interrupted && inSpaceWindow && typeof maybeTriggerEmployeeStoryline === "function" && maybeTriggerEmployeeStoryline(gameState)) {
+        interrupted = true;
+    }
     if (!interrupted && inSpaceWindow && Math.random() < BALANCE.randomEventChance) {
         triggerRandomEvent();
         interrupted = true;

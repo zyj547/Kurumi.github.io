@@ -61,7 +61,8 @@ function employeeEfficiency(emp) {
     const moraleFactor = 0.75 + (effMorale / 100) * 0.35;
     const fatiguePenalty = 1 - ((emp.fatigue || 0) / 100) * 0.45;
     const stageEff = typeof stageEfficiencyBonus === "function" ? stageEfficiencyBonus() : 0;
-    return Math.max(0.35, moraleFactor * fatiguePenalty * (1 + stageEff));
+    const moodMul = typeof employeeEfficiencyMoodMultiplier === "function" ? employeeEfficiencyMoodMultiplier(emp) : 1;
+    return Math.max(0.35, moraleFactor * fatiguePenalty * (1 + stageEff) * moodMul);
 }
 
 function factorTone(value, goodAt = 1, warnAt = 0.75) {
@@ -669,7 +670,8 @@ function showCardResult(card) {
     document.getElementById("card-result-desc").innerText = card.story;
     const box = document.getElementById("card-result-choices");
     box.innerHTML = "";
-    card.choices.forEach(choice => {
+    const employeeChoices = typeof getEmployeeDevCardChoices === "function" ? getEmployeeDevCardChoices(card, proj, gameState) : [];
+    [...card.choices, ...employeeChoices].forEach(choice => {
         const btn = document.createElement("button");
         btn.className = "choice-btn";
         btn.innerText = choice.text;
@@ -810,6 +812,7 @@ function releaseGame(publisherType) {
 
     gameState.releases.unshift(release);
     gameState.fans += release.fansGained;
+    if (typeof recordReleaseMemories === "function") recordReleaseMemories(gameState, release);
     // 市场疲劳记录
     gameState.recentGenres = (gameState.recentGenres || []).concat(proj.genre).slice(-5);
     // 平台信誉调整

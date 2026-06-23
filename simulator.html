@@ -14,7 +14,7 @@
     <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"></noscript>
     <link rel="stylesheet" href="assets/css/common.css">
-    <link rel="stylesheet" href="assets/css/simulator.css?v=15">
+    <link rel="stylesheet" href="assets/css/simulator.css?v=18">
 </head>
 <body>
 
@@ -174,6 +174,13 @@
                                     <span id="stage-hero-morale">士气 +0</span>
                                     <span id="stage-hero-eff">效率 +0%</span>
                                 </div>
+                            </div>
+                            <div class="glass-box office-theater-box">
+                                <h3 class="aside-title office-theater-title" style="color: var(--accent-neon);">
+                                    <span><i class="fa-solid fa-comments"></i>办公室小剧场</span>
+                                    <button class="office-theater-share" onclick="copyTeamYearbook()">年鉴</button>
+                                </h3>
+                                <div class="office-theater-list" id="office-theater-list"></div>
                             </div>
                             <div class="glass-box">
                                 <h3 class="aside-title"><i class="fa-solid fa-chart-line"></i>运营简报</h3>
@@ -832,8 +839,9 @@
        ========================================================================== -->
     <script src="assets/js/data.js?v=7"></script>
     <script src="assets/js/data-events.js?v=6"></script>
+    <script src="assets/js/data-employee-events.js?v=1"></script>
     <script src="assets/js/simulator/ui-modals.js?v=6"></script>
-    <script src="assets/js/simulator/state.js?v=7"></script>
+    <script src="assets/js/simulator/state.js?v=9"></script>
     <script src="assets/js/simulator/stages.js?v=8"></script>
     <script src="assets/js/simulator/contracts.js?v=6"></script>
     <script src="assets/js/simulator/platform-rep.js?v=6"></script>
@@ -845,13 +853,19 @@
     <script src="assets/js/simulator/interview-calc.js?v=6"></script>
     <script src="assets/js/simulator/fx.js?v=6"></script>
     <script src="assets/js/simulator/project-visuals.js?v=11"></script>
-    <script src="assets/js/simulator/event-engine.js?v=6"></script>
-    <script src="assets/js/simulator/game-loop.js?v=10"></script>
-    <script src="assets/js/simulator/development.js?v=11"></script>
+    <script src="assets/js/simulator/event-engine.js?v=7"></script>
+    <script src="assets/js/simulator/employee-core.js?v=1"></script>
+    <script src="assets/js/simulator/employee-ecosystem.js?v=4"></script>
+    <script src="assets/js/simulator/employee-theater.js?v=1"></script>
+    <script src="assets/js/simulator/employee-dev-choices.js?v=1"></script>
+    <script src="assets/js/simulator/employee-stories.js?v=1"></script>
+    <script src="assets/js/simulator/employee-yearbook.js?v=1"></script>
+    <script src="assets/js/simulator/game-loop.js?v=12"></script>
+    <script src="assets/js/simulator/development.js?v=13"></script>
     <script src="assets/js/simulator/release-reveal.js?v=11"></script>
-    <script src="assets/js/simulator/team-research-events.js?v=10"></script>
+    <script src="assets/js/simulator/team-research-events.js?v=11"></script>
     <script src="assets/js/simulator/interview.js?v=6"></script>
-    <script src="assets/js/simulator/views.js?v=15"></script>
+    <script src="assets/js/simulator/views.js?v=17"></script>
     <script src="assets/js/simulator/meta-systems.js?v=15"></script>
 </body>
 </html>

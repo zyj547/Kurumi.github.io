@@ -69,7 +69,7 @@ function createDefaultGameState() {
         creativeArmed: false, // 创意激发已激活、待下次发行消耗
         nextTrend: null,      // 商业嗅觉：预知的下季趋势
         employees: [
-            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, fatigue: 0, contractWeeksLeft: null, contractYears: 0, archetype: "pragmatic", weeksThisCycle: 0, pendingRenewal: false }
+            { id: "player", name: "创始人(您)", role: "designer", stats: { code: 15, art: 10, design: 20 }, salary: 0, level: 1, xp: 0, trait: "multi", morale: 78, satisfaction: 78, loyalty: 100, statusText: "整理今天的任务", statusTone: "neutral", memories: [], fatigue: 0, contractWeeksLeft: null, contractYears: 0, archetype: "pragmatic", weeksThisCycle: 0, pendingRenewal: false }
         ],
         officeSlots: 3,
         companyStage: 0, // 公司发展阶段索引（0=独立作坊）
@@ -118,7 +118,9 @@ function migrateSave(parsed) {
 const SAVE_LIMITS = {
     text: 80,
     chronologyText: 240,
+    memoryText: 160,
     chronology: 100,
+    memories: 12,
     employees: 8,
     releases: 80,
     stat: 999,
@@ -192,6 +194,20 @@ function sanitizeEmployee(emp, fallback) {
         weeksThisCycle: clampInteger(source.weeksThisCycle, 0, 4, 0),
         morale: clampInteger(source.morale, 0, 100, fallback.morale == null ? 75 : fallback.morale),
         fatigue: clampInteger(source.fatigue, 0, 100, fallback.fatigue || 0),
+        satisfaction: clampInteger(source.satisfaction, 0, 100, source.morale == null ? 70 : source.morale),
+        loyalty: clampInteger(source.loyalty, 0, 100, source.id === "player" ? 100 : 55),
+        statusText: cleanText(source.statusText, "整理今天的任务", SAVE_LIMITS.text),
+        statusTone: enumValue(source.statusTone, ["neutral", "good", "warn", "risk", "debug", "idea"], "neutral"),
+        storyFlags: source.storyFlags && typeof source.storyFlags === "object" && !Array.isArray(source.storyFlags)
+            ? Object.keys(source.storyFlags).slice(0, 20).reduce((acc, key) => {
+                acc[cleanText(key, "", 40)] = Boolean(source.storyFlags[key]);
+                return acc;
+            }, {})
+            : {},
+        memories: Array.isArray(source.memories) ? source.memories.slice(-SAVE_LIMITS.memories).map(memory => ({
+            date: cleanText(memory && memory.date, "某一周", SAVE_LIMITS.text),
+            text: cleanText(memory && memory.text, "", SAVE_LIMITS.memoryText)
+        })).filter(memory => memory.text) : [],
         contractWeeksLeft: source.contractWeeksLeft == null ? null : clampInteger(source.contractWeeksLeft, 0, 400, 96),
         contractYears: clampInteger(source.contractYears, 0, 3, 0),
         pendingRenewal: Boolean(source.pendingRenewal)

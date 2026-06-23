@@ -54,7 +54,10 @@ function processContracts() {
 
 function openContractRenewalModal(emp) {
     const idx = gameState.employees.indexOf(emp);
-    const raise = CONTRACT.renewRaiseMin + Math.random() * (CONTRACT.renewRaiseMax - CONTRACT.renewRaiseMin);
+    if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
+    const loyaltyRelief = emp.loyalty >= 75 ? 0.07 : emp.loyalty <= 38 ? -0.08 : 0;
+    const memoryModifier = typeof employeeRenewalRaiseModifier === "function" ? employeeRenewalRaiseModifier(emp) : 0;
+    const raise = Math.max(0.08, CONTRACT.renewRaiseMin + Math.random() * (CONTRACT.renewRaiseMax - CONTRACT.renewRaiseMin) - loyaltyRelief + memoryModifier);
     const newSalary = Math.round(emp.salary * (1 + raise));
     const signingFee = Math.round(newSalary * CONTRACT.signingFeeRate);
     emp._renewSalary = newSalary;
@@ -89,6 +92,10 @@ function renewContract(idx) {
     emp.contractWeeksLeft = emp.contractYears * 48;
     emp.pendingRenewal = false;
     emp.morale = Math.min(100, (emp.morale == null ? 75 : emp.morale) + 8);
+    if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
+    emp.satisfaction = Math.min(100, emp.satisfaction + 10);
+    emp.loyalty = Math.min(100, emp.loyalty + 8);
+    if (typeof addEmployeeMemory === "function") addEmployeeMemory(emp, `你与他续签了 ${emp.contractYears} 年合同，月薪调整为 ¥${emp.salary.toLocaleString()}。`, gameState);
     delete emp._renewSalary; delete emp._renewFee;
     addChronicleEntry(`📝 与【${emp.name}】续签 ${emp.contractYears} 年合同，月薪调整为 ¥${emp.salary.toLocaleString()}。`);
     if (typeof playSFX === "function") playSFX("success");
@@ -98,7 +105,8 @@ function renewContract(idx) {
 function declineRenewal(idx) {
     const emp = gameState.employees[idx];
     if (!emp) return;
-    addChronicleEntry(`👋 【${emp.name}】合同到期未续约，离开了工作室。`);
+    const farewell = typeof employeeFarewellText === "function" ? employeeFarewellText(emp, "contract") : "";
+    addChronicleEntry(`👋 【${emp.name}】合同到期未续约，离开了工作室。${farewell}`);
     gameState.employees.splice(idx, 1);
     if (typeof playSFX === "function") playSFX("click");
     saveGame(); updateStatsUI(); loadOfficeDesks();
@@ -110,8 +118,15 @@ function maybePoach() {
     const candidates = gameState.employees.filter(e => e.id !== "player" && (e.level || 1) >= CONTRACT.poachMinLevel && !e.pendingRenewal);
     if (candidates.length === 0) return false;
     // 优先挖能力最强者
-    candidates.sort((a, b) => (b.stats.code + b.stats.art + b.stats.design) - (a.stats.code + a.stats.art + a.stats.design));
+    candidates.forEach(e => { if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(e); });
+    candidates.sort((a, b) => {
+        const aRisk = (a.stats.code + a.stats.art + a.stats.design) * (typeof employeeRetentionMultiplier === "function" ? employeeRetentionMultiplier(a) : 1);
+        const bRisk = (b.stats.code + b.stats.art + b.stats.design) * (typeof employeeRetentionMultiplier === "function" ? employeeRetentionMultiplier(b) : 1);
+        return bRisk - aRisk;
+    });
     const emp = candidates[0];
+    const riskMult = typeof employeeRetentionMultiplier === "function" ? employeeRetentionMultiplier(emp) : 1;
+    if (Math.random() > riskMult) return false;
     const idx = gameState.employees.indexOf(emp);
     const matchSalary = Math.round(emp.salary * (1 + CONTRACT.poachRaise));
 
@@ -125,14 +140,19 @@ function maybePoach() {
             { text: `匹配薪资挽留（月薪 ¥${matchSalary.toLocaleString()}）`, action: () => {
                 emp.salary = matchSalary;
                 emp.morale = Math.min(100, (emp.morale == null ? 75 : emp.morale) + 12);
+                if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
+                emp.satisfaction = Math.min(100, emp.satisfaction + 10);
+                emp.loyalty = Math.min(100, emp.loyalty + 12);
                 emp.contractYears = Math.max(emp.contractYears || 1, 2);
                 emp.contractWeeksLeft = Math.max(emp.contractWeeksLeft || 0, 96);
+                if (typeof addEmployeeMemory === "function") addEmployeeMemory(emp, "面对竞争对手挖角，你选择加薪挽留，他决定继续留下。", gameState);
                 addChronicleEntry(`💪 顶住挖角，加薪挽留了核心成员【${emp.name}】，月薪升至 ¥${matchSalary.toLocaleString()}。`);
                 if (typeof playSFX === "function") playSFX("success");
                 saveGame(); updateStatsUI(); loadOfficeDesks();
             }},
             { text: "忍痛放人，祝前程似锦", action: () => {
-                addChronicleEntry(`💔 核心成员【${emp.name}】被对手挖走，离开了工作室。`);
+                const farewell = typeof employeeFarewellText === "function" ? employeeFarewellText(emp, "poach") : "";
+                addChronicleEntry(`💔 核心成员【${emp.name}】被对手挖走，离开了工作室。${farewell}`);
                 gameState.employees.splice(idx, 1);
                 saveGame(); updateStatsUI(); loadOfficeDesks();
             }}

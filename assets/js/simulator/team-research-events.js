@@ -242,6 +242,11 @@ function commitHire(cand, idx, finalSalary, initialMorale) {
         rarity: cand.rarity || "R",
         archetype: cand.archetype || "pragmatic",
         morale: initialMorale,
+        satisfaction: initialMorale,
+        loyalty: 56 + Math.round((initialMorale - 70) * 0.25),
+        statusText: "刚入职，正在熟悉工位",
+        statusTone: "good",
+        memories: [{ date: `第 ${gameState.date.year} 年 ${gameState.date.month} 月第 ${gameState.date.week} 周`, text: `经过面试与谈薪，他以月薪 ¥${finalSalary.toLocaleString()} 加入了工作室。` }],
         fatigue: 0,
         weeksThisCycle: 0,
         contractYears: contractYears,
@@ -325,8 +330,9 @@ async function fireEmployee(idx) {
         gameState.funds -= accrued;
         addChronicleEntry(`💴 结算 ${emp.name} 本月在岗 ${emp.weeksThisCycle} 周工资 ¥${accrued.toLocaleString()}。`);
     }
+    const farewell = typeof employeeFarewellText === "function" ? employeeFarewellText(emp, "fire") : `${emp.name} 离开了工作室。`;
     gameState.employees.splice(idx, 1);
-    addChronicleEntry(`📄 ${emp.name} 离开了工作室，支付离职补偿金 ¥${severance.toLocaleString()}。`);
+    addChronicleEntry(`📄 ${emp.name} 离开了工作室，支付离职补偿金 ¥${severance.toLocaleString()}。${farewell}`);
     saveGame();
     updateStatsUI();
     loadOfficeDesks();
@@ -352,6 +358,9 @@ function trainEmployee(idx) {
 
     gameState.funds -= cost;
     emp.level++;
+    if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
+    emp.satisfaction = Math.min(100, (emp.satisfaction == null ? 70 : emp.satisfaction) + 8);
+    emp.loyalty = Math.min(100, (emp.loyalty == null ? 55 : emp.loyalty) + 3);
     
     // 属性成长加成计算
     let factor = 1.0;
@@ -377,6 +386,7 @@ function trainEmployee(idx) {
     emp.salary = Math.round(emp.salary * 1.25);
 
     addChronicleEntry(`🎓 团队成员【${emp.name}】完成了高强度的专业技能培训，成功晋升至等级 Lv.${emp.level}！`);
+    if (typeof addEmployeeMemory === "function") addEmployeeMemory(emp, `你为他安排了一次专业培训，他从 Lv.${oldLevel} 成长到 Lv.${emp.level}。`, gameState);
 
     saveGame();
     updateStatsUI();
@@ -421,6 +431,10 @@ function restEmployee(idx) {
     gameState.funds -= cost;
     emp.fatigue = Math.max(0, (emp.fatigue || 0) - 35);
     emp.morale = Math.min(100, (emp.morale == null ? 75 : emp.morale) + 18);
+    if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
+    emp.satisfaction = Math.min(100, emp.satisfaction + 16);
+    emp.loyalty = Math.min(100, emp.loyalty + 2);
+    if (typeof addEmployeeMemory === "function") addEmployeeMemory(emp, "你安排了一次带薪休整，让他从疲惫里缓了过来。", gameState);
     addChronicleEntry(`☕ ${emp.name} 完成一次带薪休整，状态明显回暖。`);
     saveGame();
     updateStatsUI();
@@ -528,12 +542,17 @@ function researchTech(key) {
 // ==========================================================================
 function triggerRandomEvent() {
     const state = buildEventState(gameState);
-    const pool = eligibleEvents(STUDIO_EVENTS, state);
+    const allEvents = [
+        ...STUDIO_EVENTS,
+        ...((typeof EMPLOYEE_ECOSYSTEM_EVENTS !== "undefined" && Array.isArray(EMPLOYEE_ECOSYSTEM_EVENTS)) ? EMPLOYEE_ECOSYSTEM_EVENTS : [])
+    ];
+    const pool = eligibleEvents(allEvents, state);
     if (!pool.length) return; // 没有符合当前处境的事件就不打扰
 
     const event = pickWeighted(pool, Math.random);
     const targets = selectTargets(event, state, Math.random);
     const ctx = { state, gameState, byRole: targets.byRole, target: targets.target };
+    gameState.dateText = `第 ${gameState.date.year} 年 ${gameState.date.month} 月第 ${gameState.date.week} 周`;
 
     document.getElementById("event-modal").classList.add("active");
     document.getElementById("event-modal-title").innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${resolveTokens(event.title, ctx)}`;
@@ -549,7 +568,12 @@ function triggerRandomEvent() {
             applyEffects(ch.effects, ctx, Math.random);
             document.getElementById("event-modal").classList.remove("active");
             if (ch.feedback) alert(resolveTokens(ch.feedback, ctx));
+            if (ctx.target && ch.effects && ch.effects.targetMemory && typeof addEmployeeMemory === "function") {
+                // applyEffects 已写入记忆；这里仅保证 UI 立即拿到新字段结构。
+                ensureEmployeeVitals(ctx.target);
+            }
             updateStatsUI();
+            if (document.getElementById("nav-office")?.classList.contains("active")) loadOfficeDesks();
             saveGame();
         };
         btnContainer.appendChild(btn);

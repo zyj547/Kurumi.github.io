@@ -143,6 +143,7 @@ function loadOfficeDesks() {
         card.className = emp ? "desk-card employee-card" : "desk-card empty-desk-card";
 
         if (emp) {
+            if (typeof ensureEmployeeVitals === "function") ensureEmployeeVitals(emp);
             let iconClass = "fa-laptop-code";
             let roleName = "程序员";
             if (emp.role === "artist") { roleName = "美术设计师"; iconClass = "fa-palette"; }
@@ -167,6 +168,8 @@ function loadOfficeDesks() {
             }
             const morale = emp.morale == null ? 75 : emp.morale;
             const fatigue = emp.fatigue || 0;
+            const satisfaction = emp.satisfaction == null ? morale : emp.satisfaction;
+            const loyalty = emp.loyalty == null ? (emp.id === "player" ? 100 : 55) : emp.loyalty;
             const efficiency = Math.round(employeeEfficiency(emp) * 100);
             const restCost = Math.max(800, Math.round(emp.salary * 0.6));
 
@@ -217,6 +220,7 @@ function loadOfficeDesks() {
                             ${specialtyTagHtml}
                         </div>
                         <span class="staff-level">${roleName} | 等级 Lv.${emp.level}</span>
+                        ${typeof employeeTagHtml === "function" ? employeeTagHtml(emp) : ""}
                     </div>
                 </div>
                 <div class="staff-skills">
@@ -235,11 +239,18 @@ function loadOfficeDesks() {
                 </div>
                 <div class="staff-condition">
                     <div class="condition-pill ${staffHealthTone(morale)}">心情 ${morale}</div>
+                    <div class="condition-pill ${staffHealthTone(satisfaction)}">情绪 ${Math.round(satisfaction)}</div>
+                    <div class="condition-pill ${staffHealthTone(loyalty)}">忠诚 ${Math.round(loyalty)}</div>
                     <div class="condition-pill ${staffHealthTone(fatigue, true)}">疲劳 ${fatigue}</div>
                     <div class="condition-pill ${staffHealthTone(efficiency)}">效率 ${efficiency}%</div>
                     <div class="condition-pill ${typeof contractTone === "function" ? contractTone(emp) : "good"}">${typeof contractLabel === "function" ? contractLabel(emp) : ""}</div>
                 </div>
                 <div class="staff-actions">
+                    <div class="staff-action-row solo">
+                        <button class="btn-research staff-action-btn memory" onclick="openEmployeeMemory(${i})">
+                            共同记忆
+                        </button>
+                    </div>
                     ${actionButtonHtml}
                 </div>
             `;
@@ -290,6 +301,7 @@ function loadOfficeDesks() {
         `;
         container.appendChild(card);
     }
+    if (typeof renderOfficeTheater === "function") renderOfficeTheater(gameState);
 }
 
 // 渲染作品陈列室
