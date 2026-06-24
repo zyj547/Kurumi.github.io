@@ -81,6 +81,7 @@ function loadOfficeDesks() {
             const satisfaction = emp.satisfaction == null ? morale : emp.satisfaction;
             const loyalty = emp.loyalty == null ? (emp.id === "player" ? 100 : 55) : emp.loyalty;
             const efficiency = Math.round(employeeEfficiency(emp) * 100);
+            const insightChipHtml = typeof employeeInsightChipHtml === "function" ? employeeInsightChipHtml(emp, gameState) : "";
             const fireButtonHtml = i === 0 || emp.id === "player"
                 ? `<button type="button" class="btn-research staff-action-btn founder-lock" disabled><i class="fa-solid fa-crown"></i> 创始人</button>`
                 : `<button type="button" class="btn-research staff-action-btn fire" onclick="fireEmployee(${i})">开除</button>`;
@@ -116,6 +117,7 @@ function loadOfficeDesks() {
                     <div class="condition-pill ${staffHealthTone(fatigue, true)}">疲劳 ${fatigue}</div>
                     <div class="condition-pill ${staffHealthTone(efficiency)}">效率 ${efficiency}%</div>
                     <div class="condition-pill ${typeof contractTone === "function" ? contractTone(emp) : "good"}">${typeof contractLabel === "function" ? contractLabel(emp) : ""}</div>
+                    ${insightChipHtml}
                 </div>
                 <div class="staff-actions" data-card-action-zone>
                     <button type="button" class="btn-research staff-action-btn detail" data-employee-detail="${i}" onclick="openOfficeDeskDetail(${i}); return false;"><i class="fa-solid fa-id-card"></i> 详情</button>
@@ -192,6 +194,8 @@ function openOfficeDeskDetail(idx) {
     const traitText = typeof traitName === "function" ? traitName(emp) : "无";
     const archetypeText = typeof archetypeName === "function" ? archetypeName(emp) : "务实养家型";
     const memoryHtml = typeof employeeMemoryHtml === "function" ? employeeMemoryHtml(emp) : `<div class="memory-empty">还没有共同记忆。</div>`;
+    const insightHtml = typeof employeeInsightHtml === "function" ? employeeInsightHtml(emp, gameState) : "";
+    const storyHtml = typeof employeeStoryProgressHtml === "function" ? employeeStoryProgressHtml(emp) : "";
 
     title.innerHTML = `<i class="fa-solid ${roleMeta.iconClass}"></i> ${escapeHtml(emp.name)} · ${roleMeta.name}`;
     body.innerHTML = `
@@ -223,6 +227,8 @@ function openOfficeDeskDetail(idx) {
             <div><span>效率</span><b>${efficiency}%</b></div>
             <div><span>状态</span><b>${escapeHtml(emp.statusText || "整理任务")}</b></div>
         </div>
+        ${insightHtml}
+        ${storyHtml}
         <div class="candidate-detail-note employee-detail-note">
             <strong>共同记忆</strong>
             <div class="employee-memory-list">${memoryHtml}</div>

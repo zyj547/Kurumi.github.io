@@ -12,6 +12,7 @@
 
     function matchCondition(state, cond) {
         if (!cond) return true;
+        if (cond.excludeRecent && Array.isArray(state.recentEventIds) && state.recentEventIds.includes(cond.excludeRecent)) return false;
         if (cond.minTeam != null && state.team < cond.minTeam) return false;
         if (cond.maxTeam != null && state.team > cond.maxTeam) return false;
         if (cond.requiresRole != null && !((state.roles[cond.requiresRole] || 0) >= 1)) return false;
@@ -33,7 +34,10 @@
     }
 
     function eligibleEvents(events, state) {
-        return events.filter(e => matchCondition(state, e.cond));
+        return events.filter(e => {
+            if (!matchCondition(state, e.cond)) return false;
+            return !(Array.isArray(state.recentEventIds) && state.recentEventIds.includes(e.id));
+        });
     }
 
     function pickWeighted(list, rng) {
@@ -64,6 +68,27 @@
         return pool[Math.floor(rand() * pool.length)];
     }
 
+    function employeeValue(emp, key, fallback) {
+        const v = Number(emp && emp[key]);
+        return Number.isFinite(v) ? v : fallback;
+    }
+
+    function matchTargetCondition(emp, event) {
+        if (!emp) return true;
+        const cond = event.cond || {};
+        const satisfaction = employeeValue(emp, "satisfaction", employeeValue(emp, "morale", 70));
+        const loyalty = employeeValue(emp, "loyalty", emp.id === "player" ? 100 : 55);
+        const fatigue = employeeValue(emp, "fatigue", 0);
+        if (cond.minTargetSatisfaction != null && satisfaction < cond.minTargetSatisfaction) return false;
+        if (cond.maxTargetSatisfaction != null && satisfaction > cond.maxTargetSatisfaction) return false;
+        if (cond.minTargetLoyalty != null && loyalty < cond.minTargetLoyalty) return false;
+        if (cond.maxTargetLoyalty != null && loyalty > cond.maxTargetLoyalty) return false;
+        if (cond.minTargetFatigue != null && fatigue < cond.minTargetFatigue) return false;
+        if (cond.maxTargetFatigue != null && fatigue > cond.maxTargetFatigue) return false;
+        if (cond.targetNotFounder && emp.id === "player") return false;
+        return true;
+    }
+
     function selectTargets(event, state, rng) {
         const text = JSON.stringify([event.title, event.desc, event.choices]);
         const byRole = {};
@@ -74,12 +99,13 @@
         let target = null;
         if (event.targetTrait || (event.cond && event.cond.hasTrait)) {
             const trait = event.targetTrait || event.cond.hasTrait;
-            target = pickMemberBy(state, emp => emp.trait === trait, rng);
+            target = pickMemberBy(state, emp => emp.trait === trait && matchTargetCondition(emp, event), rng);
         } else if (event.targetArchetype || (event.cond && event.cond.hasArchetype)) {
             const archetype = event.targetArchetype || event.cond.hasArchetype;
-            target = pickMemberBy(state, emp => emp.archetype === archetype, rng);
+            target = pickMemberBy(state, emp => emp.archetype === archetype && matchTargetCondition(emp, event), rng);
         } else if (targetRole) {
-            target = (byRole[targetRole] !== undefined) ? byRole[targetRole] : pickMember(state, targetRole, rng);
+            const picked = (byRole[targetRole] !== undefined) ? byRole[targetRole] : pickMember(state, targetRole, rng);
+            target = picked && matchTargetCondition(picked, event) ? picked : pickMemberBy(state, emp => emp.role === targetRole && matchTargetCondition(emp, event), rng);
         }
         return { byRole, target };
     }
@@ -168,9 +194,10 @@
             background: gameState.founderBackground,
             stage: gameState.companyStage || 0,
             projectState: gameState.currentProject ? gameState.currentProject.state : null,
+            recentEventIds: Array.isArray(gameState.recentEventIds) ? gameState.recentEventIds.slice() : [],
             employees: emps
         };
     }
 
-    return { matchCondition, eligibleEvents, pickWeighted, pickMember, selectTargets, resolveTokens, applyEffects, buildEventState };
+    return { matchCondition, eligibleEvents, pickWeighted, pickMember, selectTargets, resolveTokens, applyEffects, buildEventState, matchTargetCondition };
 });

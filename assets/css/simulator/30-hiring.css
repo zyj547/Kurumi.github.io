@@ -300,4 +300,146 @@
             border-color: rgba(255,255,255,0.18);
             color: var(--text-secondary);
         }
+        .interview-brief {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 0.85rem;
+            border-radius: 12px;
+            border: 1px solid rgba(0,240,255,0.14);
+            background: rgba(0,240,255,0.045);
+        }
+        .interview-brief-line {
+            color: var(--text-primary);
+            line-height: 1.55;
+            margin-bottom: 0.55rem;
+        }
+        .interview-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .interview-tags span {
+            padding: 0.18rem 0.5rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.22);
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .interview-story-card {
+            margin: 0.75rem 0;
+            padding: 0.85rem 0.95rem;
+            border-radius: 14px;
+            border: 1px solid rgba(251,191,36,0.18);
+            background:
+                linear-gradient(135deg, rgba(251,191,36,0.07), rgba(124,58,237,0.045)),
+                rgba(0,0,0,0.18);
+            color: rgba(226,232,240,0.78);
+            text-align: left;
+        }
+        .interview-story-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.45rem;
+            color: var(--accent-yellow);
+            font-weight: 900;
+            font-size: 0.82rem;
+        }
+        .interview-story-card p {
+            margin: 0.28rem 0;
+            line-height: 1.55;
+            font-size: 0.8rem;
+        }
+        .interview-story-card strong {
+            display: block;
+            margin-top: 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+        .interview-question {
+            padding: 0.75rem 0.85rem;
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-yellow);
+            background: rgba(251,191,36,0.055);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+        #interview-choices .choice-btn {
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+        #interview-choices .choice-btn span,
+        #interview-choices .choice-btn small {
+            display: block;
+            width: 100%;
+        }
+        #interview-choices .choice-btn small {
+            margin-top: 0.25rem;
+            color: rgba(226,232,240,0.62);
+            font-size: 0.72rem;
+            line-height: 1.35;
+        }
+        .interview-feedback {
+            padding: 0.9rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.035);
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            text-align: left;
+        }
+        .interview-feedback.good {
+            border-color: rgba(0,240,255,0.22);
+            background: rgba(0,240,255,0.055);
+        }
+        .interview-feedback.risk {
+            border-color: rgba(217,70,239,0.26);
+            background: rgba(217,70,239,0.055);
+        }
+        .interview-feedback strong {
+            color: var(--text-primary);
+            line-height: 1.55;
+        }
+        .interview-feedback span {
+            color: var(--accent-yellow);
+            font-weight: 900;
+            font-size: 0.82rem;
+        }
+        .interview-feedback em {
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-style: normal;
+        }
+        .interview-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin: 0.65rem 0 0.75rem;
+        }
+        .interview-summary div {
+            padding: 0.55rem 0.65rem;
+            border-radius: 11px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .interview-summary b {
+            display: block;
+            color: var(--text-primary);
+            font-size: 0.72rem;
+            margin-bottom: 0.2rem;
+        }
+        .interview-summary span {
+            color: var(--accent-neon);
+            font-family: var(--font-title);
+            font-size: 0.82rem;
+            font-weight: 900;
+        }
+        .interview-summary.good div { border-color: rgba(0,240,255,0.16); }
+        .interview-summary.risk div { border-color: rgba(217,70,239,0.18); }
 

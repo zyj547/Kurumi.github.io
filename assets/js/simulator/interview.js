@@ -1,7 +1,7 @@
 // ==========================================================================
 // 面试与谈薪状态机（依赖 interview-calc.js 的纯函数 + 全局 gameState/DOM）
 // ==========================================================================
-let activeInterview = null; // { cand, idx, impression, moraleAdj, expectedSalary, round, scenarioIdx }
+let activeInterview = null; // { cand, idx, impression, moraleAdj, expectedSalary, round, scenarioIdx, scenarios }
 
 function imOpen() { document.getElementById("interview-modal").classList.add("active"); }
 function imClose() { document.getElementById("interview-modal").classList.remove("active"); }
@@ -49,35 +49,52 @@ function startInterview(idx) {
         return;
     }
 
-    activeInterview = { cand, idx, impression: 0, moraleAdj: 0, expectedSalary: cand.expectedSalary, round: 0, scenarioIdx: 0 };
+    const scenarios = typeof buildInterviewScenarioDeck === "function"
+        ? buildInterviewScenarioDeck(cand, arch)
+        : (arch.lines.scenarios || []);
+    activeInterview = { cand, idx, impression: 0, moraleAdj: 0, expectedSalary: cand.expectedSalary, round: 0, scenarioIdx: 0, scenarios };
     imOpen();
-    imRender(`面试 · ${arch.name}`, imPick(arch.lines.intro), [
+    const opening = typeof getInterviewOpening === "function" ? getInterviewOpening(cand, arch, Math.random) : "";
+    imRender(`面试 · ${arch.name}`, `${opening}${imPick(arch.lines.intro)}`, [
         { text: "开始面试 →", action: imScenario }
     ]);
 }
 
-// 阶段 1：情境题（逐题）
+// 阶段 1：故事访谈（逐段）
 function imScenario() {
     const { cand, scenarioIdx } = activeInterview;
     const arch = EMPLOYEE_ARCHETYPES[cand.archetype];
-    const sc = arch.lines.scenarios[scenarioIdx];
+    const sc = activeInterview.scenarios[scenarioIdx];
     if (!sc) { imHaggleStart(); return; }
-    imRender(`情境题 ${scenarioIdx + 1}`, sc.q, sc.choices.map(ch => ({
-        text: ch.text,
+    imRender(sc.title || `故事访谈 ${scenarioIdx + 1}`, `
+        <div class="interview-question">${sc.q}</div>
+        ${typeof interviewSummaryHtml === "function" ? interviewSummaryHtml(activeInterview) : ""}
+    `, sc.choices.map(ch => ({
+        text: `<span>${ch.text}</span><small>${typeof describeInterviewChoice === "function" ? describeInterviewChoice(ch) : ""}</small>`,
         action: () => {
             activeInterview.impression += ch.impression;
             activeInterview.expectedSalary = Math.max(cand.salaryFloor, activeInterview.expectedSalary + ch.expectAdj);
             activeInterview.moraleAdj += ch.moraleAdj;
             activeInterview.scenarioIdx++;
-            imScenario();
+            imScenarioFeedback(ch);
         }
     })));
+}
+
+function imScenarioFeedback(choice) {
+    const done = activeInterview.scenarioIdx >= activeInterview.scenarios.length;
+    const feedback = typeof interviewFeedbackHtml === "function"
+        ? interviewFeedbackHtml(choice, activeInterview)
+        : (choice.vibe || "候选人记下了你的回答。");
+    imRender(done ? "面试小结" : "候选人反应", feedback, [
+        { text: done ? "进入谈薪 →" : "继续下一题 →", action: imScenario }
+    ]);
 }
 
 // 阶段 2：谈薪首轮
 function imHaggleStart() {
     const arch = EMPLOYEE_ARCHETYPES[activeInterview.cand.archetype];
-    imHaggleRound(imPick(arch.lines.haggleFirst));
+    imHaggleRound(`${typeof interviewSummaryHtml === "function" ? interviewSummaryHtml(activeInterview) : ""}${imPick(arch.lines.haggleFirst)}`);
 }
 
 function imHaggleRound(speech) {

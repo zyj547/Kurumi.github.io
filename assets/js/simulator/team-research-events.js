@@ -172,6 +172,7 @@ function openCandidateDetail(idx) {
     const rarity = HIRING_RARITIES[cand.rarity || "R"];
     const { traitObj, traitHTML, arch, archHTML } = getCandidateTagHtml(cand);
     const interviewFee = getInterviewFee(cand, gameState.date.year);
+    const storyHtml = typeof candidateStoryHtml === "function" ? candidateStoryHtml(cand, arch, Math.random) : "";
 
     title.innerHTML = `<i class="fa-solid ${roleMeta.iconClass}"></i> ${escapeHtml(cand.name)} · ${roleMeta.name}`;
     body.innerHTML = `
@@ -202,6 +203,7 @@ function openCandidateDetail(idx) {
             <p><strong>${arch.name}</strong>：${arch.desc}</p>
             ${cand.trait && cand.trait !== "none" ? `<p><strong>${traitObj.name}</strong>：${traitObj.desc}</p>` : ""}
         </div>
+        ${storyHtml}
     `;
     action.onclick = () => startInterviewFromDetail(idx);
     modal.classList.add("active");
@@ -546,7 +548,10 @@ function triggerRandomEvent() {
         ...STUDIO_EVENTS,
         ...((typeof EMPLOYEE_ECOSYSTEM_EVENTS !== "undefined" && Array.isArray(EMPLOYEE_ECOSYSTEM_EVENTS)) ? EMPLOYEE_ECOSYSTEM_EVENTS : [])
     ];
-    const pool = eligibleEvents(allEvents, state);
+    const pool = eligibleEvents(allEvents, state).filter(event => {
+        if (!(event.targetTrait || event.targetArchetype || event.target || event.cond?.requiresRole)) return true;
+        return !!selectTargets(event, state, Math.random).target;
+    });
     if (!pool.length) return; // 没有符合当前处境的事件就不打扰
 
     const event = pickWeighted(pool, Math.random);
@@ -566,6 +571,9 @@ function triggerRandomEvent() {
         btn.innerText = resolveTokens(ch.text, ctx);
         btn.onclick = () => {
             applyEffects(ch.effects, ctx, Math.random);
+            if (!Array.isArray(gameState.recentEventIds)) gameState.recentEventIds = [];
+            gameState.recentEventIds.push(event.id);
+            gameState.recentEventIds = gameState.recentEventIds.slice(-8);
             document.getElementById("event-modal").classList.remove("active");
             if (ch.feedback) alert(resolveTokens(ch.feedback, ctx));
             if (ctx.target && ch.effects && ch.effects.targetMemory && typeof addEmployeeMemory === "function") {
